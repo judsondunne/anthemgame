@@ -289,23 +289,6 @@
     ]
   },
   {
-    "name": "animal-cow",
-    "path": "/assets/models/pets/animal-cow.glb",
-    "source": "https://kenney.nl/assets/cube-pets",
-    "license": "CC0-1.0",
-    "triangles": 578,
-    "clips": [
-      "static",
-      "idle",
-      "walk",
-      "run",
-      "eat",
-      "dance",
-      "gesture-positive",
-      "gesture-negative"
-    ]
-  },
-  {
     "name": "animal-fish",
     "path": "/assets/models/pets/animal-fish.glb",
     "source": "https://kenney.nl/assets/cube-pets",
@@ -393,12 +376,214 @@
   {
     "name": "horse",
     "path": "/assets/models/animals/horse.glb",
-    "source": "https://poly.pizza/m/C39AUXUUes",
+    "source": "https://poly.pizza/m/qvTrSG9pZF",
     "license": "CC0-1.0",
-    "triangles": 610,
+    "triangles": 2182,
     "clips": [
-      "Armature|Idle",
-      "Armature|Jump"
+      "Death",
+      "Eating",
+      "Gallop",
+      "Walk",
+      "Idle_Headlow",
+      "Idle"
     ]
+  },
+  {
+    "name": "cow",
+    "path": "/assets/models/animals/cow.glb",
+    "source": "https://poly.pizza/m/26zM1outCr",
+    "license": "CC0-1.0",
+    "triangles": 2450,
+    "clips": [
+      "Death",
+      "Eating",
+      "Gallop",
+      "Walk",
+      "Idle_Headlow",
+      "Idle"
+    ]
+  },
+  {
+    "name": "bull",
+    "path": "/assets/models/animals/bull.glb",
+    "source": "https://poly.pizza/m/a8PIIYwF7r",
+    "license": "CC0-1.0",
+    "triangles": 2418,
+    "clips": [
+      "Death",
+      "Eating",
+      "Gallop",
+      "Walk",
+      "Idle_Headlow",
+      "Idle"
+    ]
+  },
+  {
+    "name": "bone",
+    "path": "/assets/models/props/bone.glb",
+    "source": "https://poly.pizza/m/uMs0lDp1u3",
+    "license": "CC0-1.0",
+    "triangles": 304,
+    "clips": []
+  },
+  {
+    "name": "ribcage",
+    "path": "/assets/models/props/ribcage.glb",
+    "source": "https://poly.pizza/m/A67un3x9nV",
+    "license": "CC0-1.0",
+    "triangles": 1680,
+    "clips": []
+  },
+  {
+    "name": "crops_leafsStageA",
+    "path": "/assets/models/nature/crops_leafsStageA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 76,
+    "clips": []
+  },
+  {
+    "name": "crops_wheatStageA",
+    "path": "/assets/models/nature/crops_wheatStageA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 720,
+    "clips": []
+  },
+  {
+    "name": "crops_cornStageA",
+    "path": "/assets/models/nature/crops_cornStageA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 100,
+    "clips": []
+  },
+  {
+    "name": "crops_cornStageB",
+    "path": "/assets/models/nature/crops_cornStageB.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 116,
+    "clips": []
+  },
+  {
+    "name": "flower_yellowC",
+    "path": "/assets/models/nature/flower_yellowC.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 78,
+    "clips": []
+  },
+  {
+    "name": "cabbage",
+    "path": "/assets/models/food/cabbage.glb",
+    "source": "https://kenney.nl/assets/food-kit",
+    "license": "CC0-1.0",
+    "triangles": 140,
+    "clips": []
+  },
+  {
+    "name": "carton-small",
+    "path": "/assets/models/food/carton-small.glb",
+    "source": "https://kenney.nl/assets/food-kit",
+    "license": "CC0-1.0",
+    "triangles": 74,
+    "clips": []
+  },
+  {
+    "name": "wall-wood",
+    "path": "/assets/models/town/wall-wood.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 32,
+    "clips": []
+  },
+  {
+    "name": "wall-wood-door",
+    "path": "/assets/models/town/wall-wood-door.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 376,
+    "clips": []
+  },
+  {
+    "name": "wall-wood-detail-cross",
+    "path": "/assets/models/town/wall-wood-detail-cross.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 80,
+    "clips": []
+  },
+  {
+    "name": "wall-wood-window-shutters",
+    "path": "/assets/models/town/wall-wood-window-shutters.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 122,
+    "clips": []
+  },
+  {
+    "name": "wall-wood-half",
+    "path": "/assets/models/town/wall-wood-half.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 32,
+    "clips": []
+  },
+  {
+    "name": "roof-high-gable",
+    "path": "/assets/models/town/roof-high-gable.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 72,
+    "clips": []
+  },
+  {
+    "name": "fence",
+    "path": "/assets/models/town/fence.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 84,
+    "clips": []
+  },
+  {
+    "name": "fence-gate",
+    "path": "/assets/models/town/fence-gate.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 560,
+    "clips": []
+  },
+  {
+    "name": "poles",
+    "path": "/assets/models/town/poles.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 28,
+    "clips": []
+  },
+  {
+    "name": "stall-red",
+    "path": "/assets/models/town/stall-red.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 270,
+    "clips": []
+  },
+  {
+    "name": "cart",
+    "path": "/assets/models/town/cart.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 608,
+    "clips": []
+  },
+  {
+    "name": "hay-bale",
+    "path": "/assets/models/graveyard/hay-bale.glb",
+    "source": "https://kenney.nl/assets/graveyard-kit",
+    "license": "CC0-1.0",
+    "triangles": 180,
+    "clips": []
   }
 ]

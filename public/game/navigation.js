@@ -1,6 +1,6 @@
 "use strict";
 // Navigation uses ground footprints, not the visible tree crowns or roof silhouettes.
-const NAV = { step: 20, left: 210, top: 370, cols: 51, rows: 27 };
+const NAV = { step: 20, left: -60, top: 370, cols: 77, rows: 27 };
 function inPond(x, y, margin = 0) {
   return (
     (x - 999) ** 2 / (151 + margin) ** 2 +
@@ -9,7 +9,7 @@ function inPond(x, y, margin = 0) {
   );
 }
 function walkable(x, y) {
-  if (x < 225 || x > 1190 || y < 410 || y > 890 || inPond(x, y, 20))
+  if (x < -40 || x > 1440 || y < 410 || y > 890 || inPond(x, y, 20))
     return false;
   if (insideBed(x, y, 13)) return false;
   if (x > 508 && x < 785 && y < 493) return false;
@@ -144,14 +144,11 @@ function unprojectGround(x, y) {
     z: (y * Camera3D.xx - x * Camera3D.xy) / det,
   };
 }
+// Beds, coops, barns and stables are placed by the player; the farm layer
+// publishes their logical footprints here so hens path around them.
+const FarmFootprints = [];
 function insideBed(x, y, margin = 0) {
-  return [355, 710].some((cx) => {
-    const p = unprojectGround(x - cx, y - 637);
-    return (
-      p.x > -90 - margin &&
-      p.x < 90 + margin &&
-      p.z > -margin &&
-      p.z < 122 + margin
-    );
-  });
+  for (const r of FarmFootprints)
+    if (x > r.x0 - margin && x < r.x1 + margin && y > r.y0 - margin && y < r.y1 + margin) return true;
+  return false;
 }

@@ -126,7 +126,7 @@ export function assetInfo(name) {
 }
 export function model(
   name,
-  { height, width, sway = false, raw = false, tint } = {},
+  { height, width, sway = false, raw = false, tint, recolor } = {},
 ) {
   const a = cache.get(name);
   if (!a) throw Error("Missing asset " + name);
@@ -144,6 +144,10 @@ export function model(
       if (tint) {
         o.material = o.material.clone();
         o.material.color.multiply(new THREE.Color(tint));
+      }
+      if (recolor && !Array.isArray(o.material) && recolor[o.material.name]) {
+        o.material = o.material.clone();
+        o.material.color.set(recolor[o.material.name]);
       }
     }
   });
@@ -183,4 +187,51 @@ export function play(root, action) {
   if (d.action) a[d.action]?.fadeOut(0.25);
   a[key]?.reset().fadeIn(0.25).play();
   d.action = key;
+}
+
+// Give a model its own material instances so per-animal states can tint it.
+export function ownMaterials(root) {
+  root.traverse((o) => {
+    if (o.isMesh && !o.userData.ownMaterial) {
+      o.material = Array.isArray(o.material) ? o.material.map((m) => m.clone()) : o.material.clone();
+      o.userData.ownMaterial = true;
+      o.userData.baseColors = (Array.isArray(o.material) ? o.material : [o.material]).map((m) => m.color.clone());
+    }
+  });
+}
+
+// Soft tonal shifts from each mesh's original colours: `cream` lightens toward a
+// juvenile cream, `grey` mutes toward a soft grey (used for the dead).
+const CREAM = new THREE.Color("#fff1dc");
+export function softTone(root, cream = 0, grey = 0) {
+  ownMaterials(root);
+  const g = new THREE.Color();
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    (Array.isArray(o.material) ? o.material : [o.material]).forEach((m, i) => {
+      const base = o.userData.baseColors[i];
+      m.color.copy(base).lerp(CREAM, cream);
+      const l = m.color.r * 0.3 + m.color.g * 0.59 + m.color.b * 0.11;
+      g.setRGB(l * 0.92, l * 0.95, l * 0.9);
+      m.color.lerp(g, grey);
+      if (m.map && grey) m.color.multiplyScalar(1 - grey * 0.18);
+    });
+  });
+}
+export const desaturate = (root, amount) => softTone(root, 0, amount);
+
+// Play a clip once and hold its final pose (collapse into the dead pose).
+export function playOnce(root, action) {
+  const d = root.userData,
+    a = d.actions;
+  if (!a) return false;
+  const key = Object.keys(a).find((k) => k === action) || Object.keys(a).find((k) => k.includes(action));
+  if (!key) return false;
+  if (d.action === key) return true;
+  if (d.action) a[d.action]?.fadeOut(0.2);
+  a[key].reset().setLoop(THREE.LoopOnce, 1);
+  a[key].clampWhenFinished = true;
+  a[key].fadeIn(0.2).play();
+  d.action = key;
+  return true;
 }

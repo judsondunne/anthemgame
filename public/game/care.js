@@ -1,15 +1,12 @@
 "use strict";
+// Ambient care from the original garden: affection for hens and pellets for the
+// koi. Feeding and watering animals is handled by the farm simulation.
 function fulfillNeed(n) {
   world.needs = world.needs.filter((x) => x !== n);
-  if (n.target.breed !== undefined && n.kind !== "food")
-    Farm.award(n.target.x, n.target.y - 40, 5);
   if (n.target.koi) feedFish(n.target.x, n.target.y);
-  else if (n.kind === "food") scatterGrain(n.target.x, n.target.y);
-  else if (n.kind === "water" && n.target.breed === undefined)
-    waterPlant(n.target);
   else {
     n.target.pet = 2;
-    burst(n.target.x, n.target.y - 40, n.kind === "water" ? "water" : "heart");
+    burst(n.target.x, n.target.y - 40, "heart");
   }
 }
 function selectTool(tool) {
@@ -22,14 +19,11 @@ function startAudio() {
 }
 addEventListener("keydown", (e) => {
   if (e.altKey || e.ctrlKey || e.metaKey) return;
-  const tools = { 1: "grain", 2: "water", 3: "fish", 4: "pet", Escape: "pet" };
-  if (tools[e.key]) selectTool(tools[e.key]);
   if (e.key.toLowerCase() === "r") {
     YouTubeGarden.desired = true;
     YouTubeGarden.start();
   }
   if (e.key.toLowerCase() === "l") document.querySelector("#music").click();
-  if (e.key.toLowerCase() === "d") toggleDayNight();
   if (e.key.toLowerCase() === "m") {
     AudioGarden.toggle();
     YouTubeGarden.mute();
@@ -55,10 +49,13 @@ window.GameState = {
   rand,
   inPond,
   walkable,
+  nearestWalkable,
   insideBed,
+  FarmFootprints,
+  makeChickenAgent,
+  sendChicken,
   fulfillNeed,
   scatterGrain,
-  waterPlant,
   feedFish,
   burst,
   isNight,

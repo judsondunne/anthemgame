@@ -56,40 +56,32 @@ for (const p of [
 ])
   addScenery("bush", ...p);
 addScenery("coop", world.coop.x, world.coop.y, world.coop.scale);
-for (let i = 0; i < 28; i++) {
-  const p = project3(
-    -72 + (i % 7) * 24,
-    25 + Math.floor((i % 14) / 7) * 65,
-    12,
-  );
-  world.plants.push({
-    x: (i > 13 ? 710 : 355) + p.x,
-    y: 637 + p.y,
-    kind: i % 4,
-    phase: rand() * 7,
-    growth: 1,
-    targetGrowth: 1,
-  });
-}
-for (let i = 0; i < 7; i++)
-  world.chickens.push({
-    x: 450 + rand() * 345,
-    y: 700 + rand() * 125,
-    targetX: 500,
-    targetY: 750,
-    breed: i % 4,
-    phase: rand() * 7,
-    pause: 2 + rand() * 4,
+// Bed flowers and the fixed flock now come from the farm simulation. Consume the
+// same seeded draws they used so every decorative placement stays identical.
+for (let i = 0; i < 28 + 7 * 5; i++) rand();
+let chickenSerial = 0;
+// One visual hen agent for a simulated chicken; behaviour code below drives it.
+function makeChickenAgent(x, y, breed) {
+  return {
+    x,
+    y,
+    targetX: x,
+    targetY: y,
+    breed,
+    phase: Math.random() * 7,
+    pause: 1 + Math.random() * 3,
     dir: 1,
     pet: 0,
     path: [],
     mode: "wander",
     sleeping: false,
-    sleepSlot: i,
+    sleepSlot: chickenSerial++,
     feedUntil: 0,
     wakeDelay: 0,
-    thirst: 25 + rand() * 80,
-  });
+    thirst: 25 + Math.random() * 80,
+    home: world.coop,
+  };
+}
 for (let i = 0; i < 5; i++) {
   let phase = i * 1.25;
   world.koi.push({
@@ -110,42 +102,24 @@ for (let i = 0; i < 18; i++) {
   addScenery("flowers", x, y, 0.6 + rand() * 0.35);
 }
 function isNight() {
+  if (world.externalNight !== undefined) return world.externalNight;
   return world.time > 0.69 || world.time < 0.075;
 }
-function toggleDayNight() {
-  const current = world.timeTween?.to ?? (isNight() ? 0.86 : 0.22);
-  const to = current === 0.86 ? 0.22 : 0.86;
-  world.forcedTime = to;
-  world.timeTween = { from: world.time, to, elapsed: 0, duration: 2.6 };
-  document
-    .querySelector("#daynight")
-    .setAttribute("aria-pressed", String(to === 0.86));
-  document
-    .querySelector("#daynight")
-    .setAttribute(
-      "aria-label",
-      to === 0.86
-        ? "Bring back the morning"
-        : "Settle the garden for the night",
-    );
-  document.body.dataset.night = String(to === 0.86);
-}
+// Game time belongs to the farm simulation, so day/night can no longer be forced.
+function toggleDayNight() {}
 function needTarget() {
   let roll = rand(),
     group =
       roll < 0.58
-        ? world.chickens.filter((b) => !b.sleeping && b.mode !== "napping")
-        : roll < 0.86
-          ? world.plants
-          : [world.koiTarget];
+        ? world.chickens.filter((b) => !b.sleeping && !b.dead && !b.juvenile && b.mode !== "napping")
+        : [world.koiTarget];
   const eligible = (t) =>
     !world.needs.some(
       (n) =>
         n.target === t || Math.hypot(n.target.x - t.x, n.target.y - t.y) < 70,
     );
   let available = group.filter(eligible);
-  if (!available.length)
-    available = [...world.plants, world.koiTarget].filter(eligible);
+  if (!available.length) available = [world.koiTarget].filter(eligible);
   return available[Math.floor(rand() * available.length)];
 }
 function makeNeed() {
@@ -154,11 +128,9 @@ function makeNeed() {
   if (target)
     world.needs.push({
       target,
-      kind: target.koi
-        ? "food"
-        : target.breed !== undefined
-          ? ["heart", "food", "water"][Math.floor(rand() * 3)]
-          : "water",
+      // Ambient care only: affection for hens, pellets for the koi. Food and
+      // water requests come from the simulation's real need clocks.
+      kind: target.koi ? "food" : "heart",
       born: world.elapsed,
     });
 }
@@ -173,7 +145,7 @@ function burst(x, y, kind = "heart") {
       kind,
       size: 3 + rand() * 4,
     });
-  AudioGarden.chime();
+  if (kind === "heart" || kind === "water" || kind === "grain") AudioGarden.chime();
 }
 function scatterGrain(x, y) {
   if (isNight() || !walkable(x, y)) return false;
@@ -193,7 +165,7 @@ function scatterGrain(x, y) {
     world.food.push({ ...p, life: 32 });
   }
   world.chickens.forEach((b, i) => {
-    if (b.sleeping) return;
+    if (b.sleeping || b.dead) return;
     let p = nearestWalkable(
       x + Math.cos((i * Math.PI * 2) / 7) * 52,
       y + Math.sin((i * Math.PI * 2) / 7) * 34,
@@ -250,7 +222,8 @@ function moveChicken(b, dt, speed) {
 }
 function bedtime(b) {
   b.feedUntil = 0;
-  sendChicken(b, world.coop.approach.x, world.coop.approach.y, "returning");
+  const home = b.home ?? world.coop;
+  sendChicken(b, home.approach.x, home.approach.y, "returning");
   b.homeStage = "approach";
 }
 function update(dt) {
@@ -263,7 +236,8 @@ function update(dt) {
       v = u * u * (3 - 2 * u);
     world.time = tw.from + (tw.to - tw.from) * v;
     if (u === 1) world.timeTween = null;
-  } else world.time = world.forcedTime ?? (0.22 + world.elapsed / 440) % 1;
+  } else if (world.externalTime !== undefined) world.time = world.externalTime;
+  else world.time = world.forcedTime ?? (0.22 + world.elapsed / 440) % 1;
   const night = isNight();
   if (night !== world.wasNight) {
     world.wasNight = night;
@@ -280,13 +254,15 @@ function update(dt) {
     world.needs = [];
     world.food = [];
     world.chickens.forEach((b, i) => {
+      if (b.dead) return;
       if (night) bedtime(b);
       else {
+        const home = b.home ?? world.coop;
         b.sleeping = false;
         b.mode = "waking";
         b.wakeDelay = i * 0.42;
-        b.x = world.coop.door.x;
-        b.y = world.coop.door.y;
+        b.x = home.door.x;
+        b.y = home.door.y;
         b.path = [];
         b.pause = 0;
       }
@@ -321,12 +297,12 @@ function update(dt) {
   for (const [i, b] of world.chickens.entries()) {
     b.pet = Math.max(0, b.pet - dt);
     b.pause -= dt;
-    if (b.sleeping) continue;
+    if (b.sleeping || b.dead) continue;
     if (night) {
       if (b.mode !== "returning") bedtime(b);
       if (!moveChicken(b, dt, 80)) {
         if (b.homeStage === "approach") {
-          b.path = [{ ...world.coop.door }];
+          b.path = [{ ...(b.home ?? world.coop).door }];
           b.homeStage = "enter";
         } else {
           b.sleeping = true;
@@ -337,7 +313,8 @@ function update(dt) {
       continue;
     }
     b.thirst = (b.thirst ?? 60) - dt;
-    if (b.mode === "wander" && b.thirst <= 0) {
+    // Ambient pond sips only for contented hens; a thirsty hen waits for the can.
+    if (b.mode === "wander" && b.thirst <= 0 && !b.simThirsty) {
       const spots = [
         { x: 930, y: 715 },
         { x: 980, y: 715 },
@@ -375,7 +352,7 @@ function update(dt) {
       if (b.wakeDelay > 0) continue;
       if (!b.path.length) {
         b.path = [
-          { x: world.coop.approach.x + i * 4, y: world.coop.approach.y + 5 },
+          { x: (b.home ?? world.coop).approach.x + (i % 6) * 4, y: (b.home ?? world.coop).approach.y + 5 },
         ];
         b.mode = "exiting";
       }
@@ -403,7 +380,7 @@ function update(dt) {
     }
     // Soft separation prevents a feeding group from occupying a single point.
     for (const other of world.chickens) {
-      if (other === b || other.sleeping) continue;
+      if (other === b || other.sleeping || other.dead) continue;
       let dx = b.x - other.x,
         dy = b.y - other.y,
         d = Math.hypot(dx, dy);

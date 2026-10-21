@@ -132,6 +132,24 @@ const AudioGarden = {
       this.note(f, this.ctx.currentTime + i * 0.09, 1.6, 0.12, this.master),
     );
   },
+  // Soft one-shot cues for the economy layer; all route through the master gain.
+  blip(freqs, gap, duration, volume) {
+    if (!this.ctx || this.muted || document.hidden) return;
+    const t = this.ctx.currentTime;
+    freqs.forEach((f, i) => this.note(f, t + i * gap, duration, volume, this.master));
+  },
+  coin() {
+    this.blip([1318.5, 1760], 0.06, 0.45, 0.05);
+  },
+  pop() {
+    this.blip([659.25, 987.77], 0.05, 0.35, 0.045);
+  },
+  soft() {
+    this.blip([220, 196], 0.08, 0.3, 0.05);
+  },
+  fanfare() {
+    this.blip([523.25, 659.25, 783.99, 1046.5, 1318.5], 0.11, 1.8, 0.075);
+  },
   toggle() {
     this.muted = !this.muted;
     if (this.master)

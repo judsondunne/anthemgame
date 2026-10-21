@@ -14,8 +14,24 @@ import {
   duskUniform,
   assetInfo,
 } from "./assets.js";
+import { building } from "./src/render/kit.js";
+import { createFarmLayer } from "./src/render/farm-layer.js";
+import { createAnimalRenderer } from "./src/render/animals.js";
+import { Game } from "./src/game/controller.js";
+import { createBridge } from "./src/game/bridge.js";
+import { createInput } from "./src/game/input.js";
+import { createHud } from "./src/ui/hud.js";
+import { createShop } from "./src/ui/shop.js";
+import { createBubbles } from "./src/ui/bubbles.js";
+import { createJuice } from "./src/ui/juice.js";
+import { ICONS, itemIcon } from "./src/ui/icons.js";
+import * as Sim from "./src/sim/index.js";
+import "./src/ui/ui.css";
 const G = window.GameState,
   { world, Farm, view, params } = G;
+// The farm save loads (local + server) while the models download.
+const game = new Game(params);
+const loadingGame = game.load();
 const canvas = document.querySelector("canvas");
 const renderer = new THREE.WebGLRenderer({
   canvas,
@@ -58,17 +74,23 @@ const lantern = new THREE.PointLight("#ffc777", 0, 9, 1.7);
 scene.add(lantern);
 const windows = [];
 const windowLights = [];
+let farmLayer = null;
 for (const [x, y] of [
   [630, 463],
   [320, 820],
-  [-190, 548],
-  [1590, 548],
 ]) {
   const l = new THREE.PointLight("#ffd393", 0, 4, 2);
   l.position.set((x - 700) / 50, 1.15, ((y - 650) * 1.65) / 50);
   scene.add(l);
   windowLights.push(l);
 }
+// A fixed pool for player buildings, so placing one never recompiles shaders.
+const buildingLights = Array.from({ length: 6 }, () => {
+  const l = new THREE.PointLight("#ffd393", 0, 4.5, 2);
+  l.position.set(0, -50, 0);
+  scene.add(l);
+  return l;
+});
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(
@@ -109,145 +131,15 @@ function place(o, x, y, h = 0) {
   root.add(o);
   return o;
 }
-function piece(name, parent, x, y, z, sx = 1, sy = sx, sz = sx, rot = 0) {
-  const o = model(name, { raw: true });
-  o.position.set(x, y, z);
-  o.scale.set(sx, sy, sz);
-  o.rotation.y = rot;
-  parent.add(o);
-  return o;
-}
 await loadAssets();
-// Every architectural component below is a downloaded GLB module. No generated building meshes.
-function building(x, y, { scale = 1, coop = false, barn = false } = {}) {
-  const b = new THREE.Group();
-  place(b, x, y);
-  b.scale.setScalar(scale);
-  const unit = 1.7,
-    cols = 3,
-    front = 0,
-    back = -3.4;
-  for (let i = 0; i < cols; i++) {
-    const px = (i - 1) * unit;
-    piece(
-      i === 1 ? "wall-door" : "wall-window-shutters",
-      b,
-      px,
-      0,
-      -0.85,
-      unit,
-      2.35,
-      unit,
-      -Math.PI / 2,
-    );
-    piece("wall", b, px, 0, back + 0.85, unit, 2.35, unit, Math.PI / 2);
-  }
-  piece("roof-gable-detail", b, 0, 2.35, back / 2, 3.4, 2.5, 5.1, Math.PI / 2);
-  for (let j = 0; j < 2; j++)
-    for (const side of [-1, 1])
-      piece(
-        j === 0 ? "wall-window-glass" : "wall",
-        b,
-        side * 1.7,
-        0,
-        -0.85 - j * 1.7,
-        unit,
-        2.35,
-        unit,
-        side === 1 ? 0 : Math.PI,
-      );
-  // Porch decking, posts and pitched canopy, all from the same pack.
-  if (!barn) {
-    for (let i = -1; i <= 1; i++)
-      piece("planks", b, i * 1.7, 0.02, 0.65, 1.7, 0.9, 1.4);
-    for (const px of [-2.25, 2.25])
-      piece("pillar-wood", b, px, 0.04, 1.18, 1.1, 1.5, 1.1);
-    piece("roof-gable", b, 0, 1.5, 0.85, 0.82, 0.5, 5.1, Math.PI / 2);
-    piece("stairs-wood", b, 0, -0.02, 1.6, 0.55, 0.2, 1.3, Math.PI / 2);
-    for (const px of [-1.75, 1.75])
-      piece(
-        "balcony-wall-fence",
-        b,
-        px,
-        0.05,
-        1.13,
-        1,
-        0.65,
-        1.1,
-        -Math.PI / 2,
-      );
-  }
-  piece("chimney", b, 1.15, 2.6, -2.2, 1.2, 1.45, 1.2);
-  if (!coop && !barn) {
-    // Bay and ornamental gable crosswork reuse authentic downloaded wall modules.
-    piece(
-      "wall-window-glass",
-      b,
-      -1.65,
-      0.7,
-      0.05,
-      0.7,
-      1.25,
-      0.8,
-      -Math.PI / 2,
-    );
-    piece(
-      "wall-window-glass",
-      b,
-      -2.05,
-      0.7,
-      -0.1,
-      0.65,
-      1.25,
-      0.55,
-      -Math.PI * 0.75,
-    );
-    piece(
-      "wall-window-glass",
-      b,
-      -1.25,
-      0.7,
-      -0.1,
-      0.65,
-      1.25,
-      0.55,
-      -Math.PI * 0.25,
-    );
-    piece(
-      "roof-gable-detail",
-      b,
-      -1.65,
-      1.95,
-      0.15,
-      0.9,
-      0.55,
-      1.35,
-      Math.PI / 2,
-    );
-    for (const px of [-1.25, 1.25])
-      piece(
-        "wall-detail-cross",
-        b,
-        px,
-        2.36,
-        -0.84,
-        0.5,
-        0.4,
-        0.65,
-        -Math.PI / 2,
-      );
-    piece("wall-window-round", b, 0, 1.55, -0.8, 1.2, 1.1, 1.2, -Math.PI / 2);
-  }
-  const l = piece("lantern", b, 1.75, 0.45, 0.5, 0.7, 0.8, 0.7);
-  windows.push(l);
-  return b;
-}
-const house = building(630, 460, { scale: 1.03 }),
-  coop = building(320, 818, { scale: 0.65, coop: true });
-for (const p of Farm.pastures)
-  building(p.barn, 545, { scale: 1.1, barn: true });
+// Every architectural component below is a downloaded GLB module (see kit.js).
+const house = place(building({}, windows), 630, 460);
+house.scale.setScalar(1.03);
+const coop = place(building({ coop: true }, windows), 320, 818);
+coop.scale.setScalar(0.65);
 lantern.position.copy(logical(715, 476, 1.8));
-// Local clock is expressed in hours at the interface; existing simulation retains its normalized cycle.
+// Hours come from the farm simulation's monotonic game time (5 min day + 5 min night);
+// the original normalized cycle is still published for the behaviour scripts.
 function hourToTime(h) {
   return h < 6
     ? (h / 6) * 0.075
@@ -256,19 +148,22 @@ function hourToTime(h) {
       : 0.69 + ((h - 20) / 4) * 0.31;
 }
 function clockHour() {
-  const t = world.time;
-  return t < 0.075
-    ? (t / 0.075) * 6
-    : t <= 0.69
-      ? 6 + ((t - 0.075) / 0.615) * 14
-      : 20 + ((t - 0.69) / 0.31) * 4;
+  return Sim.clock.hourAt(game.state.time);
 }
+function publishClock() {
+  const c = game.clock;
+  world.externalTime = hourToTime(c.hour);
+  world.externalNight = c.night;
+  world.time = world.externalTime;
+}
+// Test hook: jump forward (never back) to an hour of the game day.
 function setHour(h) {
-  world.forcedTime = hourToTime(h);
-  world.time = world.forcedTime;
-  world.timeTween = null;
+  Sim.advanceToHour(game.state, h, { offline: true });
+  Sim.drainEvents(game.state);
+  publishClock();
 }
-if (params.has("time")) setHour(Number(params.get("time")));
+await loadingGame;
+publishClock();
 // Continuous ground and painted path/pond floor are allowed ground shader geometry.
 const groundMat = new THREE.MeshStandardMaterial({
   color: palette.grass,
@@ -323,48 +218,7 @@ for (const s of world.scenery) {
     for (let j = -1; j <= 1; j++)
       place(model("fence_simple", { width: 1.5 }), s.x + j * 72, s.y);
 }
-for (const cx of [355, 710]) {
-  const bed = place(
-    model("crops_dirtDoubleRow", { width: 3.8 }),
-    cx,
-    660,
-    0.01,
-  );
-  bed.scale.z *= 1.1;
-  for (let j = 0; j < 3; j++)
-    place(
-      model("log", { width: 0.25 }),
-      cx - 100 + j * 100,
-      691,
-      0.06,
-    ).rotation.y = Math.PI / 2;
-}
-const plants = world.plants.map((p) => {
-  const o = place(
-    model(
-      ["flower_purpleA", "flower_redA", "flower_yellowA", "flower_purpleB"][
-        p.kind
-      ],
-      { height: 0.65, sway: true },
-    ),
-    p.x,
-    p.y,
-    0.08,
-  );
-  o.userData.target = p;
-  return o;
-});
-for (let i = 0; i < 8; i++) {
-  place(
-    model(i % 2 ? "crops_leafsStageB" : "crops_wheatStageB", {
-      height: 0.55,
-      sway: true,
-    }),
-    i < 4 ? 300 + i * 28 : 650 + (i - 4) * 28,
-    685,
-    0.06,
-  );
-}
+// Garden beds and their crops are placed by the player (farm-layer.js).
 for (let i = 0; i < 25; i++) {
   const y = 505 + i * 16,
     x = 620 + Math.sin(i * 0.35) * 23;
@@ -409,8 +263,9 @@ for (const p of Farm.pastures) {
   ])
     place(
       model("tree_detailed", { height: 3.7, sway: true }),
-      Math.abs(p.x + dx - p.barn) < 210
-        ? p.barn + (p.kind === "cow" ? -250 : 250)
+      // Positions keep the clearings the original fixed barns left.
+      Math.abs(p.x + dx - (p.kind === "cow" ? -190 : 1590)) < 210
+        ? (p.kind === "cow" ? -190 : 1590) + (p.kind === "cow" ? -250 : 250)
         : p.x + dx,
       y,
     );
@@ -430,10 +285,11 @@ for (const [x, y] of [
   place(model("pot_small", { height: 0.4 }), x, y);
   place(model("flower_redA", { height: 0.6, sway: true }), x, y, 0.3);
 }
-// Layered borders reuse the same downloaded botanical family.
+// Layered borders reuse the same downloaded botanical family. They form the
+// hedge between the farm land and the two pastures.
 for (let i = 0; i < 75; i++) {
   const side = i % 2 ? -1 : 1,
-    x = 700 + side * (570 + G.rand() * 80),
+    x = 700 + side * (765 + G.rand() * 25),
     y = 440 + G.rand() * 470;
   if (G.inPond(x, y, 15)) continue;
   place(
@@ -479,6 +335,8 @@ const waterUniforms = {
   uTime: windTime,
   uNight: { value: 0 },
   uSun: { value: new THREE.Vector3() },
+  uMoon: { value: new THREE.Vector3(0, 1, 0) },
+  uGold: { value: 0 },
   uRipples: {
     value: Array.from({ length: 8 }, () => new THREE.Vector4(0, 0, -100, 0)),
   },
@@ -489,12 +347,15 @@ const waterMat = new THREE.ShaderMaterial({
   uniforms: waterUniforms,
   vertexShader:
     "varying vec2 vUv;varying vec3 vPos;void main(){vUv=uv;vPos=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(vPos,1.);}",
-  fragmentShader: `uniform float uTime;uniform float uNight;uniform vec3 uSun;uniform vec4 uRipples[8];varying vec2 vUv;varying vec3 vPos;
+  fragmentShader: `uniform float uTime;uniform float uNight;uniform vec3 uSun;uniform vec3 uMoon;uniform float uGold;uniform vec4 uRipples[8];varying vec2 vUv;varying vec3 vPos;
 void main(){vec2 p=(vUv-.5)*2.;float a=atan(p.y,p.x);float edge=1.+.035*sin(a*5.)+.025*cos(a*3.);float d=length(p)/edge;if(d>1.)discard;
 float rip=sin(vPos.x*6.+uTime*.8+sin(vPos.z*4.+uTime*.5))*.5+.5;float lines=pow(rip,18.);
 for(int i=0;i<8;i++){float age=uTime-uRipples[i].z;float rr=length(vPos.xz-uRipples[i].xy);if(age>0.&&age<3.)lines+=exp(-pow((rr-age*.7)*18.,2.))*(1.-age/3.)*.8;}
 vec3 c=mix(vec3(.43,.67,.59),vec3(.12,.36,.37),smoothstep(.0,1.,1.-d));c+=lines*.065;
-float shine=pow(max(0.,sin(vPos.x*2.8+vPos.z*3.1+uTime*.7)),35.);c+=shine*vec3(.26,.24,.13);c=mix(c,c*vec3(.45,.66,.88),uNight*.88);float shore=smoothstep(1.,.82,d);gl_FragColor=vec4(c,.28+shore*.24);}`,
+float shine=pow(max(0.,sin(vPos.x*2.8+vPos.z*3.1+uTime*.7)),35.);c+=shine*vec3(.26,.24,.13);c=mix(c,c*vec3(.45,.66,.88),uNight*.88);
+vec2 wv=vec2(sin(vPos.x*5.+uTime*1.1+sin(vPos.z*3.)),cos(vPos.z*6.-uTime*.9));vec3 nrm=normalize(vec3(wv.x*.09,1.,wv.y*.09));vec3 refl=reflect(normalize(vec3(-.142,-.709,-.695)),nrm);
+vec3 mDir=normalize(vec3(uMoon.x,max(.15,uMoon.y),-abs(uMoon.z)));vec3 sDir=normalize(vec3(uSun.x,max(.15,uSun.y),-abs(uSun.z)));
+c+=vec3(.86,.91,1.)*pow(max(0.,dot(refl,mDir)),180.)*uNight*1.3+vec3(1.,.8,.52)*pow(max(0.,dot(refl,sDir)),140.)*(1.-uNight)*(.25+uGold*.9);float shore=smoothstep(1.,.82,d);gl_FragColor=vec4(c,.28+shore*.24);}`,
 });
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(6.1, 4.8),
@@ -524,8 +385,9 @@ root.add(water);
 // Only grass blades use generated mesh geometry; the instanced meadow bends around hens.
 let grass;
 const henUniform = {
-  value: Array.from({ length: 7 }, () => new THREE.Vector3(999, 0, 999)),
+  value: Array.from({ length: 12 }, () => new THREE.Vector3(999, 0, 999)),
 };
+const hideUniform = { value: Array.from({ length: 24 }, () => new THREE.Vector4(0, 0, 0, 0)) };
 const grassMat = new THREE.MeshStandardMaterial({
   color: "#91ab70",
   side: THREE.DoubleSide,
@@ -534,14 +396,16 @@ const grassMat = new THREE.MeshStandardMaterial({
 grassMat.onBeforeCompile = (s) => {
   s.uniforms.uTime = windTime;
   s.uniforms.uHens = henUniform;
+  s.uniforms.uHide = hideUniform;
   s.vertexShader =
-    "uniform float uTime;uniform vec3 uHens[7];varying float vTip;\n" +
+    "uniform float uTime;uniform vec3 uHens[12];uniform vec4 uHide[24];varying float vTip;\n" +
     s.vertexShader;
   s.vertexShader = s.vertexShader.replace(
     "#include <begin_vertex>",
     `#include <begin_vertex>
  vTip=uv.y;vec3 anchor=(instanceMatrix*vec4(0.,0.,0.,1.)).xyz;float gust=sin(anchor.x*.7+anchor.z*.42+uTime*1.3)+.35*sin(anchor.x*1.9-uTime*2.2);transformed.x+=gust*uv.y*uv.y*.10;
- for(int i=0;i<7;i++){vec2 delta=anchor.xz-uHens[i].xz;float d=length(delta);if(d<.7&&d>.001)transformed.xz+=delta/d*(.7-d)*uv.y*.65;}`,
+ for(int i=0;i<12;i++){vec2 delta=anchor.xz-uHens[i].xz;float d=length(delta);if(d<.7&&d>.001)transformed.xz+=delta/d*(.7-d)*uv.y*.65;}
+ for(int i=0;i<24;i++){vec4 r=uHide[i];if(anchor.x>r.x&&anchor.x<r.z&&anchor.z>r.y&&anchor.z<r.w)transformed*=0.;}`,
   );
   s.fragmentShader = "varying float vTip;\n" + s.fragmentShader;
   s.fragmentShader = s.fragmentShader.replace(
@@ -625,36 +489,9 @@ for (const [material, meshes] of staticBatches) {
   }
   for (const g of geometries) g.dispose();
 }
-// Animated model instances. SkeletonUtils preserves separate skeletons for every clone.
-const animalObjects = new Map(),
-  pickables = [];
-function addAnimal(a, type, height) {
-  const o = place(
-    model(type, {
-      height,
-      tint:
-        type === "chicken"
-          ? ["#fff5de", "#d4ab86", "#8b9690", "#e4d1a7"][a.breed ?? 0]
-          : undefined,
-    }),
-    a.x,
-    a.y,
-  );
-  o.userData.target = a;
-  o.userData.type = type;
-  animalObjects.set(a, o);
-  pickables.push(o);
-  return o;
-}
-world.chickens.forEach((a) => addAnimal(a, "chicken", 0.7));
-world.koi.forEach((a) => addAnimal(a, "animal-fish", 0.48));
-Farm.animals.forEach((a) =>
-  addAnimal(
-    a,
-    a.kind === "cow" ? "animal-cow" : "horse",
-    a.kind === "cow" ? 1.1 : 1.6,
-  ),
-);
+// Animated model instances live in their own group (never batched).
+const dynamicRoot = new THREE.Group();
+scene.add(dynamicRoot);
 const bees = [];
 for (let i = 0; i < 5; i++) {
   const o = place(model("animal-bee", { width: 0.2 }), 350 + i * 145, 600, 1.3);
@@ -667,7 +504,6 @@ for (let i = 0; i < 7; i++) {
   root.add(o);
   birds.push(o);
 }
-const eggObjects = new Map();
 let lastGooseCycle = -1;
 
 // Allowed sky dome shader with clouds, sun/moon discs and stars.
@@ -679,11 +515,13 @@ const skyMat = new THREE.ShaderMaterial({
     uHour: { value: 12 },
     uNight: { value: 0 },
     uSun: { value: new THREE.Vector3(-0.4, 0.6, -0.8) },
+    uMoon: { value: new THREE.Vector3(-0.5, 0.7, -0.6) },
+    uGold: { value: 0 },
   },
   vertexShader:
     "varying vec3 vDir;void main(){vDir=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
-  fragmentShader: `uniform float uTime;uniform float uHour;uniform float uNight;uniform vec3 uSun;varying vec3 vDir;
-float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}void main(){vec3 d=normalize(vDir);float h=max(0.,d.y);float gold=exp(-pow((uHour-18.)/1.6,2.));vec3 top=mix(vec3(.57,.73,.76),vec3(.62,.47,.50),gold);vec3 horizon=mix(vec3(.85,.87,.71),vec3(.97,.71,.48),gold);vec3 c=mix(horizon,top,pow(h,.5));c=mix(c,mix(vec3(.20,.29,.41),vec3(.045,.09,.20),h),uNight);float disc=dot(d,normalize(uSun));c+=vec3(1.,.75,.35)*pow(max(0.,disc),700.)*(1.-uNight);c+=vec3(.7,.78,.91)*pow(max(0.,dot(d,normalize(vec3(-.5,.7,-.6)))),1900.)*uNight;
+  fragmentShader: `uniform float uTime;uniform float uHour;uniform float uNight;uniform vec3 uSun;uniform vec3 uMoon;uniform float uGold;varying vec3 vDir;
+float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}void main(){vec3 d=normalize(vDir);float h=max(0.,d.y);float gold=uGold;vec3 top=mix(vec3(.57,.73,.76),vec3(.62,.47,.50),gold);vec3 horizon=mix(vec3(.85,.87,.71),vec3(.97,.71,.48),gold);vec3 c=mix(horizon,top,pow(h,.5));c=mix(c,mix(vec3(.20,.29,.41),vec3(.045,.09,.20),h),uNight);float disc=dot(d,normalize(uSun));c+=vec3(1.,.75,.35)*pow(max(0.,disc),700.)*(1.-uNight);float md=max(0.,dot(d,normalize(uMoon)));c+=vec3(.78,.84,.95)*(pow(md,1900.)+pow(md,90.)*.08)*uNight;
 vec3 cell=floor(d*220.);float stars=step(.9975,hash(cell))*pow(max(0.,sin(uTime*.4+hash(cell)*8.)),.3);c+=stars*uNight*smoothstep(.1,.4,h)*.65;
 float cl=sin(d.x*16.+uTime*.012+sin(d.z*11.))*sin(d.z*21.+uTime*.015);float cloud=smoothstep(.32,.75,cl)*smoothstep(.0,.2,h)*(1.-smoothstep(.5,.85,h));c=mix(c,vec3(.96,.93,.82)*(1.-uNight*.88),cloud*.3);gl_FragColor=vec4(c,1.);}`,
 });
@@ -714,37 +552,57 @@ const particles = new THREE.Points(pg, pm);
 particles.frustumCulled = false;
 scene.add(particles);
 let currentNight = 0;
+const tone = (hex) => new THREE.Color(hex);
+const LIGHT = {
+  hemiDay: tone("#fff1d3"), hemiGold: tone("#ffd9b4"), hemiNight: tone("#a4bce0"),
+  groundDay: tone("#697e50"), groundNight: tone("#596b7d"),
+  sunDay: tone("#fff0d4"), sunDusk: tone("#ffc487"), sunDawn: tone("#ffd1a4"),
+  fogDay: tone("#b6c9b0"), fogDusk: tone("#c7b09a"), fogDawn: tone("#cdbbb6"), fogNight: tone("#344a65"),
+};
+const mix = new THREE.Color();
+moon.target.position.set(0, 0, 0);
+scene.add(moon.target);
+// Sun arcs across the day phase and sets at dusk; the moon rises at dusk and
+// crosses the night. Dawn and dusk both blend through golden light.
 function lighting() {
   const h = clockHour(),
-    night =
-      THREE.MathUtils.smoothstep(h, 18.4, 21) * (h > 12 ? 1 : 0) +
-      (h < 6 ? 1 : 0),
-    gold = Math.exp(-(((h - 18) / 1.7) ** 2));
+    S = THREE.MathUtils.smoothstep;
+  const night = h >= 12 ? S(h, 18.4, 21) : 1 - S(h, 4.6, 6.5);
+  const dusk = Math.exp(-(((h - 18) / 1.7) ** 2)),
+    dawn = 0.8 * Math.exp(-(((h - 6.3) / 0.9) ** 2)),
+    gold = Math.max(dusk, dawn),
+    morning = dawn > dusk;
   currentNight = night;
   duskUniform.value = night;
+  const pan = Farm.pan / 50;
+  const sunAngle = ((h - 6) / 14) * Math.PI;
+  sun.position.set(-Math.cos(sunAngle) * 22 + pan, Math.max(3, Math.sin(sunAngle) * 26), 12);
+  sun.target.position.set(pan, 0, 0);
+  const moonAngle = (((h >= 20 ? h - 20 : h + 4) % 24) / 10) * Math.PI;
+  const moonHigh = Math.max(0, Math.sin(moonAngle));
+  moon.position.set(-Math.cos(moonAngle) * 20 + pan, Math.max(4, moonHigh * 24), 10);
+  moon.target.position.set(pan, 0, 0);
   hemi.intensity = 1.12 - night * 0.42;
-  hemi.color.set(night > 0.5 ? "#a4bce0" : "#fff1d3");
-  hemi.groundColor.set(night > 0.5 ? "#596b7d" : "#697e50");
+  hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.55).lerp(LIGHT.hemiNight, night);
+  hemi.groundColor.copy(LIGHT.groundDay).lerp(LIGHT.groundNight, night);
   sun.intensity = (3.1 + gold * 0.65) * (1 - night);
-  sun.color.set(gold > 0.25 ? "#ffc487" : "#fff0d4");
-  const angle = ((h - 6) / 14) * Math.PI;
-  sun.position.set(
-    -Math.cos(angle) * 22 + Farm.pan / 50,
-    Math.max(3, Math.sin(angle) * 26),
-    12,
-  );
-  sun.target.position.set(Farm.pan / 50, 0, 0);
-  moon.intensity = night * 0.85;
+  sun.color.copy(LIGHT.sunDay).lerp(morning ? LIGHT.sunDawn : LIGHT.sunDusk, S(gold, 0.12, 0.45));
+  moon.intensity = night * (0.6 + 0.3 * moonHigh);
   lantern.intensity = night * (7 + Math.sin(world.elapsed * 5) * 0.2);
   for (const l of windowLights) l.intensity = night * 2.2;
+  farmLayer?.lightsAtNight(night);
   renderer.toneMappingExposure = 1.12 + night * 0.12;
-  scene.fog.color.set(
-    night > 0.5 ? "#344a65" : gold > 0.3 ? "#c7b09a" : "#b6c9b0",
-  );
+  mix.copy(LIGHT.fogDay).lerp(morning ? LIGHT.fogDawn : LIGHT.fogDusk, S(gold, 0.2, 0.6)).lerp(LIGHT.fogNight, S(night, 0.25, 0.75));
+  scene.fog.color.copy(mix);
   skyMat.uniforms.uHour.value = h;
   skyMat.uniforms.uNight.value = night;
-  skyMat.uniforms.uSun.value.copy(sun.position).normalize();
+  skyMat.uniforms.uGold.value = gold;
+  skyMat.uniforms.uSun.value.copy(sun.position).sub(sun.target.position).normalize();
+  skyMat.uniforms.uMoon.value.copy(moon.position).sub(moon.target.position).normalize();
   waterUniforms.uNight.value = night;
+  waterUniforms.uGold.value = gold;
+  waterUniforms.uSun.value.copy(skyMat.uniforms.uSun.value);
+  waterUniforms.uMoon.value.copy(skyMat.uniforms.uMoon.value);
   grade.uniforms.warm.value = gold;
   for (const l of windows)
     l.traverse((m) => {
@@ -788,6 +646,7 @@ function cameraUpdate() {
   if (close === "house") focus.copy(logical(630, 440, 1));
   else if (close === "pond") focus.copy(logical(999, 626, 0.1));
   else if (close === "chickens") focus.copy(logical(620, 760, 0.3));
+  else if (/^-?\d+,\d+$/.test(close ?? "")) focus.copy(logical(...close.split(",").map(Number), 0.3));
   else focus.set(Farm.pan / 50, 0, -0.5);
   camera.position.copy(focus).add(new THREE.Vector3(5, 25, 24.5));
   camera.lookAt(focus);
@@ -800,178 +659,6 @@ function screen(x, y, height = 0) {
     y: (-0.5 * projection.y + 0.5) * innerHeight,
   };
 }
-const needEls = new Map(),
-  iconPaths = {
-    heart: '<path d="M20 28C-2 14 10 2 20 12c10-10 22 2 0 16" fill="#cf968b"/>',
-    water:
-      '<path d="M20 8C17 14 9 20 13 27c5 8 18 3 15-5-1-5-5-10-8-14" fill="#78a9b0"/>',
-    food: '<path d="m13 28 15-17M18 25q-10-3-6-8 7 0 6 8m4-6q-2-9 5-10 4 5-5 10m-6 8q8 2 10-4-5-5-10 4" stroke="#b89c62" fill="#dbc487" stroke-width="2"/>',
-  };
-function bubbles() {
-  for (const [n, e] of needEls)
-    if (!world.needs.includes(n)) {
-      e.remove();
-      needEls.delete(n);
-    }
-  for (const n of world.needs) {
-    let e = needEls.get(n);
-    if (!e) {
-      e = document.createElement("button");
-      e.className = "need";
-      e.setAttribute(
-        "aria-label",
-        n.kind === "heart"
-          ? "Affection"
-          : n.kind === "water"
-            ? "Water"
-            : "Feed",
-      );
-      e.innerHTML = `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="#d4d6b8" stroke-width="1.5"/><circle class="progress" cx="20" cy="20" r="18" fill="none" stroke="${n.kind === "heart" ? "#cf968b" : n.kind === "water" ? "#78a9b0" : "#b89c62"}" stroke-width="2" stroke-dasharray="113" transform="rotate(-90 20 20)"/>${iconPaths[n.kind]}</svg>`;
-      e.onclick = () => {
-        G.startAudio();
-        G.fulfillNeed(n);
-      };
-      document.querySelector("#needs").append(e);
-      needEls.set(n, e);
-    }
-    const p = screen(
-      n.target.x,
-      n.target.y,
-      n.target.breed !== undefined ? 1.35 : n.target.koi ? 1.2 : 1.45,
-    );
-    e.style.left = p.x + "px";
-    e.style.top = p.y + Math.sin(world.elapsed * 2) * 3 + "px";
-    e.querySelector(".progress").style.strokeDashoffset =
-      113 * Math.min(0.85, (world.elapsed - n.born) / 100);
-  }
-}
-const raycaster = new THREE.Raycaster(),
-  pointer = new THREE.Vector2(),
-  plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),
-  hit = new THREE.Vector3();
-let down = null,
-  lastWater = -100;
-function care(e, continuous = false) {
-  pointer.set(
-    (e.clientX / innerWidth) * 2 - 1,
-    (-e.clientY / innerHeight) * 2 + 1,
-  );
-  raycaster.setFromCamera(pointer, camera);
-  const hits = raycaster.intersectObjects(
-    [...pickables, ...plants, water],
-    true,
-  );
-  let obj = hits[0]?.object;
-  while (obj && !obj.userData.target) obj = obj.parent;
-  let target = obj?.userData.target;
-  raycaster.ray.intersectPlane(plane, hit);
-  let x = hit.x * 50 + 700,
-    y = (hit.z * 50) / 1.65 + 650;
-  if (target) {
-    x = target.x;
-    y = target.y;
-  }
-  if (continuous) {
-    if (world.tool !== "water" || world.elapsed - lastWater < 0.18) return;
-    lastWater = world.elapsed;
-  }
-  if (!continuous) {
-    const feeder = Farm.pastures.find(
-      (p) =>
-        Math.abs(x - (p.gate + (p.kind === "cow" ? -65 : 65))) < 110 &&
-        Math.abs(y - 795) < 40,
-    );
-    if (feeder) {
-      const tool = world.tool;
-      world.tool = "grain";
-      Farm.interact(feeder.x, 795);
-      world.tool = tool;
-      return;
-    }
-  }
-  if (
-    !continuous &&
-    G.Farm.interact(x, y - (target?.kind ? 46 * (0.52 + target.age * 0.48) : 0))
-  )
-    return;
-  if (target && world.chickens.includes(target)) {
-    if (world.tool === "grain") {
-      G.scatterGrain(x, y);
-      return;
-    }
-    target.pet = 2;
-    target.path = [];
-    target.pause = 2;
-    G.burst(x, y - 40);
-    world.needs = world.needs.filter((n) => n.target !== target);
-    return;
-  }
-  if (target && world.plants.includes(target)) {
-    G.waterPlant(target);
-    world.needs = world.needs.filter((n) => n.target !== target);
-    return;
-  }
-  if (G.inPond(x, y, -12)) {
-    G.feedFish(x, y);
-    return;
-  }
-  // Generous projected picking for tiny animals and flowers on portrait screens.
-  let best = null,
-    dist = 30;
-  for (const a of [...world.chickens, ...world.plants]) {
-    const p = screen(a.x, a.y, a.breed !== undefined ? 0.35 : 0.45),
-      d = Math.hypot(p.x - e.clientX, p.y - e.clientY);
-    if (d < dist) {
-      best = a;
-      dist = d;
-    }
-  }
-  if (best) {
-    if (best.breed !== undefined) {
-      best.pet = 2;
-      G.burst(best.x, best.y - 40);
-    } else G.waterPlant(best);
-    world.needs = world.needs.filter((n) => n.target !== best);
-    return;
-  }
-  if (!continuous) G.scatterGrain(x, y);
-}
-canvas.addEventListener("pointerdown", (e) => {
-  down = { x: e.clientX, y: e.clientY, pan: Farm.targetPan, moved: false };
-  canvas.setPointerCapture(e.pointerId);
-  G.startAudio();
-});
-canvas.addEventListener("pointermove", (e) => {
-  if (!down) return;
-  if (Math.abs(e.clientX - down.x) > 10) {
-    down.moved = true;
-    Farm.targetPan = THREE.MathUtils.clamp(
-      down.pan - (e.clientX - down.x) / view.scale,
-      -1450,
-      1450,
-    );
-  }
-  if (!down.moved) care(e, true);
-});
-canvas.addEventListener("pointerup", (e) => {
-  if (down && !down.moved) care(e);
-  down = null;
-});
-canvas.addEventListener("pointercancel", () => (down = null));
-canvas.addEventListener(
-  "wheel",
-  (e) => {
-    if (Math.abs(e.deltaX) > 0.5) {
-      e.preventDefault();
-      Farm.targetPan = THREE.MathUtils.clamp(
-        Farm.targetPan + e.deltaX / view.scale,
-        -1450,
-        1450,
-      );
-    }
-  },
-  { passive: false },
-);
 function animateObjects(dt) {
   const t = world.elapsed;
   const gooseCycle = Math.floor(t / 100);
@@ -979,90 +666,7 @@ function animateObjects(dt) {
     AudioGarden.goose(0);
     lastGooseCycle = gooseCycle;
   }
-  for (const a of [...Farm.chicks, ...Farm.animals])
-    if (!animalObjects.has(a))
-      addAnimal(
-        a,
-        a.kind === "horse"
-          ? "horse"
-          : a.kind === "cow"
-            ? "animal-cow"
-            : "animal-chick",
-        a.kind === "horse" ? 1.6 : a.kind === "cow" ? 1.1 : 0.42,
-      );
-  let i = 0;
-  for (const [a, o] of animalObjects) {
-    const fish = world.koi.includes(a),
-      chicken = world.chickens.includes(a),
-      moving = chicken ? a.path.length : a.moving;
-    let h = fish ? -0.41 : 0;
-    o.position.copy(logical(a.x, a.y, h));
-    o.visible = !(a.sheltered || (a.mode === "waking" && a.wakeDelay > 0));
-    if (a.sleeping) {
-      o.position.copy(
-        logical(
-          world.coop.x + ((a.sleepSlot % 4) - 1.5) * 28,
-          world.coop.y - 35,
-          0,
-        ),
-      );
-      o.scale.y = o.userData.baseScale * 0.65;
-    } else {
-      const size = a.age !== undefined ? 0.52 + a.age * 0.48 : 1,
-        squash = a.pet ? Math.sin(a.pet * 12) * 0.06 : 0;
-      o.scale.set(
-        o.userData.baseScale * size * (1 + squash),
-        o.userData.baseScale * size * (1 - squash),
-        o.userData.baseScale * size,
-      );
-    }
-    const angle = fish
-      ? -a.angle + Math.PI / 2
-      : chicken
-        ? a.path.length
-          ? Math.atan2(a.path[0].x - a.x, (a.path[0].y - a.y) * 1.65)
-          : (a.dir * Math.PI) / 2
-        : (a.dir * Math.PI) / 2;
-    o.rotation.y +=
-      Math.atan2(
-        Math.sin(angle - o.rotation.y),
-        Math.cos(angle - o.rotation.y),
-      ) *
-      (1 - Math.exp(-dt * 7));
-    if (fish) {
-      o.rotation.z = Math.sin(t * 3 + a.phase) * 0.06;
-      play(o, "walk");
-    } else {
-      play(
-        o,
-        a.sleeping
-          ? "idle"
-          : moving
-            ? "walk"
-            : a.mode === "feeding" || a.mode === "drinking" || a.eating
-              ? "eat"
-              : "idle",
-      );
-      if (chicken && a.mode === "feeding") play(o, "bite_front");
-    }
-    o.userData.mixer?.update(dt);
-    if (chicken) {
-      henUniform.value[i++]?.copy(o.position);
-      if (moving) o.position.y += Math.abs(Math.sin(t * 9 + a.phase)) * 0.025;
-    }
-  }
-  plants.forEach((o, i) =>
-    o.scale.setScalar(o.userData.baseScale * world.plants[i].growth),
-  );
-  for (const [e, o] of eggObjects)
-    if (!Farm.eggs.includes(e)) {
-      root.remove(o);
-      eggObjects.delete(e);
-    }
-  for (const e of Farm.eggs)
-    if (!eggObjects.has(e)) {
-      eggObjects.set(e, place(model("egg", { height: 0.23 }), e.x, e.y));
-    }
+  animals.update(dt);
   bees.forEach((o, i) => {
     o.position.copy(
       logical(
@@ -1091,6 +695,13 @@ function animateObjects(dt) {
     } else waterUniforms.uRipples.value[j].z = -100;
   }
 }
+const PARTICLE = {
+  heart: [8, "#e49d9c", 2],
+  water: [4, "#bce5dd", 3],
+  sparkle: [6, "#ffe6a3", 0],
+  dust: [10, "#d8cbb0", 0],
+  feather: [6, "#fff6e4", 0],
+};
 function particleUpdate() {
   const t = world.elapsed;
   let n = 0;
@@ -1169,18 +780,8 @@ function particleUpdate() {
   }
   for (const p of world.particles) {
     const v = logical(p.x, p.y, 0.2 + Math.max(0, 1.8 - p.life) * 0.35);
-    put(
-      v.x,
-      v.y,
-      v.z,
-      p.kind === "heart" ? 8 : 4,
-      p.kind === "water"
-        ? "#bce5dd"
-        : p.kind === "heart"
-          ? "#e49d9c"
-          : "#efd398",
-      p.kind === "heart" ? 2 : p.kind === "water" ? 3 : 0,
-    );
+    const [size, color, type] = PARTICLE[p.kind] ?? [4, "#efd398", 0];
+    put(v.x, v.y, v.z, size, color, type);
   }
   for (const f of [...world.food, ...world.fishFood]) {
     const v = logical(f.x, f.y, 0.14);
@@ -1201,18 +802,96 @@ function particleUpdate() {
   pg.attributes.size.needsUpdate = true;
   pg.attributes.particleType.needsUpdate = true;
 }
+// ---------- farm layers, interface and input ----------
+function updateHide() {
+  hideUniform.value.forEach((v, i) => {
+    const r = G.FarmFootprints[i];
+    if (r) v.set((r.x0 - 700) / 50, ((r.y0 - 650) * 1.65) / 50, (r.x1 - 700) / 50, ((r.y1 - 650) * 1.65) / 50);
+    else v.set(0, 0, 0, 0);
+  });
+}
+farmLayer = createFarmLayer({ scene, camera, world, lights: buildingLights, footprints: G.FarmFootprints, registerLantern: (l) => windows.push(l), onFootprints: updateHide });
+const animals = createAnimalRenderer({ group: dynamicRoot, world, Farm, logical, henUniform, burst: G.burst });
+const bridge = createBridge(G, game);
+const juice = createJuice({ audio: AudioGarden });
+let input = null;
+const hud = createHud({
+  game,
+  audio: AudioGarden,
+  onSelect: (k) => selectItem(k),
+  onShop: () => (shop.isOpen ? shop.close() : shop.open(shop.tab)),
+  onConfirm: () => input.confirm(),
+  onCancel: () => input.cancel(),
+});
+const shop = createShop({ game, hud, juice, audio: AudioGarden, onKit: (kit) => input.startPlacement(kit) });
+input = createInput({ canvas, camera, G, game, hud, shop, farm: farmLayer, bridge, juice, screen });
+function selectItem(k) {
+  G.startAudio();
+  if (k.startsWith("kit_")) return input.startPlacement(k);
+  if (["daisy", "tulip", "sunflower", "lavender", "cabbage", "egg", "milk"].includes(k)) return shop.open("sell", k);
+  hud.select(k);
+}
+const bubbleUi = createBubbles({
+  G,
+  game,
+  bridge,
+  screen,
+  onAnimal(id, what, btn, el) {
+    const a = game.state.animals.find((q) => q.id === id);
+    if (!a) return;
+    const r = what === "food" ? input.feedOne(a, Sim.foodsFor(a.sp).includes(hud.selected) ? hud.selected : null) : input.waterOne(a);
+    if (!r.ok) juice.shake(el);
+  },
+  onBed(id, what, btn, el) {
+    const bed = game.state.beds.find((b) => b.id === id);
+    if (!bed) return;
+    if (what === "harvest") {
+      if (!input.harvestAll(bed)) juice.shake(el);
+    } else {
+      game.act("waterBed", id);
+      const c = Sim.layout.plotPosition(bed, 1);
+      world.watering.push({ target: bed, x: c.x - 20, y: c.y, life: 2.2 });
+      G.burst(c.x, c.y - 10, "water");
+    }
+  },
+  onAmbient: (n) => G.fulfillNeed(n),
+});
+const herdHomeX = { cow: -530, horse: 1930 };
+game.on((e) => {
+  const s = game.state;
+  if (e.type === "replace") return bridge.reset();
+  if (e.type === "birth") {
+    const a = s.animals.find((q) => q.id === e.id);
+    if (a) G.burst(a.x, a.y - 20, "heart");
+  } else if (e.type === "unlock") juice.flourish([ICONS[e.building], itemIcon(`animal_${e.sp}_f`)]);
+  else if (e.type === "gift") {
+    for (const k of Object.keys(e.items)) juice.fly(innerWidth / 2, innerHeight * 0.35, itemIcon(k), hud.slotEl(k));
+  } else if (e.type === "arrive" && e.sp !== "chicken") Farm.targetPan = herdHomeX[e.sp] - 700;
+  else if (e.type === "death") AudioGarden.soft?.();
+});
+bridge.sync(0, { initial: true });
+farmLayer.sync(game.state, 0);
+// Warm shader programs for materials that first appear later (ghost, grid).
+const warm = new THREE.Group();
+warm.position.y = -40;
+warm.add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ color: "#a6e3a0", transparent: true, opacity: 0.5, depthWrite: false })));
+const warmCells = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.3, depthWrite: false }), 1);
+warmCells.setColorAt(0, new THREE.Color("#ffffff"));
+warm.add(warmCells);
+scene.add(warm);
+
 renderer.info.autoReset = false;
 const frames = [],
   renderTimes = [];
 let last = 0,
-  qualityClock = 0;
+  qualityClock = 0,
+  frameCount = 0;
 world.started = true;
 world.nextNeed = 9;
-if (params.get("needs") === "1")
+if (params.get("needs") === "1" && world.chickens.length)
   world.needs = [
-    { target: world.chickens[1], kind: "heart", born: -1 },
+    { target: world.chickens[0], kind: "heart", born: -1 },
     { target: world.koiTarget, kind: "food", born: -1 },
-    { target: world.plants[8], kind: "water", born: -1 },
   ];
 resize();
 cameraUpdate();
@@ -1220,6 +899,7 @@ qualitySet(quality);
 lighting();
 await renderer.compileAsync(scene, camera);
 renderer.render(scene, camera);
+scene.remove(warm);
 function tick(now) {
   const raw = last ? (now - last) / 1000 : 0;
   last = now;
@@ -1227,14 +907,22 @@ function tick(now) {
   if (!document.hidden) {
     const start = performance.now();
     renderer.info.reset();
+    game.frame(raw);
+    publishClock();
+    bridge.sync(dt);
     G.update(dt);
     Farm.update(dt);
     windTime.value = world.elapsed;
     lighting();
     cameraUpdate();
+    farmLayer.sync(game.state, dt);
     animateObjects(dt);
     particleUpdate();
-    bubbles();
+    hud.update(game.state, game.clock);
+    hud.setValid(farmLayer.ghostValid);
+    bubbleUi.update();
+    if (shop.isOpen && frameCount % 8 === 0) shop.render();
+    frameCount++;
     if (quality === "high") composer.render();
     else renderer.render(scene, camera);
     if (!window.Garden.ready) {
@@ -1242,6 +930,7 @@ function tick(now) {
       document.body.classList.add("ready");
     }
     renderTimes.push(performance.now() - start);
+    if (renderTimes.length > 1200) renderTimes.shift();
     if (raw > 0) {
       frames.push(raw * 1000);
       if (frames.length > 1200) frames.shift();
@@ -1258,6 +947,19 @@ function tick(now) {
   }
   requestAnimationFrame(tick);
 }
+// Verification hooks (no visible UI).
+const anchorScreen = (kind, id) => {
+  if (kind === "animal") {
+    const agent = bridge.agentOf(id);
+    if (!agent) return null;
+    const h = agent.sp === "chicken" ? 0.3 : agent.sp === "cow" ? 0.7 : 0.85;
+    const x = agent.sleeping ? agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26 : agent.x,
+      y = agent.sleeping ? agent.home.y - 30 : agent.y;
+    return screen(x, y, h * (agent.juvenile ? 0.7 : 1));
+  }
+  const a = farmLayer.anchorOf(kind, id, game.state);
+  return a && screen(a.x, a.y, a.h);
+};
 window.Garden = {
   world,
   Farm,
@@ -1265,24 +967,35 @@ window.Garden = {
   ready: false,
   screen,
   setHour,
-  setTime(t) {
-    world.forcedTime = t;
-    world.time = t;
+  game,
+  Sim,
+  bridge,
+  hud,
+  shop,
+  input,
+  farmLayer,
+  animals,
+  state: () => game.state,
+  clock: () => game.clock,
+  advance(seconds, offline = false) {
+    Sim.tick(game.state, seconds, { offline });
+    game.pump();
   },
+  timescale: (n) => game.setTimescale(n),
+  anchor: anchorScreen,
+  save: () => game.persist.flush(game.state),
+  persistStatus: () => ({ ...game.persist.status, leader: game.persist.leader, rev: game.state.rev, caughtUp: game.persist.caughtUp ?? 0 }),
   needs() {
     world.needs = [
-      { target: world.chickens[1], kind: "heart", born: world.elapsed - 1 },
+      { target: world.chickens[0], kind: "heart", born: world.elapsed - 1 },
       { target: world.koiTarget, kind: "food", born: world.elapsed - 1 },
-      { target: world.plants[8], kind: "water", born: world.elapsed - 1 },
     ];
   },
   stats() {
     const sum = (a) => a.reduce((x, y) => x + y, 0) / Math.max(1, a.length);
     return {
       averageFrameMs: sum(frames),
-      p95FrameMs: [...frames].sort((a, b) => a - b)[
-        Math.floor(frames.length * 0.95)
-      ],
+      p95FrameMs: [...frames].sort((a, b) => a - b)[Math.floor(frames.length * 0.95)],
       cpuRenderMs: sum(renderTimes.slice(-600)),
       samples: frames.length,
       quality,
@@ -1293,6 +1006,9 @@ window.Garden = {
       mergedMeshCount,
       triangles: renderer.info.render.triangles,
       lantern: lantern.intensity,
+      animals: game.state.animals.length,
+      beds: game.state.beds.length,
+      buildings: game.state.buildings.length,
       webgl: renderer.getContext().getParameter(renderer.getContext().VERSION),
     };
   },
