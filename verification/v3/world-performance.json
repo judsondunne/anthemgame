@@ -1,0 +1,24 @@
+{
+  "desktop": {
+    "label": "standalone forest, desktop 1440x900",
+    "frames": 147,
+    "medianMs": 16.699999999999818,
+    "p95Ms": 16.800000000000182,
+    "meanMs": 16.66666666666667,
+    "calls": 72,
+    "triangles": 118948,
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Pro, Unspecified Version)"
+  },
+  "mobile": {
+    "label": "standalone forest, 390x844, low quality, 4x CPU slowdown",
+    "frames": 147,
+    "medianMs": 16.699999999999818,
+    "p95Ms": 16.800000000000182,
+    "meanMs": 16.666666666666668,
+    "calls": 43,
+    "triangles": 85680,
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Pro, Unspecified Version)"
+  },
+  "errors": [],
+  "scope": "Standalone world only; full farm performance measured separately by main verification."
+}

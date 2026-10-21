@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "flatProperty": [
+    -0.035,
+    -0.035,
+    -0.035
+  ],
+  "deepWaterBlocked": true,
+  "crossingOpen": true,
+  "treeBlocked": true,
+  "worldBoundsBlocked": true,
+  "terrainRolling": true,
+  "stats": {
+    "trees": 1139,
+    "chunks": 219
+  }
+}

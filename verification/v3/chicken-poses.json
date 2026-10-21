@@ -1,0 +1,65 @@
+{
+  "errors": [],
+  "nodes": [
+    {
+      "name": ""
+    },
+    {
+      "name": "Scene"
+    },
+    {
+      "name": "Hen_rig"
+    },
+    {
+      "name": "Hen_beak"
+    },
+    {
+      "name": "Hen_body"
+    },
+    {
+      "name": "Hen_comb"
+    },
+    {
+      "name": "Hen_eyes"
+    },
+    {
+      "name": "Hen_legs"
+    },
+    {
+      "name": "Hen_neck"
+    },
+    {
+      "name": "Hen_tail"
+    },
+    {
+      "name": "Hen_wings"
+    },
+    {
+      "name": "Root",
+      "bone": true
+    },
+    {
+      "name": "Body",
+      "bone": true
+    },
+    {
+      "name": "Head",
+      "bone": true
+    },
+    {
+      "name": "LegL",
+      "bone": true
+    },
+    {
+      "name": "LegR",
+      "bone": true
+    }
+  ],
+  "states": [
+    "idle",
+    "walking",
+    "pecking",
+    "sleeping",
+    "dead"
+  ]
+}
