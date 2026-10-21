@@ -118,7 +118,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     if(!batches.has(key))batches.set(key,{name,category,cx:(chunkX+.5)*W.forest.chunkSize-W.radius,cz:(chunkZ+.5)*W.forest.chunkSize-W.radius,placements:[]});
     batches.get(key).placements.push({x,z,y:terrainHeight(x,z),size,heading,stretch,color:new THREE.Color().setHSL(.25+rng()*.06,.10+rng()*.11,.77+rng()*.18)});
   }
-  const trees=['forest_fir','forest_fir_b','forest_fir_c','forest_fir_b','forest_leaf_tree','forest_leaf_tree_b'];
+  const trees=['forest_fir','forest_fir_b','forest_fir_c','forest_leaf_tree','forest_leaf_tree_b','forest_canopy_b','forest_canopy','forest_oak_b'];
   const spacing=W.forest.spacing;
   let treeCount=0;
   for(let z=-W.radius+3;z<W.radius-3;z+=spacing)for(let x=-W.radius+3;x<W.radius-3;x+=spacing){
@@ -131,16 +131,16 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     const species=trees[Math.floor(rng()*trees.length)],height=4.5+rng()*3.7+(species.includes('Tall')?1.2:0);
     scatter(species,px,pz,height,rng()*Math.PI*2);colliders.push({x:px,z:pz,radius:.29+height*.025,type:'tree'});treeCount++;
   }
-  const plants=['forest_bush','forest_bush_b','forest_fern','mushroom_redGroup','mushroom_tan','forest_rock','forest_boulder','log_large'];
+  const plants=['forest_shrub','forest_plant','forest_fern','forest_clover','forest_mushroom','forest_rock','forest_boulder','forest_stump'];
   const bushStep=W.forest.undergrowthSpacing*(low?1.45:1);
   for(let z=-W.radius+4;z<W.radius-4;z+=bushStep)for(let x=-W.radius+4;x<W.radius-4;x+=bushStep){
     const px=x+(rng()-.5)*bushStep,pz=z+(rng()-.5)*bushStep;
     if(Math.max(Math.abs(px)-W.property.halfWidth,Math.abs(pz)-W.property.halfDepth)<3||Math.abs(px-brookX(pz))<brookWidth(pz)+1.9||rng()>.52)continue;
     if(px>18&&Math.abs(pz-8.)<2.5)continue;
-    const choice=rng(),n=choice<.38?0:choice<.58?1:choice<.77?2:3+Math.floor(rng()*5),name=plants[n];
+    const choice=rng(),n=choice<.28?0:choice<.43?1:choice<.61?2:choice<.73?3:choice<.82?4:5+Math.floor(rng()*3),name=plants[n];
     const height=n<2?.4+rng()*.7:n<5?.18+rng()*.4:n===7?.35+rng()*.25:.45+rng()*.8;
     scatter(name,px,pz,height,rng()*Math.PI*2,'under');
-    if(n===5||n===6)colliders.push({x:px,z:pz,radius:height*.5,type:'rock'});
+    if(n>=5)colliders.push({x:px,z:pz,radius:height*.5,top:terrainHeight(px,pz)+height,baseY:terrainHeight(px,pz),type:n===7?'stump':'rock'});
   }
   // Downloaded bank stones anchor the water and emphasize narrow whitewater runs.
   for(let i=0;i<W.brook.rocks;i++){
@@ -148,8 +148,16 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     if(Math.abs(z-W.brook.crossingZ)<2.4)continue;
     const x=brookX(z)+side*(brookWidth(z)+.15+rng()*1.3),h=.3+rng()*.65;
     scatter(i%3?'forest_rock':'forest_boulder',x,z,h,rng()*6.28,'rock');
-    colliders.push({x,z,radius:h*.45,type:'rock'});
+    colliders.push({x,z,radius:h*.45,top:terrainHeight(x,z)+h,baseY:terrainHeight(x,z),type:'rock'});
   }
+  // Tree-root pockets layer ferns, mushrooms, clover and wispy grass under
+  // clear canopy edges. Open meadow and the crossing path remain readable.
+  const trunks=colliders.filter(c=>c.type==='tree');
+  for(let i=0;i<trunks.length;i+=3){const trunk=trunks[i];for(let j=0;j<3;j++){
+    const angle=rng()*Math.PI*2,r=1.0+rng()*1.3,x=trunk.x+Math.cos(angle)*r,z=trunk.z+Math.sin(angle)*r;
+    if(Math.abs(x-brookX(z))<brookWidth(z)+1.3)continue;
+    scatter(['forest_fern','forest_grass_wispy','forest_clover'][j],x,z,.20+rng()*.5,angle,'under');
+  }}
   const dummy=new THREE.Object3D(),geometryCache=new Map();
   // Bake source material colours into source mesh vertices, then instance each
   // asset in one draw per chunk. The downloaded topology stays unchanged.
@@ -260,10 +268,9 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     return {trees:treeCount,chunks:chunks.length};
   }
   function distanceTo(x,z){return Math.abs(x-brookX(z))-brookWidth(z);}
-  function isBlocked(x,z,radius=.24){
+  function isBlocked(x,z,radius=.24,feetY=0){
     if(Math.abs(x)>W.radius-2||Math.abs(z)>W.radius-2)return true;
-    if(Math.abs(z-W.brook.crossingZ)>W.brook.crossingHalfDepth-radius&&distanceTo(x,z)<radius)return true;
-    return colliders.some(c=>(x-c.x)**2+(z-c.z)**2<(radius+c.radius)**2);
+    return colliders.some(c=>(c.top==null||feetY<c.top-.06)&&(x-c.x)**2+(z-c.z)**2<(radius+c.radius)**2);
   }
   function heightAt(x,z){
     if(Math.abs(z-W.brook.crossingZ)<W.brook.crossingHalfDepth&&distanceTo(x,z)<1.2)return brookHeight(W.brook.crossingZ)+.17;

@@ -210,3 +210,48 @@ Quaternius CC0 source bodies retain individual roof tiles, structural beams, pla
 |---|---|---|---|---:|
 | farm-cottage | https://poly.pizza/m/k6tP5nFUd2 | CC0-1.0 | public/assets/models/architecture/cottage.glb | 4012 |
 | farm-barn | https://poly.pizza/m/ZIdWHxYsUv | CC0-1.0 | public/assets/models/architecture/barn.glb | 1612 |
+
+## PLAN3 quality update — furniture, woodland layers and ambient wildlife
+
+Kenney remains the architecture/furnishing family; Quaternius provides the same textured botanical and rigged-animal family already used by the game. All new downloads are CC0. Original topology and animation clips are retained. The Quaternius Stag is a stylized elk stand-in; the Kenney bunny matches the existing fish/bee family and includes authored animation. Furniture uses flat source materials rather than 2K texture upscaling; the textured woodland sources retain their embedded original resolution. Exact source metadata/hashes are in `public/assets/licenses/quality-update-provenance.json`.
+
+|Key|Source|License|Path|Triangles|Usage|
+|---|---|---|---|---:|---|
+|interior-loungeSofa|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-loungeSofa.glb|128|Cottage furniture / original Kenney loungeSofa|
+|interior-loungeChair|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-loungeChair.glb|128|Cottage furniture / original Kenney loungeChair|
+|interior-rugRounded|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-rugRounded.glb|204|Cottage furniture / original Kenney rugRounded|
+|interior-tableCoffee|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-tableCoffee.glb|124|Cottage furniture / original Kenney tableCoffee|
+|interior-bookcaseOpen|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-bookcaseOpen.glb|320|Cottage furniture / original Kenney bookcaseOpen|
+|interior-lampRoundFloor|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-lampRoundFloor.glb|76|Cottage furniture / original Kenney lampRoundFloor|
+|interior-lampRoundTable|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-lampRoundTable.glb|76|Cottage furniture / original Kenney lampRoundTable|
+|interior-kitchenCabinet|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-kitchenCabinet.glb|114|Cottage furniture / original Kenney kitchenCabinet|
+|interior-kitchenCabinetDrawer|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-kitchenCabinetDrawer.glb|174|Cottage furniture / original Kenney kitchenCabinetDrawer|
+|interior-kitchenCabinetUpperDouble|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-kitchenCabinetUpperDouble.glb|234|Cottage furniture / original Kenney kitchenCabinetUpperDouble|
+|interior-kitchenStove|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-kitchenStove.glb|830|Cottage furniture / original Kenney kitchenStove|
+|interior-kitchenSink|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-kitchenSink.glb|318|Cottage furniture / original Kenney kitchenSink|
+|interior-tableRound|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-tableRound.glb|80|Cottage furniture / original Kenney tableRound|
+|interior-chairCushion|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-chairCushion.glb|198|Cottage furniture / original Kenney chairCushion|
+|interior-bedDouble|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-bedDouble.glb|264|Cottage furniture / original Kenney bedDouble|
+|interior-cabinetBedDrawer|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-cabinetBedDrawer.glb|182|Cottage furniture / original Kenney cabinetBedDrawer|
+|interior-bookcaseClosedDoors|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-bookcaseClosedDoors.glb|296|Cottage furniture / original Kenney bookcaseClosedDoors|
+|interior-sideTableDrawers|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-sideTableDrawers.glb|238|Cottage furniture / original Kenney sideTableDrawers|
+|interior-pottedPlant|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-pottedPlant.glb|60|Cottage furniture / original Kenney pottedPlant|
+|interior-plantSmall1|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-plantSmall1.glb|102|Cottage furniture / original Kenney plantSmall1|
+|interior-pillow|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-pillow.glb|50|Cottage furniture / original Kenney pillow|
+|interior-books|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-books.glb|62|Cottage furniture / original Kenney books|
+|interior-bathroomMirror|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-bathroomMirror.glb|72|Cottage furniture / original Kenney bathroomMirror|
+|interior-floorFull|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-floorFull.glb|12|Cottage furniture / original Kenney floorFull|
+|interior-doorwayFront|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-doorwayFront.glb|156|Cottage furniture / original Kenney doorwayFront|
+|interior-wallDoorwayWide|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-wallDoorwayWide.glb|60|Cottage furniture / original Kenney wallDoorwayWide|
+|interior-benchCushion|https://kenney.nl/assets/furniture-kit|CC0-1.0|/assets/models/interior/interior-benchCushion.glb|196|Cottage furniture / original Kenney benchCushion|
+|wild-bunny|https://kenney.nl/assets/cube-pets|CC0-1.0|/assets/models/wildlife/wild-bunny.glb|575|Animated edge-of-property bunnies, same family as pond fish and bees|
+|wild-deer|https://poly.pizza/m/T6Cs7tmMHJ|CC0-1.0|/assets/models/wildlife/wild-deer.glb|2096|Animated doe: idle, walk, graze and flee|
+|wild-elk|https://poly.pizza/m/tQdzbZ1Cmw|CC0-1.0|/assets/models/wildlife/wild-elk.glb|3667|Animated antlered stag scaled and coated as stylized elk|
+|interior-fireplace|https://poly.pizza/m/nzxZYIOCIr|CC0-1.0|/assets/models/interior/interior-fireplace.glb|360|Cottage fireplace with warm firelight|
+|interior-curtains|https://poly.pizza/m/kkeII96j9N|CC0-1.0|/assets/models/interior/interior-curtains.glb|320|Cottage window curtains|
+|forest_shrub|https://poly.pizza/m/EoTERLq3z2|CC0-1.0|/assets/models/forest/forest_shrub.glb|900|Full textured shrub and foundation hedge|
+|forest_clover|https://poly.pizza/m/IQ9NVyVpUw|CC0-1.0|/assets/models/forest/forest_clover.glb|379|Layered forest clover accents|
+|forest_mushroom|https://poly.pizza/m/aOW08oSrd4|CC0-1.0|/assets/models/forest/forest_mushroom.glb|880|Detailed mushroom clusters|
+|forest_plant|https://poly.pizza/m/NrJN7UcglF|CC0-1.0|/assets/models/forest/forest_plant.glb|120|Layered broad-leaf forest undergrowth|
+|forest_grass_wispy|https://poly.pizza/m/Msr9zx66VU|CC0-1.0|/assets/models/forest/forest_grass_wispy.glb|494|Fine wind-sway grasses|
+|forest_stump|https://poly.pizza/m/nFvEbUX6LE|CC0-1.0|/assets/models/forest/forest_stump.glb|232|Mossy stumps in forest clearings|

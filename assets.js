@@ -51,9 +51,9 @@ function material(original, key, sway) {
   if (colors[m.name]) m.color.set(colors[m.name]);
   if (m.map) {
     m.map.colorSpace = THREE.SRGBColorSpace;
-    m.map.anisotropy = 8;
+    m.map.anisotropy = 16;
     m.color.set(key.startsWith("forest_")?"#eef0da":"#f2edde");
-    m.map.anisotropy=8;
+    m.map.anisotropy=16;
     if(key.startsWith("forest_")&&m.transparent){m.alphaTest=.38;m.transparent=false;m.depthWrite=true;m.side=THREE.DoubleSide;}
   }
   if (key.startsWith("wall-window") || key === "wall-door") {
@@ -140,7 +140,7 @@ export async function loadAssets() {
 export function assetInfo(name) {
   return cache.get(name);
 }
-const UPGRADED = {tree_oak:"forest_leaf_tree",tree_detailed:"forest_leaf_tree_b",plant_bush:"forest_bush",plant_bushLarge:"forest_bush_b",stone_largeA:"forest_rock",stone_largeB:"forest_boulder",stone_smallFlatA:"stone_smallFlatA"};
+const UPGRADED = {tree_oak:"forest_leaf_tree",tree_detailed:"forest_leaf_tree_b",plant_bush:"forest_shrub",plant_bushLarge:"forest_shrub",stone_largeA:"forest_rock",stone_largeB:"forest_boulder",stone_smallFlatA:"stone_smallFlatA"};
 export function model(
   name,
   { height, width, sway = false, raw = false, tint, recolor } = {},

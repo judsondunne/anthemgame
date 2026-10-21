@@ -239,6 +239,19 @@ for (const s of world.scenery) {
     for (let j = -1; j <= 1; j++)
       place(model("fence_simple", { width: 1.5 }), s.x + j * 72, s.y);
 }
+// Foundation beds: low evergreen mounds, lavender-height flowers and fern
+// accents form continuous planted edges instead of isolated marker props.
+for(const side of [-1,1])for(let i=0;i<5;i++){
+  const x=630+side*(157+i*5),y=425+i*17;
+  place(model('forest_shrub',{height:.5+(i%2)*.12,sway:true}),x,y);
+  place(model(i%2?'forest_fern':'forest_flowers',{height:.34+(i%3)*.06,sway:true,tint:i%2?'#d1dcbc':'#e0cbe2'}),x+side*23,y+6);
+}
+for(let i=0;i<28;i++){
+  const x=185+i*37,y=900+Math.sin(i*.7)*7;
+  if(Math.abs(x-630)<62)continue;
+  place(model('forest_shrub',{height:.52+(i%3)*.08,sway:true}),x,y);
+  if(i%2===0)place(model('forest_grass_wispy',{height:.32,sway:true}),x+15,y-12);
+}
 // Garden beds and their crops are placed by the player (farm-layer.js).
 for (let i = 0; i < 25; i++) {
   const y = 505 + i * 16,
