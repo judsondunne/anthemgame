@@ -1,6 +1,7 @@
 // Renders everything the simulation places: beds and crops by growth stage,
 // player buildings, eggs and milk, bones, and the placement ghost + grid.
 import * as THREE from "three";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { model, ownMaterials } from "../../assets.js";
 import { BUILDINGS, stall } from "./kit.js";
 import { BALANCE as B } from "../config/balance.js";
@@ -79,6 +80,14 @@ function stageProgress(p) {
   return st === 0 ? p.g / t : st === 1 ? (p.g - t) / (1 - t) : 1;
 }
 
+// Static downloaded building modules share materials and draw calls after placement.
+function batchStructure(g){
+ g.updateMatrixWorld(true);const inverse=g.matrixWorld.clone().invert(),batches=new Map();
+ g.traverse(mesh=>{if(!mesh.isMesh||mesh.isSkinnedMesh||Array.isArray(mesh.material))return;let parent=mesh;while(parent&&parent!==g){if(parent.userData.asset==='lantern')return;parent=parent.parent;}const m=mesh.material;
+ const key=[m.name,m.color.getHex(),m.map?.uuid,m.roughness,m.transparent,m.customProgramCacheKey(),Object.keys(mesh.geometry.attributes).sort().join(',')].join('|');if(!batches.has(key))batches.set(key,[]);batches.get(key).push(mesh);});
+ for(const meshes of batches.values()){if(meshes.length<2)continue;const geometries=meshes.map(m=>m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse,m.matrixWorld)));const geometry=mergeGeometries(geometries,false);if(!geometry)continue;const merged=new THREE.Mesh(geometry,meshes[0].material);merged.castShadow=merged.receiveShadow=true;g.add(merged);meshes.forEach(m=>m.removeFromParent());geometries.forEach(m=>m.dispose());}
+}
+
 export function createFarmLayer(ctx) {
   const { scene, camera, world } = ctx;
   const group = new THREE.Group();
@@ -140,6 +149,7 @@ export function createFarmLayer(ctx) {
     const [w, h] = footprintOf(b.type);
     const g = BUILDINGS[b.type]();
     toWorld((b.gx + w / 2) * CELL_X, (b.gy + h) * CELL_Y, 0, g.position);
+    batchStructure(g);
     group.add(g);
     ctx.registerLantern(g.userData.lantern);
     const light = ctx.lights.find((l) => !l.userData.owner);

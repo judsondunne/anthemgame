@@ -15,6 +15,7 @@ export const NIGHT_ICONS = {
   bear: svg(`<circle cx="11" cy="12" r="7" fill="#a67f5c" ${stroke}/><circle cx="37" cy="12" r="7" fill="#a67f5c" ${stroke}/><path d="M7 26a17 17 0 0 1 34 0c0 12-7 17-17 17S7 38 7 26Z" fill="#ad8967" ${stroke}/><ellipse cx="24" cy="32" rx="9" ry="7" fill="#dac09a"/><path d="M15 24h2m14 0h2m-12 6 3 3 3-3" ${stroke}/>`),
   alert: svg(`<path d="m24 5 21 37H3Z" fill="#e5b178" ${stroke}/><path d="M24 18v11m0 6h.01" ${stroke}/>`),
   arrow: svg(`<path d="M10 24h28m-10-9 10 9-10 9" ${stroke}/>`),
+  brokenLink: svg(`<path d="m15 28-3 3a7 7 0 0 1-10-10l8-8a7 7 0 0 1 10 0m8 7 3-3a7 7 0 1 1 10 10l-8 8a7 7 0 0 1-10 0M18 22l12 12M17 6l3 7m16 21 7 3" ${stroke}/>`),
   claw: svg(`<path d="m13 9-6 28M25 7l-6 32M37 11l-6 28" stroke="#e9a097" stroke-width="5" stroke-linecap="round"/>`),
   bandage: svg(`<g transform="rotate(-35 24 24)"><rect x="4" y="15" width="40" height="18" rx="7" fill="#f0d4ad" ${stroke}/><path d="M19 15v18m10-18v18M11 21v6m26-6v6" stroke="#aa8062" stroke-width="2"/></g>`),
 };

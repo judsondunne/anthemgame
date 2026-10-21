@@ -191,7 +191,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
       const cacheKey='textured:'+name;
       if(!geometryCache.has(cacheKey)){
         const template=model(name,{height:1});template.updateMatrixWorld(true);const list=[];
-        template.traverse(mesh=>{if(!mesh.isMesh)return;const material=mesh.material.clone();material.color.set('#c9d0b7');material.roughness=.83;
+        template.traverse(mesh=>{if(!mesh.isMesh)return;const material=mesh.material.clone();material.color.set('#edf0df');material.roughness=.83;
           if(material.transparent){material.alphaTest=.42;material.transparent=false;material.side=THREE.DoubleSide;}
           material.onBeforeCompile=shader=>{shader.uniforms.uWindTime=windTime;shader.vertexShader='uniform float uWindTime;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
             float phase=instanceMatrix[3].x*.67+instanceMatrix[3].z*.43;

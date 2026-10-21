@@ -12,3 +12,4 @@ test('species sized body collision stops buildings and separates overlapping liv
  for(let i=0;i<8;i++)S.separateAnimals(s);assert.ok(Math.hypot(a.x-b.x,(a.y-b.y)*1.65)>=B.animals.radius.cow+B.animals.radius.horse);
  a.x=470;a.y=550;assert.equal(S.canMove(s,a,480,530),false,'cow body cannot enter house edge');
 });
+test('the same downloaded tree/rock collider data blocks livestock without entering save documents',()=>{const s=fresh();s.animals=[];const a=S.spawnAnimal(s,'cow','f');a.x=550;a.y=700;S.setWorldColliders(s,[{x:600,y:700,r:25}]);assert.equal(S.canMove(s,a,590,700),false);assert.equal(S.canMove(s,a,540,700),true);assert.equal('worldCollision' in S.toDoc(s),false);});

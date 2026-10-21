@@ -141,9 +141,11 @@ function qualitySet(q, automatic = false) {
 const logicalVector = new THREE.Vector3();
 const logical = (x, y, h = 0) =>
   logicalVector.set((x - 700) / 50, h, ((y - 650) * 1.65) / 50);
+const propertyColliders=[];
 function place(o, x, y, h = 0) {
   o.position.copy(logical(x, y, h));
   root.add(o);
+  if(/^(forest_leaf_tree|tree_)/.test(o.userData.asset??""))propertyColliders.push({x:o.position.x,z:o.position.z,radius:.46,type:"tree"});
   return o;
 }
 await loadAssets();
@@ -221,9 +223,7 @@ for (const s of world.scenery) {
   if (s.type === "flowers")
     place(
       model(
-        ["flower_purpleA", "flower_redA", "flower_yellowA"][
-          Math.floor(s.x) % 3
-        ],
+        "forest_flowers",
         { height: 0.5 * s.scale, sway: true },
       ),
       s.x,
@@ -321,9 +321,10 @@ for (let i = 0; i < 95; i++) {
     y = 875 + G.rand() * 42;
   if (Math.abs(x - 650) < 65) continue;
   place(
-    model(["flower_purpleA", "flower_yellowA", "flower_redA"][i % 3], {
-      height: 0.25 + G.rand() * 0.23,
+    model("forest_flowers", {
+      height: 0.28 + G.rand() * 0.26,
       sway: true,
+      tint:["#d7c8ef","#f5e3b4","#efd3c9"][i%3],
     }),
     x,
     y,
@@ -615,6 +616,7 @@ function resize() {
   renderer.setSize(innerWidth, innerHeight);
   composer.setPixelRatio(renderer.getPixelRatio());
   composer.setSize(innerWidth, innerHeight);
+  ssao.setSize(Math.ceil(innerWidth*.6),Math.ceil(innerHeight*.6));
   view.w = innerWidth; view.h = innerHeight; view.dpr = renderer.getPixelRatio();
   cameraControl?.resize();
 }
@@ -780,6 +782,9 @@ function updateHide() {
   });
 }
 largerWorld = createWorld({scene, camera, quality, seed: game.state.seed});
+largerWorld.colliders.push(...propertyColliders);
+function bindWorldCollision(){Sim.setWorldColliders(game.state,largerWorld.colliders.map(c=>({x:c.x*50+700,y:c.z*50/1.65+650,r:c.radius*50})));}
+bindWorldCollision();
 cameraControl = createCameraController({camera, canvas, game, Farm, view, params,
   worldGeometry: {terrainHeight: largerWorld.heightAt, blocked: largerWorld.isBlocked, colliders: largerWorld.colliders},
   isUIBlocked: () => !!(document.querySelector('#shop.open') || document.querySelector('#backpack:not([hidden])')),
@@ -845,7 +850,7 @@ const bubbleUi = createBubbles({
 const herdHomeX = { cow: -530, horse: 1930 };
 game.on((e) => {
   const s = game.state;
-  if (e.type === "replace") return bridge.reset();
+  if (e.type === "replace") { bindWorldCollision(); return bridge.reset(); }
   if (e.type === "birth") {
     const a = s.animals.find((q) => q.id === e.id);
     if (a) G.burst(a.x, a.y - 20, "heart");

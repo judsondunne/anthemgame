@@ -52,8 +52,9 @@ function material(original, key, sway) {
   if (m.map) {
     m.map.colorSpace = THREE.SRGBColorSpace;
     m.map.anisotropy = 8;
-    m.color.set(key.startsWith("forest_")?"#d7ddbf":"#f2edde");
+    m.color.set(key.startsWith("forest_")?"#eef0da":"#f2edde");
     m.map.anisotropy=8;
+    if(key.startsWith("forest_")&&m.transparent){m.alphaTest=.38;m.transparent=false;m.depthWrite=true;m.side=THREE.DoubleSide;}
   }
   if (key.startsWith("wall-window") || key === "wall-door") {
     m.onBeforeCompile = (s) => {

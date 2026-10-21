@@ -86,6 +86,7 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
   }
   function terrain(x, z) { return Number((worldGeometry.terrainHeight ?? worldGeometry.heightAt)?.(x, z)) || 0; }
   function collides(x, z) {
+    if((game.state.animals??[]).some(a=>a.state==='alive'&&!a.indoors&&Math.hypot(x-(a.x-700)/50,z-(a.y-650)*1.65/50)<C.radius+((a.sp==='chicken'?.22:a.sp==='cow'?.55:.60)*(a.age<1?.65:1))))return true;
     return Math.abs(x) > C.bounds - C.radius || Math.abs(z) > C.bounds - C.radius || blockedByFarm(game.state, x, z) || blockedByFences(game.state, x, z) || !!(worldGeometry.blocked ?? worldGeometry.isBlocked)?.(x, z, C.radius);
   }
   function recoverPlayer() {

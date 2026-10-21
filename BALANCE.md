@@ -9,11 +9,11 @@ Six scripted strategies have a relaxed budget of 30 taps per game minute. One ca
 | Balanced milestone | Game minute |
 |---|---:|
 | Coop | 1 |
-| Barn | 27 |
-| First cow | 29 |
-| Stable | 58 |
-| First horse | 68 |
-| All ten beds and six buildings | 111 |
+| Barn | 15 |
+| First cow | 16 |
+| Stable | 32 |
+| First horse | 36 |
+| All ten beds and six buildings | 80 |
 
 ### Net worth
 
@@ -22,22 +22,22 @@ Money + goods + living animals at sale value + half the cost of placed buildings
 | Strategy | 0m | 5m | 10m | 15m | 20m | 30m | 45m | 60m | 75m | 90m | 105m | 120m | 135m | 150m |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | idle | 1,055 | 1,055 | 1,055 | 1,055 | 1,055 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 |
-| daisySpam | 1,055 | 274 | 104 | 356 | 79 | 603 | 743 | 739 | 1,705 | 2,697 | 3,681 | 4,659 | 5,637 | 6,601 |
-| bestCropOnly | 1,007 | 144 | 195 | 467 | 378 | 683 | 557 | 2,489 | 4,411 | 6,391 | 8,141 | 10,120 | 11,728 | 13,687 |
-| chickenFarm | 1,024 | 827 | 844 | 948 | 1,111 | 1,511 | 3,387 | 5,224 | 7,084 | 9,123 | 10,917 | 12,797 | 14,500 | 16,432 |
-| balanced | 1,007 | 423 | 793 | 918 | 1,106 | 1,711 | 3,278 | 5,278 | 8,415 | 9,916 | 12,438 | 15,363 | 20,776 | 26,355 |
-| horseRush | 1,007 | 1,008 | 1,107 | 1,197 | 1,287 | 1,389 | 1,683 | 1,923 | 2,289 | 2,619 | 1,721 | 2,044 | 2,370 | 2,699 |
+| daisySpam | 1,055 | 206 | 385 | 491 | 373 | 2,119 | 4,789 | 7,411 | 10,021 | 12,553 | 15,091 | 17,669 | 20,209 | 22,810 |
+| bestCropOnly | 1,007 | 208 | 300 | 593 | 1,045 | 3,949 | 10,369 | 15,127 | 21,439 | 26,305 | 32,185 | 36,988 | 42,528 | 47,255 |
+| chickenFarm | 1,024 | 853 | 882 | 906 | 922 | 2,477 | 5,216 | 8,132 | 11,056 | 14,088 | 16,940 | 19,615 | 22,554 | 25,293 |
+| balanced | 1,007 | 457 | 907 | 1,718 | 2,132 | 4,729 | 11,840 | 17,287 | 27,288 | 37,833 | 49,625 | 60,965 | 71,971 | 82,932 |
+| horseRush | 1,007 | 1,012 | 1,257 | 1,491 | 1,721 | 1,973 | 1,497 | 1,979 | 2,787 | 3,391 | 3,723 | 4,444 | 5,044 | 4,955 |
 
 | Strategy | Final money | Final worth | Deaths | Taps |
 |---|---:|---:|---:|---:|
 | idle | 1,000 | 1,000 | 2 | 0 |
-| daisySpam | 6,468 | 6,601 | 0 | 4499.5 |
-| bestCropOnly | 13,494 | 13,687 | 0 | 1821 |
-| chickenFarm | 15,557 | 16,432 | 0 | 4337 |
-| balanced | 12,703 | 26,355 | 0 | 4161.5 |
-| horseRush | 1,304 | 2,699 | 0 | 643.5 |
+| daisySpam | 22,695 | 22,810 | 0 | 4500 |
+| bestCropOnly | 47,038 | 47,255 | 0 | 1879 |
+| chickenFarm | 24,394 | 25,293 | 0 | 4421 |
+| balanced | 67,734 | 82,932 | 0 | 4369.5 |
+| horseRush | 118 | 4,955 | 0 | 775.5 |
 
-The balanced farm completes at minute 111 with zero deaths and finishes above every single-resource strategy by at least 30%. Crop income remains limited by ten beds, growth times, escalating bed prices, and repeated planting/watering. Animal capacity remains limited by housing and the global cap of 30. Buying and immediately selling animals loses money. Ignoring care still loses both starter hens at minute 24.
+The balanced farm completes at minute 80 with zero deaths. Daisy, tulip, cabbage, sunflower and lavender now yield two items; wheat yields four hay. Milk sells for 210. The unchanged late-income test passes: the balanced farm earns 2.14 times the best crop strategy over the last 30 minutes. Each strategy calls its hens in at dusk within its tap budget. Ignoring care loses both starter hens at minute 24.
 
 ## Night defenses
 
@@ -45,23 +45,23 @@ The defense benchmark starts with the same six adult female animals (four cows a
 
 | Defense | Fence cost | Total damage | Lowest health | Deaths | Survivors | Wolf pack scares | Predator spawns |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| noFences | 0 | 585 | 41 | 0 | 6 | 0 | 20 |
-| partialFence | 84 | 207 | 54 | 0 | 6 | 0 | 20 |
+| noFences | 0 | 571 | 41 | 0 | 6 | 0 | 20 |
+| partialFence | 84 | 157 | 41 | 0 | 6 | 0 | 20 |
 | closedPen | 87 | 0 | 100 | 0 | 6 | 0 | 20 |
-| activeFlashlight | 0 | 266 | 53 | 0 | 6 | 6 | 20 |
+| activeFlashlight | 0 | 260 | 42 | 0 | 6 | 6 | 20 |
 
 The closed pen prevents all damage for 87 coins. An incomplete loop provides no enclosure protection, even though physical segments can delay approach. Regular care avoids a wipeout in this twelve-night sample. The flashlight reduces exposure but cannot protect against bears; fences remain the dependable defense. Sustained attacks can kill an already injured or uncared-for animal, as a separate lifecycle test verifies.
 
 ### Rules and tuning
 
-- Only cows and horses are predator targets; chickens stay near home and are never targeted.
+- Outdoor chickens, cows and horses are predator targets. Chickens only enter the coop after the player calls them in near dusk; indoors they are safe. This follows the later direct user request.
 - The first encounter is one wolf after the farm owns a cow or horse. Later packs contain one to three wolves. Bears require at least six large animals and have a 16% eligible-night chance.
 - Spawns wait 75 seconds into the 300-second night. Wolves move at 34 logical units/s and deal 0.16 health/s; bears move at 23 and deal 0.32. All health starts at 100. Fed and watered animals heal at 0.4 health/s while out of an attack.
 - Wolves require 1.5 seconds of flashlight exposure in first person at night. God View cannot scare them. Bears are immune. One seeded 50% suspense draw is shared by a pack; the renderer owns the real-time flicker, two-second pause, and lunge.
 - Fences cost 3 per segment, gates cost 12, and deletion refunds 50% of the purchase value rounded to a coin. Solid segments and closed gates block animal/player/predator movement; open gates break enclosure protection.
 - Offline catch-up caps at 600 game seconds, freezes animal needs, causes no attacks or predator deaths, and despawns danger. Live predators and alerts are deliberately omitted from saves, while the completed-night schedule is preserved to avoid an immediate repeat on reload.
 - Permanent hand, watering can, fishing rod, and flashlight tools can move between slots but cannot be sold or discarded. Failed full-inventory purchases/harvests/collections are atomic, with crops and pickups left in the world.
-- Anti-softlock seed/feed gifts remain active; wolves never target the gift-producing starter chickens. Free permanent tools and daytime recovery keep a broke farm playable.
+- Anti-softlock seed/feed gifts remain active; daytime recovery and gifts remain available even if outdoor chickens are lost. Free permanent tools and daytime recovery keep a broke farm playable.
 
 ## Validation
 

@@ -64,7 +64,7 @@ export function createAnimalRenderer(ctx) {
       o.userData.chickenLegs = [legL, legR].filter(Boolean).map((bone) => ({ bone, rotation: bone.rotation.clone() }));
       o.userData.chickenHead = o.getObjectByName("Head");
     }
-    if(!isChicken&&!fish)batchFlatRig(o);
+    if(!fish&&(!isChicken||(!agent.juvenile&&agent.sex!=="m")))batchFlatRig(o);
     group.add(o);
     const view = { o, type: s.type, chicken: isChicken, fish, born: now, deadAt: null, dimmed: 0, collapsed: false };
     o.userData.agent = agent;

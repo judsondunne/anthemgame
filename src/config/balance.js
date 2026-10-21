@@ -132,7 +132,7 @@ export const BALANCE = {
     feed_horse: { price: 16, units: 4 },
   },
 
-  goods: { egg: 6, milk: 140, hay: 1 }, // crop goods use crops[*].sell
+  goods: { egg: 6, milk: 210, hay: 1 }, // crop goods use crops[*].sell
 
   market: { driftAmplitude: 0.1 }, // gentle deterministic daily price drift, +/- 10%
 

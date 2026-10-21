@@ -4,6 +4,7 @@ import { BALANCE as B } from '../config/balance.js';
 import { OBSTACLES, hitObstacle, placedFootprints, cellRect, CELL_X, CELL_Y } from './layout.js';
 import { fenceBlocked } from './fences.js';
 import { coopEntryAllowed } from './shelter.js';
+import { worldCollisionAt } from './world-collision.js';
 import { WORLD } from '../config/world.js';
 
 export function deepWaterAt(x, y) {
@@ -18,7 +19,7 @@ export function groundBlocked(s, x, y, animal=null) {
   const coop=animal&&coopEntryAllowed(s,animal,x,y);
   const z = B.fences.bounds;
   if (x < z.gx0 * CELL_X || x > z.gx1 * CELL_X || y < z.gy0 * CELL_Y || y > z.gy1 * CELL_Y) return true;
-  if (deepWaterAt(x, y)) return true;
+  if (deepWaterAt(x, y)||worldCollisionAt(s,x,y,radius)) return true;
   if (OBSTACLES.some(o => {
     if(o.kind==='path')return false;
     if(coop&&o.kind==='rect'&&o.x0===220&&coop.id===null)return false;

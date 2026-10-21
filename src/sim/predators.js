@@ -4,7 +4,7 @@ import { BALANCE as B } from '../config/balance.js';
 import { cyclePosition, dayIndex, isNightAt } from './clock.js';
 import { nextRandom } from './rng.js';
 import { isPenned, fenceBlocked } from './fences.js';
-import { moveToward } from './movement.js';
+import { groundBlocked, moveToward } from './movement.js';
 
 const P = B.predators;
 const distance = (a, b) => Math.hypot(a.x - b.x, (a.y - b.y) * 1.65);
@@ -19,6 +19,10 @@ export function forcePredator(s, kind = 'wolf', options = {}) {
     state: 'approach', target: null, exposure: 0, born: s.time,
     pack: options.pack ?? `night-${dayIndex(s.time)}`, fleeFor: 0, encounter: null,
   };
+  if(groundBlocked(s,p.x,p.y)){
+    const origin={x:p.x,y:p.y};let found=false;
+    for(let ring=1;ring<=8&&!found;ring++)for(let i=0;i<16;i++){const angle=i/16*Math.PI*2,x=origin.x+Math.cos(angle)*ring*16,y=origin.y+Math.sin(angle)*ring*16/1.65;if(!groundBlocked(s,x,y)){p.x=x;p.y=y;found=true;break;}}
+  }
   s.predators ??= []; s.predators.push(p);
   s.events.push({ type: 'predatorSpawn', id: p.id, kind, x: p.x, y: p.y });
   return { ok: true, id: p.id, predator: p };

@@ -3,6 +3,7 @@ import { BALANCE as B } from '../config/balance.js';
 import { CELL_X, CELL_Y, OBSTACLES, hitObstacle, placedFootprints, cellRect } from './layout.js';
 import { removeInventory } from './inventory.js';
 import { WORLD } from '../config/world.js';
+import { worldCollisionAt } from './world-collision.js';
 
 const fail = reason => ({ ok: false, reason });
 const cache = new WeakMap();
@@ -28,6 +29,7 @@ export function checkFencePlacement(s, gx, gy, axis, gate = false) {
     const wx = (x - 700) / 50, wz = (y - 650) * 1.65 / 50;
     const streamX = WORLD.brook.x + Math.sin(wz * 0.045) * WORLD.brook.meander + Math.sin(wz * 0.115) * 1.9;
     if (Math.abs(wx - streamX) < WORLD.brook.halfWidth + 0.30 * Math.sin(wz * 0.09 + 2)) return fail('blocked');
+    if(worldCollisionAt(s,x,y,3))return fail('blocked');
     if (OBSTACLES.some(o => o.kind !== 'path' && hitObstacle(o, x, y))) return fail('blocked');
     if (footprints.some(f => { const r = cellRect(f.gx, f.gy, f.w, f.h); return x > r.x0 + 0.1 && x < r.x1 - 0.1 && y > r.y0 + 0.1 && y < r.y1 - 0.1; })) return fail('blocked');
   }

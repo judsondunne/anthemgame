@@ -12,3 +12,5 @@ export * as clock from "./clock.js";
 export { BALANCE, DAY_SECONDS } from "../config/balance.js";
 
 export * from './shelter.js';
+
+export * from './world-collision.js';

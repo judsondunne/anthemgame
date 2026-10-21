@@ -40,6 +40,8 @@ class Bot {
   careForAnimals() {
     const s = this.s,
       hs = S.housing(s);
+    // A care-oriented player uses the new single dusk call-in button.
+    if((S.clock.hourAt(s.time)>=B.coop.callHour||S.clock.isNightAt(s.time))&&s.animals.some(a=>a.sp==='chicken'&&a.state==='alive'&&!a.shelterRequested)&&this.spend())S.callChickensIn(s);
     for (const sp of S.SPECIES) {
       const herd = S.alive(s, sp);
       const hungry = herd.filter((a) => S.needsOf(a).hungry);

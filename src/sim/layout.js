@@ -1,6 +1,7 @@
 // Fixed world geometry in the garden's logical coordinates (x right, y toward
 // the camera). The renderer maps (x, y) -> ((x-700)/50, h, (y-650)*1.65/50), so
 // one grid cell is 0.8 x 0.8 world units.
+import { worldCollisionAt } from "./world-collision.js";
 import { BALANCE } from "../config/balance.js";
 
 export const CELL_X = 40;
@@ -115,7 +116,7 @@ export function checkPlacement(state, type, gx, gy) {
   for (let j = 0; j < h; j++)
     for (let i = 0; i < w; i++) {
       const c = { gx: gx + i, gy: gy + j, w: 1, h: 1 };
-      cells.push({ gx: c.gx, gy: c.gy, ok: cellFree(zone, c.gx, c.gy) && !others.some((o) => overlaps(o, c)) });
+      cells.push({ gx: c.gx, gy: c.gy, ok: cellFree(zone, c.gx, c.gy) && !worldCollisionAt(state,(c.gx+.5)*CELL_X,(c.gy+.5)*CELL_Y,27) && !others.some((o) => overlaps(o, c)) });
     }
   return { ok: cells.every((c) => c.ok), cells };
 }
@@ -152,7 +153,7 @@ export const LAWNS = {
 export function openGround(state, lawn, x, y) {
   const z = LAWNS[lawn];
   if (!z || x < z.x0 + 6 || x > z.x1 - 6 || y < z.y0 + 6 || y > z.y1 - 6) return false;
-  if (OBSTACLES.some((o) => hitObstacle(o, x, y))) return false;
+  if (OBSTACLES.some((o) => hitObstacle(o, x, y))||worldCollisionAt(state,x,y,12)) return false;
   for (const f of placedFootprints(state)) {
     const r = cellRect(f.gx, f.gy, f.w, f.h);
     if (x > r.x0 - 8 && x < r.x1 + 8 && y > r.y0 - 8 && y < r.y1 + 8) return false;

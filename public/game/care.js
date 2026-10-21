@@ -28,7 +28,7 @@ addEventListener("keydown", (e) => {
     AudioGarden.toggle();
     YouTubeGarden.mute();
   }
-  if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
+  if (!window.Garden?.cameraControl && ["ArrowLeft", "ArrowRight"].includes(e.key)) {
     e.preventDefault();
     Farm.held = e.key === "ArrowLeft" ? -1 : 1;
   }

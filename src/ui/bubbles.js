@@ -3,7 +3,7 @@
 import { NIGHT_ICONS as N } from "./night-icons.js";
 import { ICONS, itemIcon } from "./icons.js";
 import { BALANCE as B } from "../config/balance.js";
-import { needsOf, plotStage, foodsFor, layout } from "../sim/index.js";
+import { needsOf, plotStage, foodsFor, isPenned, layout } from "../sim/index.js";
 
 const { footprintCenter, footprintOf, plotPosition } = layout;
 const HEIGHT = { chicken: 1.1, cow: 1.75, horse: 2.05 };
@@ -70,6 +70,11 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
           const e=element('coop-call'+coop.id,html,'coop-call '+(inside===chickens.length?'settled':'calling'),{inside:()=>game.act('callChickensIn')});position(e,coop.x,coop.y,2.15,0);
         }
       }
+    }
+    if(['fence','gate'].includes(game.state.ui.tool)){
+      const vertices=new Map();for(const f of s.fences??[]){if(f.gate&&f.open)continue;for(const [gx,gy]of[[f.gx,f.gy],[f.gx+(f.axis==='h'?1:0),f.gy+(f.axis==='v'?1:0)]]){const key=`${gx},${gy}`;const v=vertices.get(key)??{gx,gy,n:0};v.n++;vertices.set(key,v);}}
+      const ends=[...vertices.values()].filter(v=>v.n===1);if(ends.length>=2){const a=ends[0],b=ends[1];const e=element('pen-gap',`<span class="ico">${N.brokenLink}</span>`,'small pen-gap',{});position(e,(a.gx+b.gx)*20,(a.gy+b.gy)*20/1.65,.65,0);}
+      for(const b of s.buildings){const at=layout.frontOf(b);if(isPenned(s,at.approach))continue;const e=element('pen-suggest'+b.id,`<span class="ico">${N.fence}</span>`,'small pen-suggestion',{});position(e,at.x,at.y,2.9,b.id);}
     }
     for (const bed of s.beds) {
       const ripe = bed.plots.find((p) => plotStage(p) === 2);

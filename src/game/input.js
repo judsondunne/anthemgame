@@ -488,6 +488,7 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
     if (e.altKey || e.ctrlKey || e.metaKey || /INPUT|TEXTAREA|SELECT/.test(e.target?.tagName)) return;
     const key = e.key.toLowerCase();
     if (/^[0-9]$/.test(key)) { e.preventDefault(); e.stopImmediatePropagation(); onSelect(null, key === "0" ? 9 : Number(key) - 1); return; }
+    if(key==="r"&&!fenceMode())return;
     if (["e", "q", "i", "tab", "m", "f", "r", "delete", "backspace", "escape"].includes(key)) {
       e.preventDefault(); e.stopImmediatePropagation(); if (e.repeat) return;
       if (key === "escape") { if (hud.inventoryOpen) onInventory(); else cancel(); cameraControl?.releasePointer(); }
