@@ -1,0 +1,379 @@
+{
+  "checks": [
+    {
+      "name": "Cows and horses visibly locked before their buildings",
+      "pass": true
+    },
+    {
+      "name": "Actual click plants daisy",
+      "pass": true
+    },
+    {
+      "name": "Actual click plants wheat",
+      "pass": true
+    },
+    {
+      "name": "Actual click plants tulip",
+      "pass": true
+    },
+    {
+      "name": "Actual click plants cabbage",
+      "pass": true
+    },
+    {
+      "name": "Actual click plants sunflower",
+      "pass": true
+    },
+    {
+      "name": "Actual click plants lavender",
+      "pass": true
+    },
+    {
+      "name": "Occupied plot click does not replace crop",
+      "pass": true
+    },
+    {
+      "name": "Watering click supplies all six plots",
+      "pass": true
+    },
+    {
+      "name": "Actual harvest clicks clear all six plots",
+      "pass": true
+    },
+    {
+      "name": "All six yields enter inventory",
+      "pass": true
+    },
+    {
+      "name": "Replant after harvest",
+      "pass": true
+    },
+    {
+      "name": "Actual market sell earns coins",
+      "pass": true
+    },
+    {
+      "name": "Pointer drag hotbar to backpack",
+      "pass": true
+    },
+    {
+      "name": "Drop outside cancels without item loss",
+      "pass": true
+    },
+    {
+      "name": "Actual ghost confirmation places barn",
+      "pass": true
+    },
+    {
+      "name": "Actual placement clicks make a closed pen",
+      "pass": true
+    },
+    {
+      "name": "Barn unlocks cows",
+      "pass": true
+    },
+    {
+      "name": "Purchased cow spawns in enclosed barn pen",
+      "pass": true,
+      "detail": [
+        {
+          "id": 43,
+          "x": -852.9575773321992,
+          "y": 741.5890442233783,
+          "penned": true
+        },
+        {
+          "id": 44,
+          "x": -923.8207013006249,
+          "y": 751.3316032894369,
+          "penned": true
+        }
+      ]
+    },
+    {
+      "name": "Threat alert appears for exposed cow",
+      "pass": true
+    },
+    {
+      "name": "Closed pen animal safe",
+      "pass": true
+    },
+    {
+      "name": "God View cannot scare wolves",
+      "pass": true
+    },
+    {
+      "name": "Suspense waits before jump",
+      "pass": true
+    },
+    {
+      "name": "Full-screen lunge phase rendered",
+      "pass": true,
+      "detail": {
+        "observedBy": "waitForFunction on real animation phase"
+      }
+    },
+    {
+      "name": "Jumpscare sends wolf pack fleeing",
+      "pass": true
+    },
+    {
+      "name": "Other branch flees without jump",
+      "pass": true
+    },
+    {
+      "name": "Bear remains immune to flashlight",
+      "pass": true
+    },
+    {
+      "name": "Pen keeps animal health intact",
+      "pass": true
+    },
+    {
+      "name": "Dawn clears predators and alerts",
+      "pass": true
+    },
+    {
+      "name": "Delete-mode actual click refunds fence",
+      "pass": true
+    },
+    {
+      "name": "Words are restricted to requested tutorials, pause and control labels",
+      "pass": true
+    },
+    {
+      "name": "Automatic-quality path remains available",
+      "pass": true
+    }
+  ],
+  "logs": {
+    "errors": [],
+    "warnings": [],
+    "failed": []
+  },
+  "performance": {
+    "averageFrameMs": 16.665876777251185,
+    "p95FrameMs": 16.700000000004366,
+    "cpuRenderMs": 5.981516575926288,
+    "samples": 211,
+    "quality": "high",
+    "fallback": false,
+    "grassCount": 8500,
+    "dpr": 1,
+    "drawCalls": 1798,
+    "mergedMeshCount": 371,
+    "triangles": 8269913,
+    "lantern": 0,
+    "animals": 5,
+    "beds": 1,
+    "buildings": 1,
+    "world": {
+      "trees": 1111,
+      "chunks": 178
+    },
+    "mode": "god",
+    "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+  },
+  "site": {
+    "gx": -25,
+    "gy": 24,
+    "x": -880,
+    "y": 642.4242424242425,
+    "x0": -27,
+    "x1": -17,
+    "y0": 22,
+    "y1": 31,
+    "edges": [
+      {
+        "gx": -27,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -27,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -26,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -26,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -25,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -25,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -24,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -24,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -23,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -23,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -22,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -22,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -21,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -21,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -20,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -20,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -19,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -19,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -18,
+        "gy": 22,
+        "axis": "h"
+      },
+      {
+        "gx": -18,
+        "gy": 31,
+        "axis": "h"
+      },
+      {
+        "gx": -27,
+        "gy": 22,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 22,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 23,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 23,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 24,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 24,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 25,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 25,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 26,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 26,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 27,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 27,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 28,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 28,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 29,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 29,
+        "axis": "v"
+      },
+      {
+        "gx": -27,
+        "gy": 30,
+        "axis": "v"
+      },
+      {
+        "gx": -17,
+        "gy": 30,
+        "axis": "v"
+      }
+    ]
+  }
+}

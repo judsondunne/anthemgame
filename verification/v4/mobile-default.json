@@ -1,0 +1,14 @@
+{
+  "quality": "low",
+  "dpr": 1,
+  "reticle": true,
+  "caption": false,
+  "held": {
+    "item": "flashlight",
+    "model": "hand-flashlight",
+    "visible": true
+  },
+  "bodyWidth": 390,
+  "width": 390,
+  "errors": []
+}

@@ -1,0 +1,15 @@
+{
+  "eyes": {
+    "chicken": 2,
+    "cow": 2,
+    "horse": 2
+  },
+  "errors": [],
+  "invalid": {
+    "gx": 16,
+    "gy": 19,
+    "axis": "h",
+    "gate": false,
+    "valid": false
+  }
+}

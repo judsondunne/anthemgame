@@ -66,3 +66,25 @@ The closed pen prevents all damage for 87 coins. An incomplete loop provides no 
 ## Validation
 
 `npm test` covers the progression thresholds, defense comparison, every seed across all ten beds and growth stages, fence placement/refund/gates/enclosures/corner collision, animal fence collision, inventory moves/merges/splits/full capacity/migration, targeting, first-person exposure timing, bear immunity, encounter determinism, damage/healing/death/bones, dawn cleanup, and offline/reload safety. Browser graphics and performance are verified separately by the main implementation report.
+
+## First-person feedback follow-up — current values
+
+This section supersedes the earlier night schedule table. Wolves now also visit chicken-only farms after 40 seconds of night. Indoor hens are protected; pack targeting spreads among exposed animals. The original progression and defense assertions are unchanged. `verification/v4/balance.json` contains the full new run.
+
+| Strategy | Final money | Final worth | Deaths |
+|---|---:|---:|---:|
+| idle | 1,000 | 1,000 | 2 |
+| daisySpam | 22,818 | 22,952 | 0 |
+| bestCropOnly | 46,702 | 46,926 | 0 |
+| chickenFarm | 28,097 | 28,972 | 0 |
+| balanced | 66,146 | 81,638 | 0 |
+| horseRush | 72 | 4,862 | 0 |
+
+The balanced farm completes at minute 78, with 0 deaths.
+
+| Defense | Fence cost | Damage | Lowest health | Deaths |
+|---|---:|---:|---:|---:|
+| noFences | 0 | 756 | 31 | 0 |
+| partialFence | 84 | 218 | 50 | 0 |
+| closedPen | 87 | 0 | 100 | 0 |
+| activeFlashlight | 0 | 374 | 31 | 0 |

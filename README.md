@@ -19,19 +19,19 @@ Verification (Playwright, headless Chromium with WebGL; `npx playwright install 
 npm run build && npm run verify
 ```
 
-`verification/v3/run-all.cjs` runs unit tests, builds the game, verifies persistence against a file-backed Blob mock, then runs sequential camera, first-person, gameplay, tutorial/mobile, software-renderer and full-farm performance checks. GPU suites use Metal on macOS; the software smoke uses SwiftShader. Evidence is saved under `verification/v3/`. Native headless pointer lock is emulated and recorded explicitly.
+`verification/v4/run-all.cjs` runs unit tests, builds the game, verifies persistence against a file-backed Blob mock, then runs sequential camera, first-person, gameplay, tutorial/mobile, software-renderer and full-farm performance checks. GPU suites use Metal on macOS; the software smoke uses SwiftShader. Evidence is saved under `verification/v4/`. Native headless pointer lock is emulated and recorded explicitly.
 
-Results and the screenshot review are in `verification/v3/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
+Results and the screenshot review are in `verification/v4/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
 
 ## How to play
 
-- **Hotbar** (bottom): hand, watering can, fish food, then whatever you hold — seed packets, feed sacks, hay, building kits, harvested goods — each with a count. Tap a slot to hold it; on desktop the cursor shows the held item. Number keys 1–0 pick slots. I/Tab opens a 64-slot backpack; drag to move, right-drag or long press splits, Shift-click quick moves.
+- **Hotbar** (bottom): hand, watering can, fish food, then whatever you hold — seed packets, feed sacks, hay, building kits, harvested goods — each with a count. Tap a slot to hold it; on desktop the cursor shows the held item. Number keys 1–0 pick slots. E (or I/Tab) opens a 64-slot backpack; drag to move, right-drag or long press splits, Shift-click quick moves.
 - **Crops**: hold seeds and tap a bed to plant; tap a bed with the can to water it (dry crops simply pause); tap a ripe plant (sparkles, bubble) with the hand to harvest. Six crops, from daisy (fast, cheap) to lavender (slow, valuable); wheat becomes hay.
 - **Animals**: request bubbles show food and water; tap the bubble, or tap the animal (or its coop/barn/stable, or a trough) holding feed, hay or the can. Bubbles turn amber and then red as neglect approaches the death threshold; a sad animal droops; after two game days of an unmet need it dies, lies still, and half a day later becomes bones you can tap away. Animals never starve while you are away.
 - **Eggs and milk** appear in the world: tap them, or tap their coop or barn with the hand to gather everything around it.
 - **Market**: the stall button (or the stall beside the cottage). Basket tab buys seeds, feed, animals (♀/♂) and buildings; coins tab sells goods and adult animals (tap = one, the coin stack = all). Cows unlock with a barn, horses with a stable (padlock + building icon until then).
 - **Building**: buying a coop, barn, stable or bed enters placement mode: a ghost over the build grid, green when it fits, red when it doesn't. Drag or tap to move it, tap it again or press the check to confirm; the cross keeps the kit in the hotbar for later. Barns go in the west pasture, stables in the east meadow, beds and coops in the garden.
-- **Camera**: drag to orbit, right-drag to pan, wheel or pinch to zoom; touch drags pan and two fingers orbit/pinch. The eye button switches to first person. WASD moves, Shift sprints, Space jumps, E interacts, F toggles the torch, Escape releases the mouse.
+- **Camera**: drag to orbit, right-drag to pan, wheel or pinch to zoom; touch drags pan and two fingers orbit/pinch. The eye button switches to first person. WASD moves, Shift sprints, Space jumps, left-click interacts, E opens inventory, M opens the market, Q changes view, F toggles the torch, and Escape pauses. Double-tap W or hold Shift to sprint. Building kits automatically switch to God view for placement; Q returns to first person.
 - **Night**: tap the coop's dusk moon button to bring chickens inside; watch them settle on their roosts. Outdoor animals can be attacked. Build a closed fence loop with a closed gate to protect livestock. First-person flashlight aim scares wolves; half of pack encounters flicker, pause two seconds and briefly jump toward the screen. Bears require fences.
 - **Sound**: the speaker toggle; M opens the market, the speaker button mutes. R streams the optional album, L plays local audio files.
 

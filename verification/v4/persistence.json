@@ -1,0 +1,96 @@
+{
+  "results": [
+    {
+      "name": "one-time ?k= key captured and stripped"
+    },
+    {
+      "name": "reload restores identical state",
+      "timeDelta": 0.08,
+      "gap": 1,
+      "animals": 6,
+      "slots": 74,
+      "selectedSlot": 9,
+      "mode": "fp",
+      "fences": 26,
+      "gateOpen": true
+    },
+    {
+      "name": "debounced push reached api/state",
+      "rev": 1,
+      "seq": 3
+    },
+    {
+      "name": "server restart (redeploy) + empty browser storage restores the farm",
+      "rev": 2
+    },
+    {
+      "name": "corrupt save falls back to backup and keeps a copy"
+    },
+    {
+      "name": "empty save starts a fresh farm safely"
+    },
+    {
+      "name": "structurally invalid save starts fresh"
+    },
+    {
+      "name": "schemaVersion 1 save migrates on load",
+      "money": 777
+    },
+    {
+      "name": "schemaVersion 2 migrates without losing inventory or animals",
+      "money": 1357,
+      "slots": 74
+    },
+    {
+      "name": "clock moving backwards gives zero catch-up",
+      "source": "local",
+      "server": "unknown",
+      "local": "unknown",
+      "leader": true,
+      "rev": 0,
+      "caughtUp": 0
+    },
+    {
+      "name": "five hours away: capped catch-up, nobody died offline",
+      "caughtUp": 600
+    },
+    {
+      "name": "tab hidden for hours: capped, no deaths",
+      "dt": 600,
+      "alive": 2
+    },
+    {
+      "name": "two tabs: single leader, mirrored saves, nothing lost",
+      "money": 933
+    },
+    {
+      "name": "revision conflict: stale write refused, newest wins, loser backed up",
+      "rev": 4
+    },
+    {
+      "name": "server unreachable: silent localStorage fallback",
+      "server": "unreachable",
+      "source": "local",
+      "browserLoggedAbort": 3
+    },
+    {
+      "name": "route without SAVE_KEY refuses writes silently (localStorage-only)",
+      "source": "server",
+      "server": "unavailable",
+      "local": "unknown",
+      "leader": true,
+      "rev": 4,
+      "caughtUp": 4.076
+    }
+  ],
+  "testedBuild": {
+    "indexModifiedAt": "2026-10-21T22:58:05.678Z",
+    "entry": "/assets/assets-B-ayMh_m.js"
+  },
+  "fixtureNotes": [
+    "The live first-person placement ghost follows camera aim. The fixture settles the0.7-second camera flight for0.95 seconds before exact structural comparison."
+  ],
+  "errors": [],
+  "warnings": [],
+  "failed": []
+}

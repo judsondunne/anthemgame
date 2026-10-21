@@ -1,0 +1,84 @@
+{
+  "checks": [
+    "Interaction text removed",
+    "Permanent center reticle visible",
+    "E/M/Q shortcuts visibly labeled",
+    "Large downloaded 3D viewmodel: can",
+    "Large downloaded 3D viewmodel: flashlight",
+    "Large downloaded 3D viewmodel: seed_daisy",
+    "Large downloaded 3D viewmodel: feed_chicken",
+    "E opens inventory",
+    "E closes inventory",
+    "M opens market",
+    "Escape shows explicit pause",
+    "Paused time and movement freeze",
+    "Escape resumes",
+    "Farm clock resumes",
+    "Double tap W sprints",
+    "Generous off-center planting target",
+    "Left click interacts without opening inventory",
+    "Q changes to God view",
+    "Q returns to first person",
+    "Barn purchase automatically enters God view placement",
+    "Barn placement confirms",
+    "Q returns after building",
+    "Natural wolf spawns on chicken-only first night",
+    "Night sighting clearly shows wolves",
+    "Wolf can reach the property through the actual forest colliders",
+    "Stuck legacy chickens recover outside solids",
+    "Recovered hens resume roaming",
+    "Clean runtime logs"
+  ],
+  "errors": [],
+  "warnings": [],
+  "failed": [],
+  "walk": 3.223253322090685,
+  "sprint": 5.355639708677103,
+  "assistedAim": {
+    "aimed": {
+      "kind": "bed",
+      "id": 1,
+      "index": 4
+    },
+    "screen": {
+      "x": 775.4962942620047,
+      "y": 440.53641021053795,
+      "visible": true
+    }
+  },
+  "nightStart": [
+    {
+      "id": 7,
+      "kind": "wolf",
+      "x": 2521.227315369832,
+      "y": 1407.4428566263484,
+      "state": "prowl",
+      "target": null,
+      "exposure": 0,
+      "born": 318.57142857142856,
+      "pack": "night-0",
+      "fleeFor": 0,
+      "encounter": null,
+      "prowlTarget": 3,
+      "heading": -2.7112167773647693
+    }
+  ],
+  "nightAfter": [
+    {
+      "id": 7,
+      "kind": "wolf",
+      "x": 503.0662207803494,
+      "y": 847.4729095246925,
+      "state": "prowl",
+      "target": null,
+      "exposure": 0,
+      "born": 318.57142857142856,
+      "pack": "night-0",
+      "fleeFor": 0,
+      "encounter": null,
+      "prowlTarget": 3,
+      "heading": -2.699822138103789
+    }
+  ],
+  "nearestCoop": 189.41527746859063
+}

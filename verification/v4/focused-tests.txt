@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: a fed hen lays exactly one egg per production interval
+ok 1 - a fed hen lays exactly one egg per production interval
+  ---
+  duration_ms: 46.476417
+  type: 'test'
+  ...
+# Subtest: hungry hens still lay, at the neglect rate
+ok 2 - hungry hens still lay, at the neglect rate
+  ---
+  duration_ms: 8.447625
+  type: 'test'
+  ...
+# Subtest: roosters never lay
+ok 3 - roosters never lay
+  ---
+  duration_ms: 19.176583
+  type: 'test'
+  ...
+# Subtest: coop multiplies egg production and fertility for the hens it houses
+ok 4 - coop multiplies egg production and fertility for the hens it houses
+  ---
+  duration_ms: 37.862625
+  type: 'test'
+  ...
+# Subtest: cows give milk on their longer rhythm; bulls do not
+ok 5 - cows give milk on their longer rhythm; bulls do not
+  ---
+  duration_ms: 33.758542
+  type: 'test'
+  ...
+# Subtest: a content pair breeds exactly every 2 game days
+ok 6 - a content pair breeds exactly every 2 game days
+  ---
+  duration_ms: 69.33725
+  type: 'test'
+  ...
+# Subtest: breeding pauses while either parent needs care
+ok 7 - breeding pauses while either parent needs care
+  ---
+  duration_ms: 11.574542
+  type: 'test'
+  ...
+# Subtest: juveniles mature over exactly 3 game days and only adults produce
+ok 8 - juveniles mature over exactly 3 game days and only adults produce
+  ---
+  duration_ms: 11.351333
+  type: 'test'
+  ...
+# Subtest: starvation kills at 2 game days of unmet hunger, with gentle escalation first
+ok 9 - starvation kills at 2 game days of unmet hunger, with gentle escalation first
+  ---
+  duration_ms: 12.370333
+  type: 'test'
+  ...
+# Subtest: thirst alone is just as fatal
+ok 10 - thirst alone is just as fatal
+  ---
+  duration_ms: 9.566833
+  type: 'test'
+  ...
+# Subtest: dead animals become bones after half a day, then clear on tap
+ok 11 - dead animals become bones after half a day, then clear on tap
+  ---
+  duration_ms: 3.431917
+  type: 'test'
+  ...
+# Subtest: dead animals cannot be fed, watered, sold, breed or produce
+ok 12 - dead animals cannot be fed, watered, sold, breed or produce
+  ---
+  duration_ms: 14.8055
+  type: 'test'
+  ...
+# Subtest: feeding only consumes food when hungry, prefers species feed, accepts hay
+ok 13 - feeding only consumes food when hungry, prefers species feed, accepts hay
+  ---
+  duration_ms: 0.702458
+  type: 'test'
+  ...
+# Subtest: breeding with no housing capacity holds the baby until room frees up
+ok 14 - breeding with no housing capacity holds the baby until room frees up
+  ---
+  duration_ms: 71.21975
+  type: 'test'
+  ...
+# Subtest: the global animal cap stops purchases and births
+ok 15 - the global animal cap stops purchases and births
+  ---
+  duration_ms: 620.846667
+  type: 'test'
+  ...
+# Subtest: chickens remain outside until the dusk coop button is used, then visibly settle inside
+ok 16 - chickens remain outside until the dusk coop button is used, then visibly settle inside
+  ---
+  duration_ms: 19.0195
+  type: 'test'
+  ...
+# Subtest: daylight coop call is refused without changing animals
+ok 17 - daylight coop call is refused without changing animals
+  ---
+  duration_ms: 0.353667
+  type: 'test'
+  ...
+# Subtest: species sized body collision stops buildings and separates overlapping livestock
+ok 18 - species sized body collision stops buildings and separates overlapping livestock
+  ---
+  duration_ms: 0.38275
+  type: 'test'
+  ...
+# Subtest: the same downloaded tree/rock collider data blocks livestock without entering save documents
+ok 19 - the same downloaded tree/rock collider data blocks livestock without entering save documents
+  ---
+  duration_ms: 0.352709
+  type: 'test'
+  ...
+# Subtest: legacy hens inside the solid coop footprint recover and resume daytime roaming
+ok 20 - legacy hens inside the solid coop footprint recover and resume daytime roaming
+  ---
+  duration_ms: 0.892208
+  type: 'test'
+  ...
+# Subtest: dawn after fractional tick accumulation is daytime and clears danger
+ok 21 - dawn after fractional tick accumulation is daytime and clears danger
+  ---
+  duration_ms: 0.121292
+  type: 'test'
+  ...
+# Subtest: chickens can leave and enter their coop again on consecutive days
+ok 22 - chickens can leave and enter their coop again on consecutive days
+  ---
+  duration_ms: 24.471
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1092.629
