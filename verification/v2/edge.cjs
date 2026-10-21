@@ -17,6 +17,7 @@ const ok = (name, detail = {}) => {
   try {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const { page, log } = await L.open(ctx, `${BASE}/index.html?fresh=1&nosync=1&seed=6&time=9`, "edge");
+    // (closed explicitly before the phone section)
     logs.push(log);
     const S = () => L.snapshot(page);
 
@@ -148,6 +149,44 @@ const ok = (name, detail = {}) => {
     assert(await page.locator('#shop .tile[data-key="animal_chicken_f"].blocked').count(), "tile greyed");
     ok("housing cap: n/n numerals, greyed, refused", { cap });
     assert(L.noLetters(await page.locator("body").innerText()), "no letters");
+    await ctx.close();
+
+    // Phone: the core loop with real touchscreen taps at 390x844.
+    const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
+    const P = await L.open(phone, `${BASE}/index.html?fresh=1&nosync=1&seed=6&time=9`, "phone");
+    logs.push(P.log);
+    const T = { touch: true };
+    const tp = P.page;
+    const bed = await tp.evaluate(() => Garden.state().beds[0].id);
+    await L.tap(tp, '.slot[data-key="can"]', T);
+    await L.tapWorld(tp, "bed", bed, T);
+    await L.tap(tp, '.slot[data-key="seed_daisy"]', T);
+    await L.tapWorld(tp, "plot", { bed, index: 3 }, T);
+    let ps = await L.snapshot(tp);
+    assert(ps.beds[0].plots[0].w > 0 && ps.beds[0].plots[3].crop === "daisy", "touch: watered and planted");
+    await tp.evaluate(() => Garden.advance(60));
+    await tp.waitForTimeout(600);
+    await L.tap(tp, '.slot[data-key="hand"]', T);
+    const bb = await tp.locator(".bubble.ripe button").boundingBox();
+    await tp.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2);
+    await tp.waitForTimeout(300);
+    ps = await L.snapshot(tp);
+    assert(ps.inv.daisy >= 3, "touch: harvested from the ripe bubble");
+    await L.tap(tp, ".shopbtn", T);
+    await tp.waitForTimeout(400);
+    await L.tap(tp, "#shop .tab.sell", T);
+    await L.tap(tp, '#shop .tile[data-key="daisy"] .all', T);
+    await L.tap(tp, "#shop .tab.buy", T);
+    await L.tap(tp, '#shop .tile[data-key="kit_bed"]', T);
+    await tp.waitForTimeout(600);
+    ps = await L.snapshot(tp);
+    assert(!ps.inv.daisy && ps.money > 900 && ps.ui.placing?.kit === "kit_bed", "touch: sold, bought a bed kit, placing");
+    await L.tap(tp, "#placement .ok", T);
+    ps = await L.snapshot(tp);
+    assert(ps.beds.length === 2 && !ps.ui.placing, "touch: bed placed with the check button");
+    assert(L.noLetters(await tp.locator("body").innerText()), "no letters on the phone");
+    ok("phone 390x844 touch loop: water, plant, harvest, sell, buy, place");
+    await phone.close();
   } finally {
     await browser.close();
   }
