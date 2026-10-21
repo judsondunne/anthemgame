@@ -33,6 +33,7 @@ import { initializeItemIcons } from './src/ui/icon-studio.js';
 import { createSkyMaterial } from "./src/render/sky.js";
 import { terrainHeight, createWorld } from "./src/render/world.js";
 import { createThreats } from "./src/render/threats.js";
+import { createWildlife } from './src/render/wildlife.js';
 import { createCropInfo } from "./src/ui/crop-info.js";
 import { createTutorial } from "./src/ui/tutorial.js";
 import { createInput } from "./src/game/input.js";
@@ -158,7 +159,7 @@ function place(o, x, y, h = 0) {
   if(/^(forest_leaf_tree|tree_)/.test(o.userData.asset??""))propertyColliders.push({x:o.position.x,z:o.position.z,radius:.46,type:"tree"});
   return o;
 }
-await loadAssets();
+await loadAssets({anisotropy:renderer.capabilities.getMaxAnisotropy()});
 await initializeItemIcons(renderer);
 // Every architectural component below is a downloaded GLB module (see kit.js).
 const house = place(building({}, windows), 630, 460);
@@ -834,6 +835,7 @@ farmLayer = createFarmLayer({ scene, camera, world, lights: buildingLights, foot
 const animals = createAnimalRenderer({ group: dynamicRoot, world, Farm, logical, henUniform, burst: G.burst, camera, getQuality:()=>quality });
 const bridge = createBridge(G, game, {heightAt:largerWorld.heightAt});
 const waterFeedback=createWaterFeedback({scene,cameraControl,getState:()=>game.state,audio:AudioGarden});
+const wildlife=createWildlife({scene,cameraControl,world:largerWorld,game,getQuality:()=>quality,onWater:waterFeedback.emit});
 const juice = createJuice({ audio: AudioGarden });
 let input = null, tutorial = null;
 const hud = createHud({
@@ -934,7 +936,10 @@ resize();
 cameraUpdate();
 qualitySet(quality);
 lighting();
-await renderer.compileAsync(scene, camera);
+// WebGL implementations without the optional parallel compiler can still
+// compile normally; avoid Three's unsupported-extension console warning.
+if (renderer.getContext().getExtension('KHR_parallel_shader_compile')) await renderer.compileAsync(scene, camera);
+else renderer.compile(scene, camera);
 renderer.render(scene, camera);
 scene.remove(warm);
 function tick(now) {
@@ -959,6 +964,7 @@ function tick(now) {
     const coopDoor=game.state.coops?.base;
     if(coopDoor)coop.userData.setDoorOpen(coopDoor.doorOpen,coopDoor.doorProgress);
     waterFeedback.update(dt);
+    wildlife.update(dt);
     tutorial.update(dt,game.clock);
     if(frameCount%6===0)cropInfo.update();
     AudioGarden.worldAmbience?.(currentNight,largerWorld.brook.distanceTo(camera.position.x,camera.position.z),cameraControl.isFirstPerson);
@@ -1031,7 +1037,7 @@ window.Garden = {
     Sim.tick(game.state, seconds, { offline });
     game.pump();
   },
-  pause, heldItem, cottage, playerGeometry, waterFeedback,
+  pause, heldItem, cottage, playerGeometry, waterFeedback, wildlife,
   timescale: (n) => game.setTimescale(n),
   anchor: anchorScreen,
   save: () => game.persist.flush(game.state),

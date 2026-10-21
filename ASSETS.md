@@ -255,5 +255,9 @@ Kenney remains the architecture/furnishing family; Quaternius provides the same 
 |forest_plant|https://poly.pizza/m/NrJN7UcglF|CC0-1.0|/assets/models/forest/forest_plant.glb|120|Layered broad-leaf forest undergrowth|
 |forest_grass_wispy|https://poly.pizza/m/Msr9zx66VU|CC0-1.0|/assets/models/forest/forest_grass_wispy.glb|494|Fine wind-sway grasses|
 |forest_stump|https://poly.pizza/m/nFvEbUX6LE|CC0-1.0|/assets/models/forest/forest_stump.glb|232|Mossy stumps in forest clearings|
-
 |farm-coop|https://poly.pizza/m/DM0F8siLam|CC0-1.0|/assets/models/architecture/coop.glb|948|Original detailed Quaternius ChickenCoop, with downloaded hinge door, visible nesting boxes and exterior ramp|
+
+
+The new bunny requires `public/assets/models/wildlife/Textures/colormap.png`, copied from the existing, softly recolored Kenney Cube Pets atlas (same CC0 source). All GLB image URI dependencies were checked locally. Texture anisotropy uses the renderer-reported hardware maximum; source textures are retained at their original resolutions.
+
+The cottage is a three-room Kenney Fantasy Town / Furniture kit interior rather than a historically exact Victorian building. Original dormer, gable, porch, trim, shutters and chimney modules provide the closest family match. The wall clock reuses a downloaded mirror frame with a text-free shader dial; the framed landscape is a softly colored mirror panel. Fireplace and curtains are Quaternius CC0 house-interior props. The coop uses Quaternius' original ChickenCoop body, with original Kenney door/nesting modules; the source body's front hatch is covered by the moving door. Far forest trees deliberately switch to original downloaded 78/196-triangle Kenney pine/oak silhouettes beyond the detailed canopy range, while near trees retain their full textured source geometry.

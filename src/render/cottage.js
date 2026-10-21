@@ -111,7 +111,15 @@ export function createCottage(lanterns = []) {
   for(const[x,z]of[[-2.65,-.35],[.42,-5.05]])furniture('pottedPlant',x,z,.42,0,false);
   // An ornamental clock: an existing round frame, with shader-only symbol face.
   const clock=furniture('bathroomMirror',2.0,-.105,.42,Math.PI,false);clock.position.y=1.82;
-  clock.traverse(mesh=>{if(!mesh.isMesh)return;mesh.material=mesh.material.clone();mesh.material.color.set('#e7d1a1');});
+  clock.traverse(mesh=>{if(!mesh.isMesh)return;mesh.material=mesh.material.clone();if(mesh.material.name!=='glass')return;
+    mesh.geometry.computeBoundingBox();const box=mesh.geometry.boundingBox,center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());
+    mesh.material.color.set('#f5ead0');mesh.material.transparent=false;mesh.material.opacity=1;
+    mesh.material.onBeforeCompile=shader=>{shader.uniforms.clockCenter={value:new THREE.Vector2(center.x,center.y)};shader.uniforms.clockScale={value:new THREE.Vector2(size.x*.5,size.y*.5)};shader.vertexShader='varying vec2 clockPosition;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n clockPosition=position.xy;');shader.fragmentShader='varying vec2 clockPosition;uniform vec2 clockCenter,clockScale;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+      vec2 cp=(clockPosition-clockCenter)/clockScale;float r=length(cp),angle=atan(cp.x,cp.y);float marks=(1.-smoothstep(.04,.10,abs(sin(angle*6.))))*smoothstep(.72,.77,r)*(1.-smoothstep(.87,.91,r));
+      float minute=(1.-smoothstep(.035,.055,abs(cp.x)))*step(0.,cp.y)*(1.-step(.59,cp.y));vec2 hand=mat2(.707,-.707,.707,.707)*cp;float hour=(1.-smoothstep(.045,.07,abs(hand.x)))*step(0.,hand.y)*(1.-step(.39,hand.y));float centerDot=1.-smoothstep(.06,.1,r);
+      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.19,.26,.21),max(max(marks,minute),max(hour,centerDot)));
+    `);};mesh.material.customProgramCacheKey=()=> 'icon-clock-dial-v1';
+  });
   const porchLamp=put('lantern',1.0,1.65,.30,.27,.45,.29,0,front);lanterns.push(porchLamp);g.userData.lantern=porchLamp;
   for(const[x,y,z,power,range]of[[-1.6,1.85,-3.2,1.25,5],[2.5,1.6,-1.45,.8,3.7],[2.6,1.23,-4.6,.65,3.1]]){const l=new THREE.PointLight('#ffdb9c',power,range,1.5);l.position.set(x,y,z);g.add(l);lamps.push({light:l,power});}
   const fire=new THREE.PointLight('#ffc064',.55,3.2,1.8);fire.position.set(-2.6,.57,-.94);g.add(fire);

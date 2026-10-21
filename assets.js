@@ -23,6 +23,7 @@ export const manifest = await fetch("/assets/manifest.json").then((r) =>
 const loader = new GLTFLoader(),
   cache = new Map(),
   materials = new Map();
+let textureAnisotropy=16;
 function material(original, key, sway) {
   const id = key + "|" + original.uuid + "|" + sway;
   if (materials.has(id)) return materials.get(id);
@@ -51,9 +52,9 @@ function material(original, key, sway) {
   if (colors[m.name]) m.color.set(colors[m.name]);
   if (m.map) {
     m.map.colorSpace = THREE.SRGBColorSpace;
-    m.map.anisotropy = 16;
+    m.map.anisotropy = textureAnisotropy;
     m.color.set(key.startsWith("forest_")?"#eef0da":"#f2edde");
-    m.map.anisotropy=16;
+    m.map.anisotropy=textureAnisotropy;
     if(key.startsWith("forest_")&&m.transparent){m.alphaTest=.38;m.transparent=false;m.depthWrite=true;m.side=THREE.DoubleSide;}
   }
   if (key.startsWith("wall-window") || key === "wall-door") {
@@ -104,7 +105,8 @@ function material(original, key, sway) {
   materials.set(id, m);
   return m;
 }
-export async function loadAssets() {
+export async function loadAssets({anisotropy=16}={}) {
+  textureAnisotropy=anisotropy;
   await Promise.all(
     manifest.map(async (a) => {
       const gltf = await loader.loadAsync(a.path);

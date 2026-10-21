@@ -234,7 +234,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
   for(const entry of batches.values()){
     const near=instances(entry,entry.name);group.add(near);
     let far=null;
-    if(entry.category==='tree') {far=instances(entry,entry.name,true);group.add(far);}
+    if(entry.category==='tree') {far=instances(entry,entry.name.startsWith('forest_fir')?'tree_pineTallA':'tree_oak_dark',true);group.add(far);}
     chunks.push({...entry,near,far});
   }
   const bridge=model('bridge_wood',{width:brookWidth(W.brook.crossingZ)*2+2.1});
@@ -257,7 +257,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
       lodAt=elapsed;
       for(const c of chunks){
         const d=Math.hypot(cam.position.x-c.cx,cam.position.z-c.cz);
-        c.near.visible=d<(c.category==='tree'?(low?nearLimit*.72:nearLimit):(low?42:64));
+        c.near.visible=d<(c.category==='tree'?(low?nearLimit*.72:nearLimit):(low?W.forest.lowUndergrowthDistance:W.forest.highUndergrowthDistance));
         if(c.far)c.far.visible=d>=(low?nearLimit*.72:nearLimit)&&d<(low?farLimit*.8:farLimit);
         for(const mesh of c.near.children)mesh.castShadow=c.category==='tree'&&!low&&d<W.forest.shadowDistance;
       }
