@@ -201,6 +201,10 @@ async function earn(target, crop, opts = {}) {
     await gather();
     await tendBeds(crop);
     await sellAll({ hay: true });
+    // Reinvest like a player would: a couple more cows pay back fastest.
+    const st = await S();
+    const cows = st.animals.filter((a) => a.sp === "cow" && a.state === "alive").length;
+    if (opts.cows && cows < opts.cows && st.buildings.some((b) => b.type === "barn") && st.money > 300 + 150) await buy(cows === 1 ? "animal_cow_m" : "animal_cow_f");
   }
   assert((await S()).money >= target, `earned ${target}`);
 }
@@ -370,7 +374,7 @@ async function placeKit(kit) {
     await record("feed the cow with hay", { hay: s.inv.hay ?? 0 });
     await care();
 
-    await earn(P.buildings.stable.price + P.species.horse.buy.f, "tulip");
+    await earn(P.buildings.stable.price + P.species.horse.buy.f, "tulip", { cows: 3 });
     await placeKit("kit_stable");
     await buy("animal_horse_f");
     s = await S();

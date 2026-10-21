@@ -2,9 +2,9 @@
 // player buildings, eggs and milk, bones, and the placement ghost + grid.
 import * as THREE from "three";
 import { model, ownMaterials } from "../../assets.js";
-import { BUILDINGS, piece, stall } from "./kit.js";
+import { BUILDINGS, stall } from "./kit.js";
 import { BALANCE as B } from "../config/balance.js";
-import { layout, plotStage, alive } from "../sim/index.js";
+import { layout, plotStage } from "../sim/index.js";
 
 const { CELL_X, CELL_Y, footprintOf, footprintCenter, cellRect, checkPlacement, zoneCells, plotPosition, STALL } = layout;
 const toWorld = (x, y, h = 0, v = new THREE.Vector3()) => v.set((x - 700) / 50, h, ((y - 650) * 1.65) / 50);
@@ -169,13 +169,13 @@ export function createFarmLayer(ctx) {
       if (m.isMesh) {
         m.material = m.material.clone();
         m.material.map = null;
-        m.material.color.set("#ece4d2");
+        m.material.color.set("#e3d5b8");
         m.material.needsUpdate = true;
       }
     });
     rib.rotation.y = (a.id * 2.3) % 6.28;
     g.add(rib);
-    const bone = model("bone", { width: size * 0.62, recolor: { Beige: "#e9dcc2" } });
+    const bone = model("bone", { width: size * 0.62, recolor: { Beige: "#e1d2b3" } });
     bone.position.set(size * 0.55, 0, size * 0.25);
     bone.rotation.y = (a.id * 0.7) % 3;
     g.add(bone);
@@ -411,5 +411,14 @@ export function createFarmLayer(ctx) {
     for (const l of ctx.lights) l.intensity = l.userData.owner ? night * 2.2 : 0;
   }
 
-  return { group, sync, wiggle, anchorOf, lightsAtNight, get ghostValid() { return ghost?.valid ?? false; }, alive };
+  return {
+    group,
+    sync,
+    wiggle,
+    anchorOf,
+    lightsAtNight,
+    get ghostValid() {
+      return ghost?.valid ?? false;
+    },
+  };
 }

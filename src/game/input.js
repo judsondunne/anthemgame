@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import { BALANCE as B } from "../config/balance.js";
 import { layout, needsOf, plotStage, foodsFor, cropGood, housing } from "../sim/index.js";
-import { itemIcon, ICONS } from "../ui/icons.js";
+import { itemIcon } from "../ui/icons.js";
 
 const { footprintOf, cellRect, plotPosition, snapFootprint, checkPlacement, zoneCells, ZONES, ZONE_OF, TROUGHS, STALL, CELL_X, CELL_Y } = layout;
 const inRect = (r, x, y, m = 0) => x >= r.x0 - m && x <= r.x1 + m && y >= r.y0 - m && y <= r.y1 + m;

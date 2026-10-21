@@ -3,7 +3,7 @@
 import { ICONS, itemIcon } from "./icons.js";
 import { fmt } from "./juice.js";
 import { BALANCE as B } from "../config/balance.js";
-import { SEEDS, FEEDS, GOODS, SPECIES, buyPrice, sellPrice, canBuy, isUnlocked, housing, alive, ownedOf, driftOf, sellableAnimals } from "../sim/index.js";
+import { SEEDS, FEEDS, GOODS, SPECIES, buyPrice, sellPrice, canBuy, housing, alive, ownedOf, driftOf, sellableAnimals } from "../sim/index.js";
 
 const SECTIONS = [
   { icon: () => itemIcon("seed_daisy"), keys: SEEDS },

@@ -258,6 +258,12 @@ const openMarket = (tab, focus) => async (page) => {
       },
       note: "horse meadow with two stables",
     });
+    for (const [label, hour, note] of [
+      ["dawn", 5.9, "sunrise: night lifting into warm low light"],
+      ["late-sunset", 19.3, "sun low in the west, long warm shadows, lantern warming"],
+      ["moonrise", 20.7, "moon up, cool night light, windows and lantern lit"],
+    ])
+      await scene(browser, `27-${label}`, `fresh=1&nosync=1&seed=42&time=${hour}&timescale=0`, { setup: FULL_FARM, wait: 2400, note });
     for (const [label, viewport, mobile] of [
       ["mobile", { width: 390, height: 844 }, true],
       ["desktop", { width: 1440, height: 900 }, false],

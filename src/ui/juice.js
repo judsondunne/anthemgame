@@ -53,6 +53,7 @@ export function createJuice({ audio }) {
       if (delta > 0) bump(moneyEl);
     };
     if (delta > 0) audio?.coin?.();
+    else audio?.pop?.();
   }
 
   // An item icon arcs from a world point to its hotbar slot.
