@@ -11,7 +11,7 @@ import { CAMERA as C } from "../config/camera.js";
 const { footprintOf, cellRect, plotPosition, snapFootprint, checkPlacement, zoneCells, ZONES, ZONE_OF, TROUGHS, STALL, CELL_X, CELL_Y } = layout;
 const inRect = (r, x, y, m = 0) => x >= r.x0 - m && x <= r.x1 + m && y >= r.y0 - m && y <= r.y1 + m;
 
-export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, juice, screen, cameraControl = null, onInventory = () => hud.toggleInventory?.(), onSelect = (k, i) => i === undefined ? hud.select(k) : hud.selectSlot?.(i), onFlashlight = () => {}, onPause=()=>{}, onMode=()=>cameraControl?.toggle() }) {
+export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, juice, screen, cameraControl = null, cottage = null, onInventory = () => hud.toggleInventory?.(), onSelect = (k, i) => i === undefined ? hud.select(k) : hud.selectSlot?.(i), onFlashlight = () => {}, onPause=()=>{}, onMode=()=>cameraControl?.toggle() }) {
   const { world, Farm, view } = G;
   const raycaster = new THREE.Raycaster(),
     pointer = new THREE.Vector2(),
@@ -62,6 +62,11 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
         bestD = d;
       }
     };
+    if (cottage?.door) {
+      const d=cottage.door, x=d.x*50+700, y=d.z*50/1.65+650;
+      consider('door', 'cottage', x, y, d.y ?? 1, firstPerson() ? C.assistRadius : 32);
+      if (best) return best;
+    }
     // Eggs, milk and bones compete by distance: whichever the finger is nearest wins.
     const items = () => {
       for (const pk of s.pickups) consider("pickup", pk.id, pk.x, pk.y, 0.12, 30);
@@ -186,6 +191,10 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
     const s = game.state,
       k = tool();
     if (k === "empty" || t.kind === "distant") return;
+    if (t.kind === 'door') {
+      if (!sweep) { cottage?.toggleDoor?.(); G.startAudio(); juice.bump?.(document.querySelector('#crosshair')); }
+      return;
+    }
     if (t.kind === "fence") {
       if (!sweep && t.gate && k !== "fence" && k !== "gate") game.act("toggleGate", t.id);
       return;

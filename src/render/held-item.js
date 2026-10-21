@@ -5,9 +5,15 @@ import { model,ownMaterials } from '../../assets.js';
 // large and readable without intersecting the world or clipping through a wall.
 function printedBag(root,key){
  const seed=key.startsWith('seed_'),crop=key.slice(5),canvas=document.createElement('canvas');canvas.width=512;canvas.height=768;const ctx=canvas.getContext('2d'),texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
- const title=seed?crop.toUpperCase():key==='feed_chicken'?'POULTRY':key==='feed_cow'?'CATTLE':'HORSES';
- ctx.fillStyle='#f2e5c4';ctx.fillRect(0,0,512,768);ctx.strokeStyle='#bcaa7f';ctx.lineWidth=9;ctx.strokeRect(24,24,464,720);ctx.fillStyle='#60795b';ctx.fillRect(38,38,436,170);ctx.fillStyle='#fff6df';ctx.font='700 45px system-ui';ctx.textAlign='center';ctx.fillText(title,256,115);ctx.font='500 27px system-ui';ctx.fillText(seed?'GARDEN SEEDS':'FARM FEED',256,165);ctx.fillStyle='#e2d5ae';ctx.beginPath();ctx.ellipse(256,425,180,180,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#79866a';ctx.fillRect(165,664,182,3);ctx.font='500 25px system-ui';ctx.fillText(seed?'GROW SOMETHING LOVELY':'A LITTLE DAILY CARE',256,714);
- const img=new Image();img.onload=()=>{ctx.drawImage(img,106,275,300,300);texture.needsUpdate=true;};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent((seed?itemIcon(crop):key==='feed_chicken'?ICONS.hen:key==='feed_cow'?ICONS.cowF:ICONS.horseF).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" '));
+ // Labels are icon seals only, including on the held 3D bag itself.
+ ctx.fillStyle='#f2e5c4';ctx.fillRect(0,0,512,768);ctx.strokeStyle='#bcaa7f';ctx.lineWidth=9;ctx.strokeRect(24,24,464,720);ctx.fillStyle='#60795b';ctx.fillRect(38,38,436,145);
+ ctx.fillStyle='#fff6df';for(const x of [216,256,296]){ctx.beginPath();ctx.arc(x,110,10,0,Math.PI*2);ctx.fill();}
+ ctx.fillStyle='#e2d5ae';ctx.beginPath();ctx.ellipse(256,425,180,180,0,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#79866a';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(165,664);ctx.lineTo(347,664);ctx.stroke();
+ const raw=seed?itemIcon(crop):itemIcon(key==='feed_chicken'?'animal_chicken_f':key==='feed_cow'?'animal_cow_f':'animal_horse_f');
+ const img=new Image();img.onload=()=>{ctx.drawImage(img,106,275,300,300);texture.needsUpdate=true;};
+ const source=raw.match(/src="([^"]+)"/);img.src=source?source[1]:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(raw.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" '));
+
  root.traverse(mesh=>{if(!mesh.isMesh)return;mesh.geometry.computeBoundingBox();const b=mesh.geometry.boundingBox,low=seed?new THREE.Vector2(b.min.z,b.min.x):new THREE.Vector2(b.min.x,b.min.y),extent=seed?new THREE.Vector2(b.max.z-b.min.z,b.max.x-b.min.x):new THREE.Vector2(b.max.x-b.min.x,b.max.y-b.min.y);const m=mesh.material;
  m.onBeforeCompile=shader=>{shader.uniforms.uHeldPrint={value:texture};shader.uniforms.uPrintOrigin={value:low};shader.uniforms.uPrintExtent={value:extent};shader.vertexShader='varying vec3 vPrintPosition;varying vec3 vPrintNormal;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vPrintPosition=position;vPrintNormal=normal;');shader.fragmentShader='uniform sampler2D uHeldPrint;uniform vec2 uPrintOrigin,uPrintExtent;varying vec3 vPrintPosition;varying vec3 vPrintNormal;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
  vec2 labelUV=(${seed?'vPrintPosition.zx':'vPrintPosition.xy'}-uPrintOrigin)/uPrintExtent;

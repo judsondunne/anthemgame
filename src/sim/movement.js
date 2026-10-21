@@ -6,6 +6,7 @@ import { fenceBlocked } from './fences.js';
 import { coopEntryAllowed } from './shelter.js';
 import { worldCollisionAt } from './world-collision.js';
 import { WORLD } from '../config/world.js';
+import { waterAtLogical } from './water.js';
 
 export function deepWaterAt(x, y) {
   const wx = (x - 700) / 50, wz = (y - 650) * 1.65 / 50;
@@ -19,7 +20,8 @@ export function groundBlocked(s, x, y, animal=null) {
   const coop=animal&&coopEntryAllowed(s,animal,x,y);
   const z = B.fences.bounds;
   if (x < z.gx0 * CELL_X || x > z.gx1 * CELL_X || y < z.gy0 * CELL_Y || y > z.gy1 * CELL_Y) return true;
-  if (deepWaterAt(x, y)||worldCollisionAt(s,x,y,radius)) return true;
+  const canSwim = ['cow', 'horse', 'deer', 'elk'].includes(animal?.sp);
+  if ((deepWaterAt(x, y) && !canSwim) || (animal?.sp === 'chicken' && waterAtLogical(x, y)) || worldCollisionAt(s,x,y,radius)) return true;
   if (OBSTACLES.some(o => {
     if(o.kind==='path')return false;
     if(coop&&o.kind==='rect'&&o.x0===220&&coop.id===null)return false;
@@ -48,7 +50,7 @@ export function moveToward(s, a, target, speed, h, { avoidAnimals = false } = {}
   for (const offset of [0, side * 0.65, -side * 0.65, side * 1.25, -side * 1.25, side * 1.8]) {
     const x = a.x + Math.cos(angle + offset) * amount, y = a.y + Math.sin(angle + offset) * amount / 1.65;
     if (!canMove(s, a, x, y)) continue;
-    if (avoidAnimals && s.animals.some(q => q !== a && q.state === 'alive' && Math.hypot(q.x - x, (q.y - y) * 1.65) < (B.animals.radius[q.sp]??12)*(q.age<1?.65:1)+(B.animals.radius[a.sp]??12)*(a.age<1?.65:1)+B.animals.separation)) continue;
+    if (avoidAnimals && s.animals.some(q => q !== a && q.state === 'alive' && !q.indoors && Math.hypot(q.x - x, (q.y - y) * 1.65) < (B.animals.radius[q.sp]??12)*(q.age<1?.65:1)+(B.animals.radius[a.sp]??12)*(a.age<1?.65:1)+B.animals.separation)) continue;
     a.x = x; a.y = y; a.heading = angle + offset;
     return true;
   }
@@ -81,22 +83,28 @@ export function recoverAnimal(s,a){
 // are transient; only deterministic positions belong in the save document.
 const routes=new WeakMap();
 function localRoute(s,a,target){
- const step=16,origin={x:a.x,y:a.y},nodes=new Map(),heap=[];
+ const step=B.movement.routeStep,origin={x:a.x,y:a.y},nodes=new Map(),heap=[];
  const key=(x,y)=>`${x},${y}`,point=(x,y)=>({x:origin.x+x*step,y:origin.y+y*step/1.65});
  const heuristic=(x,y)=>Math.hypot(origin.x+x*step-target.x,(origin.y+y*step/1.65-target.y)*1.65)/step;
  const push=n=>{heap.push(n);let i=heap.length-1;while(i){const p=(i-1)>>1;if(heap[p].f<=n.f)break;heap[i]=heap[p];i=p;}heap[i]=n;};
  const pop=()=>{const n=heap[0],last=heap.pop();if(heap.length){let i=0;while(i*2+1<heap.length){let c=i*2+1;if(c+1<heap.length&&heap[c+1].f<heap[c].f)c++;if(heap[c].f>=last.f)break;heap[i]=heap[c];i=c;}heap[i]=last;}return n;};
  const passable=new Map();const free=(x,y)=>{const k=key(x,y);if(!passable.has(k)){const p=point(x,y);passable.set(k,!groundBlocked(s,p.x,p.y,a));}return passable.get(k);};
  const start={x:0,y:0,g:0,f:heuristic(0,0),parent:null};nodes.set('0,0',start);push(start);
- let goal=null,visited=0;
- while(heap.length&&visited++<800){const n=pop();if(n.closed)continue;n.closed=true;const from=point(n.x,n.y);if(heuristic(n.x,n.y)<1.25&&canMove(s,{...a,...from},target.x,target.y)){goal=n;break;}
-  for(const[dx,dy]of[[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]]){const x=n.x+dx,y=n.y+dy;if(Math.abs(x)>30||Math.abs(y)>30)continue;const k=key(x,y),old=nodes.get(k),g=n.g+Math.hypot(dx,dy);if(old&&(old.closed||old.g<=g))continue;const to=point(x,y);if(!free(x,y)||(dx&&dy&&(!free(n.x+dx,n.y)||!free(n.x,n.y+dy)))||fenceBlocked(s,from.x,from.y,to.x,to.y))continue;const v={x,y,g,f:g+heuristic(x,y),parent:n};nodes.set(k,v);push(v);}
+ let goal=null,best=start,visited=0,complete=false;
+ while(heap.length&&visited++<B.movement.routeNodes){const n=pop();if(n.closed)continue;n.closed=true;if(heuristic(n.x,n.y)<heuristic(best.x,best.y))best=n;const from=point(n.x,n.y);if(heuristic(n.x,n.y)<1.25&&canMove(s,{...a,...from},target.x,target.y)){goal=n;complete=true;break;}
+  for(const[dx,dy]of[[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]]){const x=n.x+dx,y=n.y+dy;if(Math.abs(x)>B.movement.routeWindow||Math.abs(y)>B.movement.routeWindow)continue;const k=key(x,y),old=nodes.get(k),g=n.g+Math.hypot(dx,dy);if(old&&(old.closed||old.g<=g))continue;const to=point(x,y);if(!free(x,y)||(dx&&dy&&(!free(n.x+dx,n.y)||!free(n.x,n.y+dy)))||fenceBlocked(s,from.x,from.y,to.x,to.y))continue;const v={x,y,g,f:g+heuristic(x,y),parent:n};nodes.set(k,v);push(v);}
  }
- if(!goal)return null;const path=[target];while(goal?.parent){path.push(point(goal.x,goal.y));goal=goal.parent;}return path.reverse();
+ if(!goal&&heuristic(best.x,best.y)<heuristic(0,0)-1)goal=best;
+ if(!goal)return null;const path=complete?[target]:[];while(goal?.parent){path.push(point(goal.x,goal.y));goal=goal.parent;}return path.reverse();
 }
 export function navigateToward(s,a,target,speed,h,options={}){
  const key=`${target.x.toFixed(1)},${target.y.toFixed(1)},${s.fences?.length},${s.buildings?.length},${!!a.enteringCoop}`;let route=routes.get(a);
- if(route?.key!==key){route={key,path:null,blocked:0,attempted:false};routes.set(a,route);}
+ if(route?.key!==key){route={key,path:null,blocked:0,attempted:false,bestDistance:Infinity,stagnant:0};routes.set(a,route);}
+ const distance=Math.hypot(a.x-target.x,(a.y-target.y)*1.65);
+ if(distance<route.bestDistance-1){route.bestDistance=distance;route.stagnant=0;}else route.stagnant+=h;
+ // Side steering can oscillate forever while still reporting movement. Route
+ // around the obstruction when it stops making progress toward the entrance.
+ if(route.stagnant>B.movement.routeStuckSeconds){route.path=localRoute(s,a,target);route.stagnant=0;route.attempted=true;}
  while(route.path?.length&&Math.hypot(a.x-route.path[0].x,(a.y-route.path[0].y)*1.65)<8)route.path.shift();
  const waypoint=route.path?.[0]??target;
  if(moveToward(s,a,waypoint,speed,h,options)){route.blocked=0;return true;}

@@ -166,13 +166,21 @@ const AudioGarden = {
     this.blip([92,65],.06,.4,.16);
   },
   danger() { this.blip([155,146,110],.12,.9,.08); },
+  splash(volume=.6) {
+    if(!this.ctx||this.muted||document.hidden)return;
+    const c=this.ctx,t=c.currentTime,b=c.createBuffer(1,c.sampleRate*.28,c.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
+    const src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+    src.buffer=b;f.type='lowpass';f.frequency.setValueAtTime(1800,t);f.frequency.exponentialRampToValueAtTime(260,t+.28);g.gain.value=.08*volume;
+    src.connect(f);f.connect(g);g.connect(this.master);src.start(t);
+  },
   worldAmbience(night,waterDistance,fp) {
     if(!this.ctx||this.muted||document.hidden)return;
     const c=this.ctx,t=c.currentTime;
     const player=window.Garden?.cameraControl?.player;
     if(fp&&player&&Math.hypot(player.vx,player.vz)>.6&&t>(this.nextStep??0)){
       this.nextStep=t+(Math.hypot(player.vx,player.vz)>4?.27:.43);
-      this.note(waterDistance<2?170:105,t,.075,.025,this.master);
+      if(player.wading||player.swimming)this.splash(.22);else this.note(105,t,.075,.025,this.master);
     }
     if(!this.brookGain){const b=c.createBuffer(1,c.sampleRate*3,c.sampleRate),d=b.getChannelData(0);let brown=0;for(let i=0;i<d.length;i++){brown=(brown+(Math.random()*2-1)*.04)/1.025;d[i]=brown;}const src=c.createBufferSource();src.buffer=b;src.loop=true;const filter=c.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1100;filter.Q.value=.55;this.brookGain=c.createGain();this.brookGain.gain.value=0;src.connect(filter);filter.connect(this.brookGain);this.brookGain.connect(this.master);src.start();this.nextForestCall=0;}
     this.brookGain.gain.setTargetAtTime(Math.max(0,.5-Math.max(0,waterDistance)*.04)*(fp?1:.35),t,.8);

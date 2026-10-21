@@ -1,11 +1,12 @@
 // Keeps the original behaviour agents (A* hens, grazing herds) in step with the
 // simulation: one agent per simulated animal, with its home, age and state.
 import { BALANCE as B } from "../config/balance.js";
-import { housing, needsOf, setPositions, layout } from "../sim/index.js";
+import { housing, needsOf, setPositions, layout, coopState, coopFor } from "../sim/index.js";
+import { waterAtLogical } from '../sim/water.js';
 
 const { BASE_COOP, frontOf, footprintCenter, footprintOf } = layout;
 
-export function createBridge(G, game) {
+export function createBridge(G, game, { heightAt = () => 0 } = {}) {
   const { world, Farm } = G;
   const agents = new Map(); // sim id -> agent
   let positionClock = 0;
@@ -95,10 +96,14 @@ export function createBridge(G, game) {
       const previous = agent.simPrevious ?? {x:a.x,y:a.y};
       const moved = Math.hypot(a.x-previous.x,(a.y-previous.y)*1.65) > .01;
       agent.x=a.x; agent.y=a.y; agent.moving=moved; agent.heading=a.heading;
+      const water=waterAtLogical(a.x,a.y),wx=(a.x-700)/50,wz=(a.y-650)*1.65/50;
+      agent.inWater=!!water;
+      agent.drinking=!!a.drinking;
+      agent.groundHeight=water ? Math.max(water.bottom,water.surface-(a.sp==='horse'?.85:.62)) : heightAt(wx,wz);
       agent.simPrevious={x:a.x,y:a.y};
       if (moved) agent.dir=Math.cos(a.heading??0)>=0?1:-1;
       agent.sheltered=false;
-      if(agent.sp==='chicken'){agent.sleeping=!!a.indoors;agent.mode=a.indoors?'sleeping':moved?'wander':'idle';agent.wakeDelay=0;agent.roostHeight=a.indoors?(agent.home.roostHeight??.48):0;}
+      if(agent.sp==='chicken'){agent.indoors=!!a.indoors;agent.coopDoorOpen=coopState(game.state,coopFor(game.state,a).id).doorOpen;agent.sleeping=!!a.indoors;agent.mode=a.indoors?'sleeping':moved?'wander':'idle';agent.wakeDelay=0;agent.roostHeight=a.indoors?(agent.home.roostHeight??.48):0;}
       agent.bodyRadius=B.animals.radius[a.sp];
       if (a.injured) agent.sad=true;
     }

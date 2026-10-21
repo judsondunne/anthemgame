@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { CAMERA as C } from "../config/camera.js";
+import { BALANCE as B } from "../config/balance.js";
 import { layout } from "../sim/index.js";
 
 export const toWorld = (x, y) => ({ x: (x - 700) / 50, z: ((y - 650) * 1.65) / 50 });
@@ -9,15 +10,17 @@ export const zoomDistance = (distance, delta) => THREE.MathUtils.clamp(distance 
 const clamp = THREE.MathUtils.clamp;
 
 // Static objects use their actual logical footprints. Paths are walkable.
-export function blockedByFarm(state, x, z, radius = C.radius) {
+export function blockedByFarm(state, x, z, radius = C.radius, geometry = {}) {
   const p = toLogical(x, z), rx = radius * 50, ry = radius * 50 / 1.65;
   for (const o of layout.OBSTACLES) {
     if (o.kind === "path") continue;
+    if (geometry.walkableFarm && (o.kind === 'ellipse' || (o.kind === 'rect' && (o.x0 === 495 || o.x0 === -305 || o.x0 === 1525)))) continue;
     if (o.kind === "rect" && p.x > o.x0 - rx && p.x < o.x1 + rx && p.y > o.y0 - ry && p.y < o.y1 + ry) return true;
     if (o.kind === "circle" && Math.hypot((p.x - o.x) / 50, (p.y - o.y) * 1.65 / 50) < o.r / 50 + radius) return true;
     if (o.kind === "ellipse" && ((p.x - o.x) / (o.rx + rx)) ** 2 + ((p.y - o.y) / (o.ry + ry)) ** 2 < 1) return true;
   }
   for (const b of [...(state.buildings ?? []), ...(state.beds ?? []).map((b) => ({ ...b, type: "bed" }))]) {
+    if (geometry.walkableFarm && b.type === 'bed') continue;
     const [w, h] = layout.footprintOf(b.type), r = layout.cellRect(b.gx, b.gy, w, h);
     if (p.x > r.x0 - rx && p.x < r.x1 + rx && p.y > r.y0 - ry && p.y < r.y1 + ry) return true;
   }
@@ -44,7 +47,7 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
   let mode = "god", transitioned = false, gestureConsumed = false, interactionHandler = () => {}, wheelHandler = () => {};
   const saved = game.state.player ?? {};
   const start = toWorld(Number.isFinite(saved.x) ? saved.x : 620, Number.isFinite(saved.y) ? saved.y : 700);
-  const player = { x: start.x, z: start.z, y: 0, yaw: saved.yaw || 0, pitch: saved.pitch || 0, vx: 0, vz: 0, vy: 0, grounded: true };
+  const player = { x: start.x, z: start.z, y: 0, yaw: saved.yaw || 0, pitch: saved.pitch || 0, vx: 0, vz: 0, vy: 0, grounded: true, swimming: false, wading: false, underwater: false, water: null };
   let lookYaw = player.yaw, lookPitch = player.pitch, stepPhase = 0, joystick = { x: 0, y: 0 };
   let lastForwardDown=-Infinity, doubleSprint=false;
   const keys = new Set(), pointers = new Map(), desiredPosition = new THREE.Vector3(), desiredQuat = new THREE.Quaternion();
@@ -87,9 +90,9 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
     if (immediate) update(0.016, true);
   }
   function terrain(x, z) { return Number((worldGeometry.terrainHeight ?? worldGeometry.heightAt)?.(x, z)) || 0; }
-  function collides(x, z) {
-    if((game.state.animals??[]).some(a=>a.state==='alive'&&!a.indoors&&Math.hypot(x-(a.x-700)/50,z-(a.y-650)*1.65/50)<C.radius+((a.sp==='chicken'?.22:a.sp==='cow'?.55:.60)*(a.age<1?.65:1))))return true;
-    return Math.abs(x) > C.bounds - C.radius || Math.abs(z) > C.bounds - C.radius || blockedByFarm(game.state, x, z) || blockedByFences(game.state, x, z) || !!(worldGeometry.blocked ?? worldGeometry.isBlocked)?.(x, z, C.radius);
+  function collides(x, z, feetY = player.y) {
+    if(feetY<1.1&&(game.state.animals??[]).some(a=>a.state==='alive'&&!a.indoors&&Math.hypot(x-(a.x-700)/50,z-(a.y-650)*1.65/50)<C.radius+((a.sp==='chicken'?.22:a.sp==='cow'?.55:.60)*(a.age<1?.65:1))))return true;
+    return Math.abs(x) > C.bounds - C.radius || Math.abs(z) > C.bounds - C.radius || blockedByFarm(game.state, x, z, C.radius, worldGeometry) || blockedByFences(game.state, x, z) || !!(worldGeometry.blocked ?? worldGeometry.isBlocked)?.(x, z, C.radius, feetY);
   }
   function recoverPlayer() {
     for (let ring = 0; ring < 25; ring++) for (let i = 0; i < 24; i++) {
@@ -104,7 +107,7 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
     if (Number.isFinite(p.pitch)) player.pitch = lookPitch = clamp(p.pitch, -C.pitchLimit, C.pitchLimit);
     player.y = terrain(player.x, player.z); player.vy = 0; player.vx = 0; player.vz = 0; persist();
   }
-  function jump() { if (mode === "fp" && player.grounded && !blocked()) { player.vy = C.jumpSpeed; player.grounded = false; } }
+  function jump() { if (mode === "fp" && (player.grounded || player.swimming) && !blocked()) { player.vy = player.swimming ? C.jumpSpeed * .66 : C.jumpSpeed; player.grounded = false; } }
   function pan(dx, dy) {
     const scale = 2 * targetDistance * Math.tan(THREE.MathUtils.degToRad(C.fov / 2)) / innerHeight;
     const sy = Math.max(0.24, Math.sin(pitch));
@@ -206,25 +209,48 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
       player.yaw = damp(player.yaw, lookYaw, 22, dt); player.pitch = damp(player.pitch, lookPitch, 22, dt);
       const forward = Number(keys.has("KeyW") || keys.has("ArrowUp")) - Number(keys.has("KeyS") || keys.has("ArrowDown")) - joystick.y;
       const strafe = Number(keys.has("KeyD") || keys.has("ArrowRight")) - Number(keys.has("KeyA") || keys.has("ArrowLeft")) + joystick.x;
-      const len = Math.max(1, Math.hypot(forward, strafe)), speed = doubleSprint || keys.has("ShiftLeft") || keys.has("ShiftRight") ? C.sprintSpeed : C.walkSpeed;
+      player.water = worldGeometry.waterAt?.(player.x, player.z) ?? null;
+      const wet = player.water && player.y < player.water.surface;
+      const len = Math.max(1, Math.hypot(forward, strafe));
+      const landSpeed = doubleSprint || keys.has("ShiftLeft") || keys.has("ShiftRight") ? C.sprintSpeed : C.walkSpeed;
+      const speed = wet ? (player.water.depth > B.movement.floatEyeHeight ? B.movement.swimSpeed : B.movement.wadeSpeed) : landSpeed;
       const vx = (-Math.sin(player.yaw) * forward + Math.cos(player.yaw) * strafe) / len * speed;
       const vz = (-Math.cos(player.yaw) * forward - Math.sin(player.yaw) * strafe) / len * speed;
       player.vx = damp(player.vx, vx, C.acceleration, dt); player.vz = damp(player.vz, vz, C.acceleration, dt);
       const steps = Math.max(1, Math.ceil(Math.hypot(player.vx, player.vz) * dt / C.collisionStep));
       for (let i = 0; i < steps; i++) {
         const dx = player.vx * dt / steps, dz = player.vz * dt / steps;
-        const valid = (x, z) => !collides(x, z) && terrain(x, z) - terrain(player.x, player.z) <= C.maxSlopeStep;
+        const valid = (x, z) => {
+          if (collides(x, z)) return false;
+          const floor = worldGeometry.supportAt?.(x, z, player.y) ?? terrain(x, z);
+          return floor - player.y <= (wet ? B.movement.shoreStep : B.movement.stepHeight);
+        };
         if (valid(player.x + dx, player.z)) player.x += dx; else player.vx = 0;
         if (valid(player.x, player.z + dz)) player.z += dz; else player.vz = 0;
       }
-      player.vy -= C.gravity * dt; player.y += player.vy * dt;
-      const floor = terrain(player.x, player.z);
+      player.water = worldGeometry.waterAt?.(player.x, player.z) ?? null;
+      const floor = worldGeometry.supportAt?.(player.x, player.z, player.y) ?? terrain(player.x, player.z);
+      const submerged = player.water && floor < player.water.surface && player.y < player.water.surface;
+      player.swimming = !!(submerged && player.water.depth > B.movement.floatEyeHeight);
+      player.wading = !!(submerged && !player.swimming);
+      if (player.swimming) {
+        const targetY = player.water.surface - B.movement.floatEyeHeight;
+        player.vy += ((targetY - player.y) * B.movement.buoyancy - player.vy * B.movement.waterDrag) * dt;
+      } else player.vy -= C.gravity * dt;
+      player.y += player.vy * dt;
       if (player.y <= floor) { player.y = floor; player.vy = 0; player.grounded = true; } else player.grounded = false;
       const moving = Math.min(1, Math.hypot(player.vx, player.vz) / C.walkSpeed);
       stepPhase += dt * moving * 10;
       desiredPosition.set(player.x, player.y + C.eyeHeight + (player.grounded ? Math.sin(stepPhase) * C.headBob * moving : 0), player.z);
+      // Looking down while swimming dips the eyes into the water naturally.
+      if (player.swimming) desiredPosition.y -= Math.max(0, -Math.sin(player.pitch)) * B.movement.diveDip;
+      player.underwater = !!(player.water && desiredPosition.y < player.water.surface);
+      document.body.classList.toggle('underwater', player.underwater);
+      document.body.classList.toggle('swimming', player.swimming);
       lookEuler.set(player.pitch, player.yaw, 0); desiredQuat.setFromEuler(lookEuler);
     } else {
+      document.body.classList.toggle('underwater', false);
+      document.body.classList.toggle('swimming', false);
       if (Farm && Farm.targetPan !== lastFarmPan) { focusTarget.x = Farm.targetPan / 50; lastFarmPan = Farm.targetPan; }
       const f = Number(keys.has("KeyW") || keys.has("ArrowUp")) - Number(keys.has("KeyS") || keys.has("ArrowDown"));
       const s = Number(keys.has("KeyD") || keys.has("ArrowRight")) - Number(keys.has("KeyA") || keys.has("ArrowLeft"));

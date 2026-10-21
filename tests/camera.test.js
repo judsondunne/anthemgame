@@ -55,3 +55,13 @@ test('first person accelerates, sprints, jumps, and stops against the house',()=
 test('rapid mode switches and focus preserve player state; presets retain their framing',()=>{
   const {c,game}=setup('cam=wide');assert.equal(c.snapshot().targetDistance,130);for(let i=0;i<12;i++)c.toggle();c.setMode('fp');c.setPlayer({x:800,y:700,yaw:.5,pitch:-.3});c.setMode('god');c.focus(900,700,.5,6);frames(c);assert.equal(game.state.player.x,800);assert.ok(Math.abs(c.snapshot().distance-6)<.01);c.destroy();
 });
+
+test('swimming uses buoyancy, keeps a stable floor and permits a camera dip',()=>{
+  const {c}=setup('mode=fp');
+  c.setWorldGeometry({terrainHeight:()=>-1.5,blocked:()=>false,waterAt:()=>({surface:.1,bottom:-1.5,depth:1.6})});
+  c.setPlayer({x:700,y:1050,pitch:0});frames(c,360);
+  assert.equal(c.player.swimming,true);assert.ok(c.player.y> -1.1 && c.player.y<-.8);
+  assert.equal(c.player.underwater,false);assert.ok(c.player.y>=-1.5,'never falls through the bottom');
+  c.setPlayer({x:700,y:1050,pitch:-1.3});frames(c,360);
+  assert.equal(c.player.underwater,true);c.jump();frames(c,6);assert.ok(c.player.vy>0);c.destroy();
+});

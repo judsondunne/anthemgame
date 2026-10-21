@@ -1,10 +1,54 @@
 import { BALANCE as B } from '../config/balance.js';
-import { isNightAt, dayIndex } from './clock.js';
+import { isNightAt, dayIndex, hourAt } from './clock.js';
 import { BASE_COOP, frontOf, ZONES } from './layout.js';
 import { hash32 } from './rng.js';
 import { penAt } from './fences.js';
 import { stepShelter } from './shelter.js';
-import { separateAnimals, moveToward, recoverAnimal, groundBlocked } from './movement.js';
+import { separateAnimals, moveToward, navigateToward, recoverAnimal, groundBlocked } from './movement.js';
+import { waterAtLogical, brookDrinkingPoint } from './water.js';
+
+const waterTrips = new WeakMap();
+export function stepLivestockWater(s, a, h, home, pen) {
+  if (!['cow', 'horse'].includes(a.sp)) return false;
+  const hour = hourAt(s.time), K = B.livestockWater, day = dayIndex(s.time);
+  let trip = waterTrips.get(a);
+  if (hour < K.startHour || hour >= K.returnHour) {
+    if (trip?.phase === 'visit' || trip?.phase === 'drink') trip.phase = 'return';
+  } else if (!trip || trip.day !== day) {
+    const u = hash32(s.seed, a.id, day) / 4294967296;
+    const point = brookDrinkingPoint(-6 + u * 11);
+    const targetPen = penAt(s, point.x, point.y);
+    const eligible = u < K.visitChance && (!pen || targetPen?.id === pen.id);
+    trip = { day, target: point, phase: eligible ? 'visit' : 'done', drank: 0 };
+    waterTrips.set(a, trip);
+  }
+  if (!trip || trip.phase === 'done') { a.drinking = false; return false; }
+  const wet = waterAtLogical(a.x, a.y);
+  a.inWater = !!wet;
+  a.drinking = trip.phase === 'drink';
+  if (trip.phase === 'visit') {
+    // A closed pen remains an absolute boundary, even if its gate closed after
+    // an animal decided to visit the brook.
+    if (pen && penAt(s, trip.target.x, trip.target.y)?.id !== pen.id) { trip.phase = 'done'; return false; }
+    a.wandering = true;
+    if (Math.hypot(a.x - trip.target.x, (a.y - trip.target.y) * 1.65) < 22) trip.phase = 'drink';
+    else navigateToward(s, a, trip.target, K.visitSpeed, h, { avoidAnimals: true });
+    return true;
+  }
+  if (trip.phase === 'drink') {
+    if (wet) a.thirst = Math.max(0, a.thirst - K.thirstRecovery * h);
+    trip.drank += h;
+    if (trip.drank >= K.durationSeconds) { trip.phase = 'return'; a.drinking = false; }
+    return true;
+  }
+  if (trip.phase === 'return') {
+    a.drinking = false;
+    if (Math.hypot(a.x - home.x, (a.y - home.y) * 1.65) < B.wandering.returnRadius) { trip.phase = 'done'; a.wandering = false; return false; }
+    navigateToward(s, a, home, K.visitSpeed, h, { avoidAnimals: true });
+    return true;
+  }
+  return false;
+}
 
 export function animalHome(s, a, homes) {
   const b = homes?.get(a.id);
@@ -28,6 +72,7 @@ export function stepWandering(s, h, housing) {
     if(stepShelter(s,a,h,housing?.homes))continue;
     const home = animalHome(s, a, housing?.homes), pen = penAt(s, a.x, a.y);
     a.penned = !!pen;
+    if (stepLivestockWater(s, a, h, home, pen)) continue;
     const period = Math.floor(s.time / (a.sp==='chicken'?W.chickenDecisionSeconds:W.decisionSeconds)), u = hash32(s.seed, a.id, period) / 4294967296;
     const angle = u * Math.PI * 2;
     const out = a.sp !== 'chicken' && !pen && hash32(s.seed, a.id, dayIndex(s.time)) / 4294967296 < W.wanderChance;
