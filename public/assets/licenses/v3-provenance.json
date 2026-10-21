@@ -1,0 +1,195 @@
+{
+  "verified": "2026-10-21",
+  "entries": [
+    {
+      "name": "hen",
+      "path": "/assets/models/animals/hen.glb",
+      "source": "https://poly.pizza/m/Z3RCoCYss4",
+      "license": "CC0-1.0",
+      "triangles": 2140,
+      "clips": [
+        "AnimalArmature|AnimalArmature|AnimalArmature|Attack",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Peck",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Run"
+      ],
+      "sha256": "89876da1f94d735b6e1cf0a2ca7151b18623c48fd9b8cb469271de370e092730"
+    },
+    {
+      "name": "chick",
+      "path": "/assets/models/animals/chick.glb",
+      "source": "https://poly.pizza/m/LH96IMq0rE",
+      "license": "CC0-1.0",
+      "triangles": 1924,
+      "clips": [
+        "AnimalArmature|AnimalArmature|AnimalArmature|Attack",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Peck",
+        "AnimalArmature|AnimalArmature|AnimalArmature|Run"
+      ],
+      "sha256": "8ce75b5c8c1e7a631508941b742c0271f83239dfbecc44266d1c71f5db895dee"
+    },
+    {
+      "name": "chicken-pixor",
+      "path": "/assets/models/candidates/chicken-pixor.glb",
+      "source": "https://pixor.art/library/farm/chicken/",
+      "license": "CC0-1.0",
+      "triangles": 652,
+      "clips": [
+        "Peck"
+      ],
+      "sha256": "7348633781436781d3ee33ef2f80bbd653adcbc19e12cdca2703a15c6e925a8e"
+    },
+    {
+      "name": "wolf",
+      "path": "/assets/models/wildlife/wolf.glb",
+      "source": "https://poly.pizza/m/P1gU3Qkr9r",
+      "license": "CC0-1.0",
+      "triangles": 1962,
+      "clips": [
+        "Attack",
+        "Death",
+        "Eating",
+        "Gallop",
+        "Gallop_Jump",
+        "Idle_HitReact_Left",
+        "Idle_HitReact_Right",
+        "Jump_ToIdle",
+        "Walk",
+        "Idle_2_HeadLow",
+        "Idle_2",
+        "Idle",
+        "AnimalArmature|Attack",
+        "AnimalArmature|Death",
+        "AnimalArmature|Eating",
+        "AnimalArmature|Gallop",
+        "AnimalArmature|Gallop_Jump",
+        "AnimalArmature|Idle",
+        "AnimalArmature|Idle_2",
+        "AnimalArmature|Idle_2_HeadLow",
+        "AnimalArmature|Idle_HitReact_Left",
+        "AnimalArmature|Idle_HitReact_Right",
+        "AnimalArmature|Jump_ToIdle",
+        "AnimalArmature|Walk"
+      ],
+      "sha256": "16ac96339d06f7def9af20d5d9b27622d61e53580dab43970c9edb1bffbe8f84"
+    },
+    {
+      "name": "bear",
+      "path": "/assets/models/wildlife/bear.glb",
+      "source": "https://pixor.art/library/creatures/bear/",
+      "license": "CC0-1.0",
+      "triangles": 1354,
+      "clips": [
+        "Idle"
+      ],
+      "sha256": "0e4098c297f93b05adbc589a717f91241836f198fdee48a0dec94a0d782f9a68"
+    },
+    {
+      "name": "tree_pineRoundA",
+      "path": "/assets/models/nature/tree_pineRoundA.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 204,
+      "clips": [],
+      "sha256": "7dc9711f31585eafdcb965d0649c30af5e19f2def1955f7a915081d30759ef8e"
+    },
+    {
+      "name": "tree_pineTallA",
+      "path": "/assets/models/nature/tree_pineTallA.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 78,
+      "clips": [],
+      "sha256": "e0a56eb196d8a64ba86c7304d607136e17e6f9ad748dffcf86bd53b18b91b196"
+    },
+    {
+      "name": "tree_thin",
+      "path": "/assets/models/nature/tree_thin.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 228,
+      "clips": [],
+      "sha256": "f0f1f6861fe0446963d3be216cc628324f538bb0841bc9a8e14140313f64e2f3"
+    },
+    {
+      "name": "tree_oak_dark",
+      "path": "/assets/models/nature/tree_oak_dark.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 196,
+      "clips": [],
+      "sha256": "f2c455bb433fe98522d1b9391d5b587e7324176ecaee29ceefe55350a7e3fd47"
+    },
+    {
+      "name": "plant_flatTall",
+      "path": "/assets/models/nature/plant_flatTall.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 32,
+      "clips": [],
+      "sha256": "b192523736f32754788de4dc7a5dcf30a58322b260ec8969120c91432a10b633"
+    },
+    {
+      "name": "plant_bushDetailed",
+      "path": "/assets/models/nature/plant_bushDetailed.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 104,
+      "clips": [],
+      "sha256": "2e0487020d68ccf664435db9d829c78ae00e6d2785ee3ec10b9f89cc70a10406"
+    },
+    {
+      "name": "mushroom_redGroup",
+      "path": "/assets/models/nature/mushroom_redGroup.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 144,
+      "clips": [],
+      "sha256": "29f02df0589dd2b09e8d2aff6a4662394dac5cfcf1fec701640dcbd6127e0802"
+    },
+    {
+      "name": "mushroom_tan",
+      "path": "/assets/models/nature/mushroom_tan.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 48,
+      "clips": [],
+      "sha256": "455cbacdcdac82cc20420c3f21eaba3ff2fbceadb2e13d35a39d52130dba5a80"
+    },
+    {
+      "name": "bridge_wood",
+      "path": "/assets/models/nature/bridge_wood.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 220,
+      "clips": [],
+      "sha256": "3da4c208b0f72b7f2ba42db521b62ec4b0278050c75256a6982c40d21aab5701"
+    },
+    {
+      "name": "stone_largeC",
+      "path": "/assets/models/nature/stone_largeC.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 72,
+      "clips": [],
+      "sha256": "f78e984f04f2c9d3a242d42b1c8f65b8a095b9ccf9f74ac55a97b7cdd1c4668c"
+    },
+    {
+      "name": "log_large",
+      "path": "/assets/models/nature/log_large.glb",
+      "source": "https://kenney.nl/assets/nature-kit",
+      "license": "CC0-1.0",
+      "triangles": 96,
+      "clips": [],
+      "sha256": "e7a92369062d491e5a31a163d390e07db04ee573605bbfa84c00660d18896b4c"
+    }
+  ],
+  "cc0Evidence": {
+    "Quaternius": "Each exact Poly Pizza page states Public Domain (CC0); links to https://creativecommons.org/publicdomain/zero/1.0/",
+    "Kenney": "Creator Nature Kit 2.1 archive with original kenney-nature.txt license",
+    "Pixor": "Exact model pages state CC0, no credit needed; bear source zip LICENSE.txt retained"
+  }
+}

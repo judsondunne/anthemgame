@@ -50,6 +50,7 @@ function material(original, key, sway) {
   if (colors[m.name]) m.color.set(colors[m.name]);
   if (m.map) {
     m.map.colorSpace = THREE.SRGBColorSpace;
+    m.map.anisotropy = 8;
     m.color.set("#eee5d3");
   }
   if (key.startsWith("wall-window") || key === "wall-door") {
@@ -182,6 +183,7 @@ export function play(root, action) {
   const key =
     Object.keys(a).find((k) => k === action) ||
     Object.keys(a).find((k) => k.includes(action)) ||
+    (action === "walk" ? Object.keys(a).find((k) => k === "run") : null) ||
     "idle";
   if (d.action === key) return;
   if (d.action) a[d.action]?.fadeOut(0.25);

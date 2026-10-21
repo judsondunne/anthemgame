@@ -44,7 +44,7 @@ All files are authentic downloaded models. Kenney is the primary family. Quatern
 | animal-parrot — flock silhouettes | https://kenney.nl/assets/cube-pets | CC0-1.0 | public/assets/models/pets/animal-parrot.glb | 530 |
 | egg — collectible eggs | https://kenney.nl/assets/food-kit | CC0-1.0 | public/assets/models/food/egg.glb | 44 |
 | bowl-cereal — pasture feeding troughs | https://kenney.nl/assets/food-kit | CC0-1.0 | public/assets/models/food/bowl-cereal.glb | 120 |
-| chicken — hens (four tints), roosters (russet, larger) | https://poly.pizza/m/ineV9pU5VL | CC0-1.0 | public/assets/models/animals/chicken.glb | 2904 |
+| chicken — retired adult candidate, retained for comparison | https://poly.pizza/m/ineV9pU5VL | CC0-1.0 | public/assets/models/animals/chicken.glb | 2904 |
 
 ## Added for the farm economy (claude/farm-economy)
 
@@ -82,8 +82,8 @@ Processing, all lossless for geometry: the three Quaternius animals had every cl
 Compromises:
 - **Bones**: no species-specific skeletons exist in the family; a Quaternius ribcage plus a single bone, drawn in plain bone-white (texture dropped), stand in for every species, scaled per species.
 - **Tulip / lavender / daisy / sunflower**: Kenney has no named flower species. Tulip = `flower_redA`; lavender = three `flower_purpleB` spikes; daisy = `flower_yellowC` with cream petals; sunflower = `crops_cornStageB` stalk with an enlarged `flower_yellowC` head. Seedlings and growing stages reuse `crops_leafsStageA/B` (and wheat/corn stages).
-- **Juveniles**: chicks use Kenney's cube `animal-chick` (a different, boxier style than the Quaternius hen) and swap to the hen at maturity under a feather puff; calves and foals are the adult models scaled down (50% → 100%) and tinted lighter.
-- **Rooster, bull, stallion**: roosters are the hen model tinted russet and enlarged; bull is Quaternius' own Bull; stallions are the horse model with darker coats.
+- **Juveniles**: chicks now use the selected rounded Pixor hen rig, scaled down, tinted yellow, with its comb hidden. They swap to the adult under a feather puff; calves and foals are the adult models scaled down (50% → 100%) and tinted lighter. The original Cube Pets chick remains a review candidate only.
+- **Rooster, bull, stallion**: roosters use the rounded Pixor hen rig with russet body, sage wing/tail feathers, a fuller comb and larger stature; bull is Quaternius' own Bull; stallions are the horse model with darker coats.
 - **Buildings**: the coop upgrade, barn and stable are kitbashes of Fantasy Town wood modules (no farm building kit exists in the family); the market stall is Fantasy Town's `stall-red`.
 
 Material and scale normalization is applied at load time. Town modules form the cottage, coop and barns; nature models supply trees, bushes, flowers, crop beds, pond lilies, rocks, path and fences. Egg is used for pickups; cereal bowl for troughs; bee and parrot for flying wildlife. Animal models are reused for babies. Explicit per-instance mappings are stored in the renderer and audited in verification/REPORT.md.
@@ -97,3 +97,49 @@ Material and scale normalization is applied at load time. Town modules form the 
 | public/assets/models/food/Textures/colormap.png | https://kenney.nl/assets/food-kit | CC0-1.0 | Warm colors softened to shared palette |
 
 Triangles count glTF indexed primitives once per source mesh (before scene instancing). External textures were downloaded from the same original pack archive. No topology was generated or replaced. The model loader uses SkeletonUtils clones, shared materials and original animation clips. Unused architectural reserves were removed from the shipped assets after visual verification.
+
+## Living forest / nightfall additions (October 2026)
+
+All files were downloaded anonymously. Exact license evidence is retained in `public/assets/licenses/v3-provenance.json`; Pixor's original CC0 dedication is `pixor-bear.txt`. Geometry remains from the downloaded GLBs.
+
+| Key | Source | License | File | Triangles |
+|---|---|---|---|---|
+| hen | https://poly.pizza/m/Z3RCoCYss4 | CC0-1.0 | public/assets/models/animals/hen.glb | 2140 |
+| chick | https://poly.pizza/m/LH96IMq0rE | CC0-1.0 | public/assets/models/animals/chick.glb | 1924 |
+| chicken-pixor | https://pixor.art/library/farm/chicken/ | CC0-1.0 | public/assets/models/candidates/chicken-pixor.glb | 652 |
+| wolf | https://poly.pizza/m/P1gU3Qkr9r | CC0-1.0 | public/assets/models/wildlife/wolf.glb | 1962 |
+| bear | https://pixor.art/library/creatures/bear/ | CC0-1.0 | public/assets/models/wildlife/bear.glb | 1354 |
+| tree_pineRoundA | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/tree_pineRoundA.glb | 204 |
+| tree_pineTallA | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/tree_pineTallA.glb | 78 |
+| tree_thin | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/tree_thin.glb | 228 |
+| tree_oak_dark | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/tree_oak_dark.glb | 196 |
+| plant_flatTall | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/plant_flatTall.glb | 32 |
+| plant_bushDetailed | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/plant_bushDetailed.glb | 104 |
+| mushroom_redGroup | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/mushroom_redGroup.glb | 144 |
+| mushroom_tan | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/mushroom_tan.glb | 48 |
+| bridge_wood | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/bridge_wood.glb | 220 |
+| stone_largeC | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/stone_largeC.glb | 72 |
+| log_large | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/log_large.glb | 96 |
+
+
+The new selected chicken is Pixor's **Chicken**, CC0, 652 source triangles:
+https://pixor.art/library/farm/chicken/ . It was chosen after actual lit normal-
+distance and close-up renders of three new candidates beside both existing
+adult/chick models (`verification/v3/chicken-candidates.png`). The new
+Quaternius 2023 hen/chick were rejected for their voxel proportions, and are
+retained only for comparison. Four per-material hen coats, matching yellow
+chicks and a russet/sage rooster reuse the selected downloaded rig. It includes
+Peck only: walking animates existing leg bones, sleep compresses the body, and
+death holds a rotated side pose. Those deliberate animation compromises are
+shown in `verification/v3/chicken-poses.png`. No object topology is generated.
+
+The exact Quaternius Wolf has Attack, Gallop, Walk, Idle, head-low, jump and
+Death clips (duplicate exported names are normalized by the loader). The Pixor
+Bear supplies a faceted same-palette quadruped and original Idle clip; walking/
+attacking use transform motion, since no CC0 Quaternius bear was found.
+
+The brook crossing is Kenney's original bridge_wood, normalized to the water
+width. Forest chunks bake existing source material colors into source vertices
+and merge original primitive geometry before instancing; near canopies sway,
+far chunks use the lighter original oak/pine source meshes. This preserves the
+source topology. Water, terrain and particles are shader surfaces/effects.

@@ -4,8 +4,14 @@ import * as THREE from "three";
 import { model, play, playOnce, softTone } from "../../assets.js";
 import { BALANCE as B } from "../config/balance.js";
 
-const HEN_TINTS = ["#fff5de", "#d4ab86", "#8b9690", "#e4d1a7"];
-const ROOSTER_TINT = "#d79a6c";
+export const HEN_COATS = [
+  { "Brown fur": "#e8d9bc", "Bread crust": "#d5ba8e", "Comb red": "#c57866", Beak: "#e3bf73" },
+  { "Brown fur": "#a66c4c", "Bread crust": "#c28e62", "Comb red": "#b85f50", Beak: "#dfb76b" },
+  { "Brown fur": "#66726e", "Bread crust": "#8b9690", "Comb red": "#c78470", Beak: "#dec585" },
+  { "Brown fur": "#d2b477", "Bread crust": "#e6ce98", "Comb red": "#c87d69", Beak: "#dba959" },
+];
+const ROOSTER_COAT = { "Brown fur": "#a76543", "Bread crust": "#536f65", "Comb red": "#c46656", Beak: "#e3bd72" };
+const CHICK_COAT = { "Brown fur": "#f0d78e", "Bread crust": "#e3bf70", Beak: "#d8a356" };
 const HORSE_COATS = {
   f: [
     { Main: "#b97f57", Main_Dark: "#8e5d3e", Hair: "#5b3d2b", Main_Light: "#d9b28c" },
@@ -24,9 +30,9 @@ const COW_TINTS = ["#ffffff", "#f3e1cc", "#e7d3c3", "#fff4e6"];
 
 function spec(agent, isChicken) {
   if (isChicken) {
-    if (agent.juvenile) return { type: "chick", name: "animal-chick", height: 0.4, opts: {} };
+    if (agent.juvenile) return { type: "chick", name: "chicken-pixor", height: 0.44, opts: { recolor: CHICK_COAT } };
     const rooster = agent.sex === "m";
-    return { type: rooster ? "rooster" : "hen", name: "chicken", height: rooster ? 0.8 : 0.7, opts: { tint: rooster ? ROOSTER_TINT : HEN_TINTS[agent.breed ?? 0] } };
+    return { type: rooster ? "rooster" : "hen", name: "chicken-pixor", height: rooster ? 0.82 : 0.69, opts: { recolor: rooster ? ROOSTER_COAT : HEN_COATS[(agent.breed ?? 0) % HEN_COATS.length] } };
   }
   if (agent.kind === "cow") {
     const bull = agent.sex === "m";
@@ -43,6 +49,21 @@ export function createAnimalRenderer(ctx) {
   function make(agent, isChicken, fish = false) {
     const s = fish ? { type: "fish", name: "animal-fish", height: 0.48, opts: {} } : spec(agent, isChicken);
     const o = model(s.name, { height: s.height, ...s.opts });
+    if (isChicken) {
+      // Matching life stages retain the downloaded rounded hen's silhouette.
+      // The baby has no comb; a rooster has a fuller comb and taller tail.
+      const comb = o.getObjectByName("Hen_comb") ?? o.getObjectByName("Hen comb");
+      if (comb) {
+        if (s.type === "chick") comb.visible = false;
+        else if (s.type === "rooster") comb.scale.set(1.12, 1.3, 1.12);
+      }
+      const tail = o.getObjectByName("Hen_tail") ?? o.getObjectByName("Hen tail");
+      if (tail && s.type === "rooster") tail.scale.set(1.2, 1.25, 1.25);
+      const legL = o.getObjectByName("LegL") ?? o.getObjectByName("Leg.L");
+      const legR = o.getObjectByName("LegR") ?? o.getObjectByName("Leg.R");
+      o.userData.chickenLegs = [legL, legR].filter(Boolean).map((bone) => ({ bone, rotation: bone.rotation.clone() }));
+      o.userData.chickenHead = o.getObjectByName("Head");
+    }
     group.add(o);
     const view = { o, type: s.type, chicken: isChicken, fish, born: now, deadAt: null, dimmed: 0, collapsed: false };
     o.userData.agent = agent;
@@ -78,10 +99,10 @@ export function createAnimalRenderer(ctx) {
       if (!v) v = make(a, chicken);
       const o = v.o,
         base = o.userData.baseScale;
-      const moving = chicken ? a.path.length > 0 : a.moving;
+      const moving = a.simMotion ? a.moving : chicken ? a.path.length > 0 : a.moving;
       o.position.copy(logical(a.x, a.y, 0));
       o.visible = !(a.bones || a.sheltered || (a.mode === "waking" && a.wakeDelay > 0));
-      const juvenileScale = a.juvenile ? (chicken ? 0.55 + 0.45 * (a.age ?? 0) : 0.5 + 0.5 * (a.age ?? 0)) : 1;
+      const juvenileScale = a.juvenile ? (chicken ? 0.66 + 0.34 * (a.age ?? 0) : 0.5 + 0.5 * (a.age ?? 0)) : 1;
       const pop = Math.min(1, (now - v.born) / B.ui.popInSeconds);
       const popScale = a.popIn ? 1 + 2.2 * Math.pow(pop - 1, 3) + 1.2 * Math.pow(pop - 1, 2) : 1;
       if (pop >= 1) a.popIn = false;
@@ -112,31 +133,44 @@ export function createAnimalRenderer(ctx) {
       // Calves and foals: the adult model, smaller and softly lighter.
       if (!chicken) {
         const cream = a.juvenile ? 0.38 * (1 - (a.age ?? 0)) : 0;
-        if (Math.abs(cream - (v.cream ?? -1)) > 0.015) {
-          softTone(o, cream, 0);
+        const injuredGrey = a.injured ? .18 : 0;
+        if (Math.abs(cream - (v.cream ?? -1)) > 0.015 || injuredGrey !== v.injuredGrey) {
+          softTone(o, cream, injuredGrey);
           v.cream = cream;
+          v.injuredGrey = injuredGrey;
         }
       }
       if (a.sleeping) {
         const home = a.home ?? world.coop;
-        o.position.copy(logical(home.x + ((a.sleepSlot % 4) - 1.5) * 26, (home.y ?? home.door.y) - 30, 0));
+        if (!a.simMotion) o.position.copy(logical(home.x + ((a.sleepSlot % 4) - 1.5) * 26, (home.y ?? home.door.y) - 30, 0));
         o.scale.set(base * juvenileScale, base * juvenileScale * 0.65, base * juvenileScale);
       } else {
         const squash = a.pet ? Math.sin(a.pet * 12) * 0.06 : 0;
         const s = base * juvenileScale * popScale;
         o.scale.set(s * (1 + squash), s * (1 - squash) * (a.sad ? 0.88 : 1), s);
       }
-      const angle = chicken ? (a.path.length ? Math.atan2(a.path[0].x - a.x, (a.path[0].y - a.y) * 1.65) : (a.dir * Math.PI) / 2) : (a.dir * Math.PI) / 2;
+      const angle = a.simMotion && Number.isFinite(a.heading) ? Math.PI / 2 - a.heading : chicken ? (a.path.length ? Math.atan2(a.path[0].x - a.x, (a.path[0].y - a.y) * 1.65) : (a.dir * Math.PI) / 2) : (a.dir * Math.PI) / 2;
       o.rotation.y += Math.atan2(Math.sin(angle - o.rotation.y), Math.cos(angle - o.rotation.y)) * (1 - Math.exp(-dt * 7));
       o.rotation.x = a.sad ? (chicken ? 0.38 : 0.12) : 0; // drooped posture
+      o.rotation.z = a.injured && moving ? Math.sin(t * 7 + (a.phase ?? 0)) * .045 : 0;
+      if (a.injured && moving) o.position.y += Math.max(0, Math.sin(t * 7 + (a.phase ?? 0))) * .025;
       const mixer = o.userData.mixer;
       if (mixer) mixer.timeScale = a.sad ? 0.45 : 1;
       if (chicken) {
-        play(o, a.sleeping ? "idle" : moving ? "walk" : a.mode === "feeding" || a.mode === "drinking" ? "eat" : a.shake > 0 ? "no" : "idle");
-        if (a.mode === "feeding" && !a.juvenile) play(o, "bite_front");
+        const pecking = !moving && !a.sleeping && (a.mode === "feeding" || a.mode === "drinking");
+        play(o, pecking ? "peck" : "idle");
       } else play(o, moving ? ((a.boltUntil ?? 0) > world.elapsed ? "gallop" : "walk") : a.eating ? "eating" : a.sad ? "idle_headlow" : "idle");
       a.shake = Math.max(0, (a.shake ?? 0) - dt);
       mixer?.update(dt);
+      if (chicken) {
+        // The chosen CC0 hen includes a peck clip. Its existing leg bones get a
+        // restrained alternating gait; no extra object geometry is generated.
+        const gait = moving && !a.sleeping ? Math.sin(t * 12 + (a.phase ?? 0)) * .42 : 0;
+        for (let i = 0; i < o.userData.chickenLegs.length; i++) {
+          const { bone, rotation } = o.userData.chickenLegs[i];
+          bone.rotation.x = rotation.x + gait * (i ? -1 : 1);
+        }
+      }
       if (chicken && !a.sleeping) {
         if (hen < henUniform.value.length) henUniform.value[hen++].copy(o.position);
         if (moving) o.position.y += Math.abs(Math.sin(t * 9 + a.phase)) * 0.025;
