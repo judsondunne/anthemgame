@@ -16,22 +16,23 @@ export function piece(name, parent, x, y, z, sx = 1, sy = sx, sz = sx, rot = 0, 
 // Open-front raised henhouse. Downloaded timber, deck, roof and ramp modules
 // expose the warm roost, so sleeping chickens remain visible from outside.
 export function chickenCoop(lanterns=[]) {
- const g=new THREE.Group();
+ const g=new THREE.Group();g.name='Timber henhouse with nesting hatch';g.userData.dynamicArchitecture=true;
  const add=(name,opts,x,y,z,ry=0)=>{const o=model(name,opts);o.position.set(x,y,z);o.rotation.y=ry;g.add(o);return o;};
- const deck=add('planks',{width:3.9},0,.43,-1.1);deck.scale.z*=.66;
- for(const x of [-1.55,1.55])for(const z of [-2.1,-.2])add('pillar-wood',{height:.55},x,0,z);
- // Back and side planks: no cottage porch, chimney, windows or human front door.
- for(const x of [-.84,.84])piece('wall-wood',g,x,.46,-2.2,1.68,1.25,1.2,Math.PI/2,'#d7c2a0');
- for(const side of [-1,1])piece('wall-wood-half',g,side*1.64,.46,-1.3,1.8,1.4,1.8,side>0?0:Math.PI,'#d7c2a0');
- piece('roof-gable',g,0,1.66,-1.25,2.0,1.05,3.9,Math.PI/2,'#a0b0a0');
- for(const x of [-1.5,1.5])add('pillar-wood',{height:1.15},x,.46,-.15);
- const ramp=add('stairs-wood',{width:.93},0,0,.45,Math.PI/2);ramp.scale.y*=.45;ramp.scale.z*=1.2;
- for(const x of [-1.06,1.06]){const hay=add('hay-bale',{width:.72},x,.46,-1.55);hay.scale.y*=.55;}
- for(const x of [-1.36,-.45,.45,1.36])add('fence_simple',{width:.92},x,0,1.12);
- for(const x of [-1.8,1.8])add('fence_simple',{width:1.25},x,0,.57,Math.PI/2);
- // Low roost rails are original downloaded poles, never generated prop geometry.
- for(const z of [-.72,-1.35]){const rail=add('pillar-wood',{height:2.6},1.3,.65,z);rail.rotation.z=Math.PI/2;}
- const lamp=add('lantern',{height:.37},1.53,1.05,-.05);lanterns.push(lamp);g.userData.lantern=lamp;g.userData.depth=3.5;g.userData.coop=true;return g;
+ // The original downloaded ChickenCoop supplies all planks, roof, feet, trims
+ // and ramp geometry. Nesting and the moving hatch reuse downloaded modules.
+ const body=add('farm-coop',{width:4.2,recolor:{White:'#e6dbc1',LightRed:'#c4ac84',DarkRed:'#a68d69',Brown:'#927957',RoofBlack:'#708b7c'}},0,0,-1.1);
+ const nest=add('interior-bookcaseOpen',{width:1.36},-1.27,.42,-.49,Math.PI/2);nest.scale.y*=.45;nest.scale.z*=1.2;
+ for(const z of [-.9,-.4]){const hay=add('hay-bale',{width:.48},-1.31,.48,z);hay.scale.y*=.35;}
+ // A timber door with an authored hinge, scaled to a hen-sized hatch.
+ const hatch=add('interior-doorwayFront',{height:.93},0,.39,.21);
+ hatch.scale.x*=1.4;hatch.userData.hinged=true;
+ const hinge=hatch.getObjectByName('door');
+ const ramp=add('stairs-wood',{width:.92},0,0,.69,Math.PI/2);ramp.scale.y*=.55;ramp.scale.z*=1.18;
+ for(const x of [-1.55,1.55]){const fence=add('fence_simple',{width:1.1},x,0,.8,Math.PI/2);fence.scale.y*=.75;}
+ for(const x of [-.56,.56]){const rail=add('pillar-wood',{height:1.45},x,.58,-1.12);rail.rotation.z=Math.PI/2;}
+ const lamp=add('lantern',{height:.36},1.43,1.17,-.01);lanterns.push(lamp);g.userData.lantern=lamp;
+ g.userData.setDoorOpen=(open,progress=Number(open))=>{if(hinge)hinge.rotation.y=-Math.PI*.49*progress;g.userData.doorOpen=!!open;g.userData.doorProgress=progress;};
+ g.userData.setDoorOpen(true,1);g.userData.depth=3.6;g.userData.coop=true;return g;
 }
 
 // Detailed source buildings retain their downloaded tiles, timber joints,

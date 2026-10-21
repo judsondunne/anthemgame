@@ -102,7 +102,7 @@ export function createAnimalRenderer(ctx) {
         base = o.userData.baseScale;
       const moving = a.simMotion ? a.moving : chicken ? a.path.length > 0 : a.moving;
       o.position.copy(logical(a.x, a.y, (a.roostHeight??0)+(a.groundHeight??0)));
-      o.visible = !(a.bones || a.sheltered || (a.mode === "waking" && a.wakeDelay > 0));
+      o.visible = !(a.bones || a.sheltered || (a.indoors && !a.coopDoorOpen) || (a.mode === "waking" && a.wakeDelay > 0));
       const juvenileScale = a.juvenile ? (chicken ? 0.66 + 0.34 * (a.age ?? 0) : 0.5 + 0.5 * (a.age ?? 0)) : 1;
       const pop = Math.min(1, (now - v.born) / B.ui.popInSeconds);
       const popScale = a.popIn ? 1 + 2.2 * Math.pow(pop - 1, 3) + 1.2 * Math.pow(pop - 1, 2) : 1;

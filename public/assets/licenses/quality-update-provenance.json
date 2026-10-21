@@ -441,5 +441,15 @@
     "clips": [],
     "usage": "Mossy stumps in forest clearings",
     "sha256": "194f67985d88a6e4a0857971772a292ab517306c3f6c7820a7302bba4ee40803"
+  },
+  {
+    "name": "farm-coop",
+    "path": "/assets/models/architecture/coop.glb",
+    "source": "https://poly.pizza/m/DM0F8siLam",
+    "license": "CC0-1.0",
+    "triangles": 948,
+    "clips": [],
+    "usage": "Original detailed Quaternius ChickenCoop, with downloaded hinge door, visible nesting boxes and exterior ramp",
+    "sha256": "138f37ba14648259e8fa841d3501ebc05ad7b997babadc6cd5572785de9e158a"
   }
 ]

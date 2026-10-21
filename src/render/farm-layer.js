@@ -83,7 +83,7 @@ function stageProgress(p) {
 // Static downloaded building modules share materials and draw calls after placement.
 function batchStructure(g){
  g.updateMatrixWorld(true);const inverse=g.matrixWorld.clone().invert(),batches=new Map();
- g.traverse(mesh=>{if(!mesh.isMesh||mesh.isSkinnedMesh||Array.isArray(mesh.material))return;let parent=mesh;while(parent&&parent!==g){if(parent.userData.asset==='lantern')return;parent=parent.parent;}const m=mesh.material;
+ g.traverse(mesh=>{if(!mesh.isMesh||mesh.isSkinnedMesh||Array.isArray(mesh.material))return;let parent=mesh;while(parent&&parent!==g){if(parent.userData.asset==='lantern'||parent.userData.hinged)return;parent=parent.parent;}const m=mesh.material;
  const key=[m.name,m.color.getHex(),m.map?.uuid,m.roughness,m.transparent,m.customProgramCacheKey(),Object.keys(mesh.geometry.attributes).sort().join(',')].join('|');if(!batches.has(key))batches.set(key,[]);batches.get(key).push(mesh);});
  for(const meshes of batches.values()){if(meshes.length<2)continue;const geometries=meshes.map(m=>m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse,m.matrixWorld)));const geometry=mergeGeometries(geometries,false);if(!geometry)continue;const merged=new THREE.Mesh(geometry,meshes[0].material);merged.castShadow=merged.receiveShadow=true;g.add(merged);meshes.forEach(m=>m.removeFromParent());geometries.forEach(m=>m.dispose());}
 }
@@ -331,6 +331,7 @@ export function createFarmLayer(ctx) {
       let o = buildings.get(b.id);
       if (!o) buildings.set(b.id, (o = buildingObject(b)));
       o.g.scale.setScalar((o.g.userData.baseScale??1)*overshoot((now - o.born) / B.ui.popInSeconds));
+      if(b.type==='coop'){const door=state.coops?.[String(b.id)];if(door)o.g.userData.setDoorOpen?.(door.doorOpen,door.doorProgress);}
     }
 
     for (const p of state.pickups) {
@@ -338,7 +339,7 @@ export function createFarmLayer(ctx) {
       if (!o) pickups.set(p.id, (o = pickupObject(p)));
       const t = now - o.born;
       o.o.scale.setScalar(o.o.userData.base * overshoot(t / B.ui.popInSeconds));
-      o.o.position.y = Math.abs(Math.sin(now * 2 + p.id)) * 0.025;
+      o.o.position.y = (p.nest?.48:0)+Math.abs(Math.sin(now * 2 + p.id)) * 0.025;
       if(o.ring)o.ring.material.uniforms.pulse.value=now*2+p.id;
     }
     for (const [id, o] of pickups)

@@ -255,3 +255,5 @@ Kenney remains the architecture/furnishing family; Quaternius provides the same 
 |forest_plant|https://poly.pizza/m/NrJN7UcglF|CC0-1.0|/assets/models/forest/forest_plant.glb|120|Layered broad-leaf forest undergrowth|
 |forest_grass_wispy|https://poly.pizza/m/Msr9zx66VU|CC0-1.0|/assets/models/forest/forest_grass_wispy.glb|494|Fine wind-sway grasses|
 |forest_stump|https://poly.pizza/m/nFvEbUX6LE|CC0-1.0|/assets/models/forest/forest_stump.glb|232|Mossy stumps in forest clearings|
+
+|farm-coop|https://poly.pizza/m/DM0F8siLam|CC0-1.0|/assets/models/architecture/coop.glb|948|Original detailed Quaternius ChickenCoop, with downloaded hinge door, visible nesting boxes and exterior ramp|

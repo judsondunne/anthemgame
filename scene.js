@@ -956,6 +956,8 @@ function tick(now) {
     input.update(dt);
     largerWorld.update(dt,{night:currentNight,camera});
     cottage.update(dt,{cameraControl,night:currentNight});
+    const coopDoor=game.state.coops?.base;
+    if(coopDoor)coop.userData.setDoorOpen(coopDoor.doorOpen,coopDoor.doorProgress);
     waterFeedback.update(dt);
     tutorial.update(dt,game.clock);
     if(frameCount%6===0)cropInfo.update();
