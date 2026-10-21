@@ -1,0 +1,1 @@
+export const VISUAL = {ao:{radius:5,minDistance:.0003,maxDistance:.055},shadow:{high:2048,low:1024},hudHz:10,lowMotionHz:12,egg:{height:.32,ringRadius:.23},detail:{sunRadius:.0074,moonRadius:.009},maturityBadge:64};

@@ -770,5 +770,194 @@
     "triangles": 96,
     "clips": [],
     "sha256": "e7a92369062d491e5a31a163d390e07db04ee573605bbfa84c00660d18896b4c"
+  },
+  {
+    "name": "forest_oak",
+    "path": "/assets/models/forest/forest_oak.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 404,
+    "usage": "Gradient-textured detailed forest; original source Tree_4_A_Color1",
+    "sha256": "40716f6360f47178ca168009ee7be3f081054572b2b562be319bc2ef5cc41310"
+  },
+  {
+    "name": "forest_oak_b",
+    "path": "/assets/models/forest/forest_oak_b.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 522,
+    "usage": "Gradient-textured detailed forest; original source Tree_4_B_Color1",
+    "sha256": "a3b059aeb6d3ea82d443f30431d75e2b8c56fa9f7a9ef5bf8abbed1939fc3242"
+  },
+  {
+    "name": "forest_canopy",
+    "path": "/assets/models/forest/forest_canopy.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 988,
+    "usage": "Gradient-textured detailed forest; original source Tree_3_B_Color1",
+    "sha256": "6a7b037bb1bc22f1dc6f9665c5bc18d2ebe880d20985640a640005d4c0ec789c"
+  },
+  {
+    "name": "forest_canopy_b",
+    "path": "/assets/models/forest/forest_canopy_b.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 2228,
+    "usage": "Gradient-textured detailed forest; original source Tree_3_C_Color1",
+    "sha256": "adaa8d7c57ff8407941407b271d45958874b2c4f1e9b4d54566ea12ead4d5567"
+  },
+  {
+    "name": "forest_pine",
+    "path": "/assets/models/forest/forest_pine.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 1428,
+    "usage": "Gradient-textured detailed forest; original source Tree_2_D_Color1",
+    "sha256": "0498d899d3490127c87029c5a94e20235534782eb86122a723e2b7d0443c8567"
+  },
+  {
+    "name": "forest_pine_b",
+    "path": "/assets/models/forest/forest_pine_b.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 1560,
+    "usage": "Gradient-textured detailed forest; original source Tree_2_E_Color1",
+    "sha256": "93515635b2f2bc1951277d37061634f0c8c871cfcecd8c123c812116c5567359"
+  },
+  {
+    "name": "forest_bush",
+    "path": "/assets/models/forest/forest_bush.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 108,
+    "usage": "Gradient-textured detailed forest; original source Bush_4_C_Color1",
+    "sha256": "46859641702082a10e7829e489c8681b58fe531b5c7ea92f2ec9180f18e4efcb"
+  },
+  {
+    "name": "forest_bush_b",
+    "path": "/assets/models/forest/forest_bush_b.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 240,
+    "usage": "Gradient-textured detailed forest; original source Bush_3_B_Color1",
+    "sha256": "3c6797adc3dfdbce8dd2d853bea14bc0a4f1c84a16d60d44f4e6d349915fd62a"
+  },
+  {
+    "name": "forest_grass",
+    "path": "/assets/models/forest/forest_grass.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 528,
+    "usage": "Gradient-textured detailed forest; original source Grass_2_C_Color1",
+    "sha256": "a2fd01eeb496aea47abc67f0de7a1ca5a7d14445506a79c79d98286be05762bc"
+  },
+  {
+    "name": "forest_reeds",
+    "path": "/assets/models/forest/forest_reeds.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 396,
+    "usage": "Gradient-textured detailed forest; original source Grass_1_C_Color1",
+    "sha256": "1e9ea39b70af98a96ad5173b443e4a576edf12f0f68a2d8637318f3ff3e08aed"
+  },
+  {
+    "name": "forest_rock",
+    "path": "/assets/models/forest/forest_rock.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 529,
+    "usage": "Gradient-textured detailed forest; original source Rock_1_K_Color1",
+    "sha256": "92bf1910e1d64bf85ff6a10f5059c1a8652fb11444b0b5729feba6d9d2977f96"
+  },
+  {
+    "name": "forest_boulder",
+    "path": "/assets/models/forest/forest_boulder.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 320,
+    "usage": "Gradient-textured detailed forest; original source Rock_3_Q_Color1",
+    "sha256": "aa8bd622aaa7f472f9949ffa611327d372e524436ed77a959614a7cd8008af48"
+  },
+  {
+    "name": "forest_pebble",
+    "path": "/assets/models/forest/forest_pebble.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 84,
+    "usage": "Gradient-textured detailed forest; original source Rock_1_D_Color1",
+    "sha256": "3a7a3ff3d0e578f62adc843787119d1097fe10b5aa6b3554e5099dae9fdb8750"
+  },
+  {
+    "name": "forest_cliff",
+    "path": "/assets/models/forest/forest_cliff.glb",
+    "source": "https://kaylousberg.itch.io/kaykit-forest",
+    "license": "CC0-1.0",
+    "triangles": 428,
+    "usage": "Gradient-textured detailed forest; original source Rock_2_F_Color1",
+    "sha256": "727d0411f4d9b4dd42dca1ecb05e6ea7942c350328f0342337cce7fba126fd7c"
+  },
+  {
+    "name": "forest_fir",
+    "path": "/assets/models/forest/forest_fir.glb",
+    "source": "https://poly.pizza/m/rfnxJv0Rqa",
+    "license": "CC0-1.0",
+    "triangles": 3947,
+    "usage": "Layered textured Quaternius Stylized Nature MegaKit fir tree",
+    "sha256": "4902bbecd22a9503871f48e5815f33dd7d51f4077299c16e0dd968217e46d435"
+  },
+  {
+    "name": "forest_fir_b",
+    "path": "/assets/models/forest/forest_fir_b.glb",
+    "source": "https://poly.pizza/m/igSu0cPoBz",
+    "license": "CC0-1.0",
+    "triangles": 1646,
+    "usage": "Layered textured Quaternius Stylized Nature MegaKit fir tree",
+    "sha256": "b2cc7f2e672f94a41925ba831af8b3db9cbe6621172fb6f2717881c81c074e18"
+  },
+  {
+    "name": "forest_fir_c",
+    "path": "/assets/models/forest/forest_fir_c.glb",
+    "source": "https://poly.pizza/m/79gmlLnweB",
+    "license": "CC0-1.0",
+    "triangles": 3370,
+    "usage": "Layered textured Quaternius Stylized Nature MegaKit fir tree",
+    "sha256": "240e6f60c5b106a892c80490d7c710f20ef902b328b5e173c0a567334e4df972"
+  },
+  {
+    "name": "forest_leaf_tree",
+    "path": "/assets/models/forest/forest_leaf_tree.glb",
+    "source": "https://poly.pizza/m/QVOop92WmG",
+    "license": "CC0-1.0",
+    "triangles": 3505,
+    "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+    "sha256": "f38d3e28803609be98fc0fe2d3315f505ae2cd338168f12fec1f93299b4d39b6"
+  },
+  {
+    "name": "forest_leaf_tree_b",
+    "path": "/assets/models/forest/forest_leaf_tree_b.glb",
+    "source": "https://poly.pizza/m/YWjGDJ9F7g",
+    "license": "CC0-1.0",
+    "triangles": 4066,
+    "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+    "sha256": "2bbb3d68b88f9d05cddcc1d6d9cd1ec83c8652eda62bc26e973dee2b870415a9"
+  },
+  {
+    "name": "forest_fern",
+    "path": "/assets/models/forest/forest_fern.glb",
+    "source": "https://poly.pizza/m/jqcanvH7D6",
+    "license": "CC0-1.0",
+    "triangles": 288,
+    "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+    "sha256": "800c02671b865fd3f524a58fa72b498185a8f43dfe627ef546092027ee73d468"
+  },
+  {
+    "name": "forest_flowers",
+    "path": "/assets/models/forest/forest_flowers.glb",
+    "source": "https://poly.pizza/m/hfPzQAedOe",
+    "license": "CC0-1.0",
+    "triangles": 755,
+    "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+    "sha256": "4b944bea371dda0c133dc46a0aea7d41dc78c1fc656e3facd337a372aa6a0154"
   }
 ]

@@ -12,6 +12,27 @@ export function piece(name, parent, x, y, z, sx = 1, sy = sx, sz = sx, rot = 0, 
   return o;
 }
 
+// Open-front raised henhouse. Downloaded timber, deck, roof and ramp modules
+// expose the warm roost, so sleeping chickens remain visible from outside.
+export function chickenCoop(lanterns=[]) {
+ const g=new THREE.Group();
+ const add=(name,opts,x,y,z,ry=0)=>{const o=model(name,opts);o.position.set(x,y,z);o.rotation.y=ry;g.add(o);return o;};
+ const deck=add('planks',{width:3.9},0,.43,-1.1);deck.scale.z*=.66;
+ for(const x of [-1.55,1.55])for(const z of [-2.1,-.2])add('pillar-wood',{height:.55},x,0,z);
+ // Back and side planks: no cottage porch, chimney, windows or human front door.
+ for(const x of [-.84,.84])piece('wall-wood',g,x,.46,-2.2,1.68,1.25,1.2,Math.PI/2,'#d7c2a0');
+ for(const side of [-1,1])piece('wall-wood-half',g,side*1.64,.46,-1.3,1.8,1.4,1.8,side>0?0:Math.PI,'#d7c2a0');
+ piece('roof-gable',g,0,1.66,-1.25,2.0,1.05,3.9,Math.PI/2,'#a0b0a0');
+ for(const x of [-1.5,1.5])add('pillar-wood',{height:1.15},x,.46,-.15);
+ const ramp=add('stairs-wood',{width:.93},0,0,.45,Math.PI/2);ramp.scale.y*=.45;ramp.scale.z*=1.2;
+ for(const x of [-1.06,1.06]){const hay=add('hay-bale',{width:.72},x,.46,-1.55);hay.scale.y*=.55;}
+ for(const x of [-1.36,-.45,.45,1.36])add('fence_simple',{width:.92},x,0,1.12);
+ for(const x of [-1.8,1.8])add('fence_simple',{width:1.25},x,0,.57,Math.PI/2);
+ // Low roost rails are original downloaded poles, never generated prop geometry.
+ for(const z of [-.72,-1.35]){const rail=add('pillar-wood',{height:2.6},1.3,.65,z);rail.rotation.z=Math.PI/2;}
+ const lamp=add('lantern',{height:.37},1.53,1.05,-.05);lanterns.push(lamp);g.userData.lantern=lamp;g.userData.depth=3.5;g.userData.coop=true;return g;
+}
+
 // The original cottage/coop recipe, parameterised so new buildings share it.
 // Defaults reproduce the cottage exactly.
 export function building(
@@ -31,6 +52,7 @@ export function building(
   } = {},
   lanterns = [],
 ) {
+  if(coop&&!barn)return chickenCoop(lanterns);
   const b = new THREE.Group();
   const unit = 1.7,
     cols = 3,
@@ -71,37 +93,7 @@ export function building(
 // front-centre; `depth` is how far the model extends behind that line.
 const BARN_RED = "#d98f7c";
 export const BUILDINGS = {
-  coop() {
-    const g = new THREE.Group();
-    const lanterns = [];
-    const house = building(
-      {
-        coop: true,
-        barn: true,
-        front: ["wall-wood-window-shutters", "wall-wood-door", "wall-wood-window-shutters"],
-        sideFront: "wall-wood",
-        sideBack: "wall-wood",
-        back: "wall-wood",
-        roof: "roof-gable",
-        roofScale: [3.5, 2.1, 5.2],
-        height: 2.1,
-        chimney: false,
-        tint: "#fff4e2",
-        roofTint: "#f0b4a2",
-      },
-      lanterns,
-    );
-    house.scale.setScalar(0.58);
-    house.position.z = -1.05;
-    g.add(house);
-    // Fenced run in front of the hen house.
-    for (const x of [-1.25, -0.42, 0.42, 1.25]) piece("fence", g, x, 0, 0.05, 0.85, 0.55, 0.6, 0);
-    for (const s of [-1, 1]) piece("fence", g, s * 1.55, 0, -0.38, 0.85, 0.55, 0.6, Math.PI / 2);
-    piece("hay-bale", g, 1.15, 0, -0.65, 0.42, 0.42, 0.42, 0.3);
-    g.userData.lantern = house.userData.lantern;
-    g.userData.depth = 3.1;
-    return g;
-  },
+  coop() { const g=chickenCoop();g.scale.setScalar(.8);g.userData.baseScale=.8;return g; },
   barn() {
     const g = new THREE.Group();
     const lanterns = [];

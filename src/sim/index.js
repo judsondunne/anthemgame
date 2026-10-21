@@ -10,3 +10,5 @@ export * from './movement.js';
 export * as layout from "./layout.js";
 export * as clock from "./clock.js";
 export { BALANCE, DAY_SECONDS } from "../config/balance.js";
+
+export * from './shelter.js';

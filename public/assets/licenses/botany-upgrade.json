@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "name": "forest_leaf_tree",
+      "path": "/assets/models/forest/forest_leaf_tree.glb",
+      "source": "https://poly.pizza/m/QVOop92WmG",
+      "license": "CC0-1.0",
+      "triangles": 3505,
+      "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+      "sha256": "f38d3e28803609be98fc0fe2d3315f505ae2cd338168f12fec1f93299b4d39b6"
+    },
+    {
+      "name": "forest_leaf_tree_b",
+      "path": "/assets/models/forest/forest_leaf_tree_b.glb",
+      "source": "https://poly.pizza/m/YWjGDJ9F7g",
+      "license": "CC0-1.0",
+      "triangles": 4066,
+      "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+      "sha256": "2bbb3d68b88f9d05cddcc1d6d9cd1ec83c8652eda62bc26e973dee2b870415a9"
+    },
+    {
+      "name": "forest_fern",
+      "path": "/assets/models/forest/forest_fern.glb",
+      "source": "https://poly.pizza/m/jqcanvH7D6",
+      "license": "CC0-1.0",
+      "triangles": 288,
+      "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+      "sha256": "800c02671b865fd3f524a58fa72b498185a8f43dfe627ef546092027ee73d468"
+    },
+    {
+      "name": "forest_flowers",
+      "path": "/assets/models/forest/forest_flowers.glb",
+      "source": "https://poly.pizza/m/hfPzQAedOe",
+      "license": "CC0-1.0",
+      "triangles": 755,
+      "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
+      "sha256": "4b944bea371dda0c133dc46a0aea7d41dc78c1fc656e3facd337a372aa6a0154"
+    }
+  ]
+}

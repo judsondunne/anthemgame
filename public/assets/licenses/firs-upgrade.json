@@ -1,0 +1,31 @@
+{
+  "entries": [
+    {
+      "name": "forest_fir",
+      "path": "/assets/models/forest/forest_fir.glb",
+      "source": "https://poly.pizza/m/rfnxJv0Rqa",
+      "license": "CC0-1.0",
+      "triangles": 3947,
+      "usage": "Layered textured Quaternius Stylized Nature MegaKit fir tree",
+      "sha256": "4902bbecd22a9503871f48e5815f33dd7d51f4077299c16e0dd968217e46d435"
+    },
+    {
+      "name": "forest_fir_b",
+      "path": "/assets/models/forest/forest_fir_b.glb",
+      "source": "https://poly.pizza/m/igSu0cPoBz",
+      "license": "CC0-1.0",
+      "triangles": 1646,
+      "usage": "Layered textured Quaternius Stylized Nature MegaKit fir tree",
+      "sha256": "b2cc7f2e672f94a41925ba831af8b3db9cbe6621172fb6f2717881c81c074e18"
+    },
+    {
+      "name": "forest_fir_c",
+      "path": "/assets/models/forest/forest_fir_c.glb",
+      "source": "https://poly.pizza/m/79gmlLnweB",
+      "license": "CC0-1.0",
+      "triangles": 3370,
+      "usage": "Layered textured Quaternius Stylized Nature MegaKit fir tree",
+      "sha256": "240e6f60c5b106a892c80490d7c710f20ef902b328b5e173c0a567334e4df972"
+    }
+  ]
+}

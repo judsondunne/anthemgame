@@ -50,6 +50,7 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
   function pick(e, p) {
     const s = game.state;
     if (firstPerson()) e = centerEvent();
+    if(s.ui.fenceDelete){for(const f of s.fences??[]){const l=Sim.fenceLine(f),x=(l.x1+l.x2)/2,y=(l.y1+l.y2)/2;if(!reachable(x,y,.4))continue;const q=screen(x,y,.4);if(firstPerson()?Math.hypot(q.x-e.clientX,q.y-e.clientY)<42:p.x>l.x1-15&&p.x<l.x2+15&&p.y>l.y1-10&&p.y<l.y2+10)return{kind:'fence',id:f.id,gate:f.gate};}}
     let best = null,
       bestD = 1e9;
     const consider = (kind, id, x, y, h, radius) => {
@@ -71,8 +72,8 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
         if (agent.sheltered || agent.bones || (agent.mode === "waking" && agent.wakeDelay > 0)) continue;
         const big = agent.sp === "chicken" ? 0.35 : agent.sp === "cow" ? 0.7 : 0.85;
         const r = (agent.sp === "chicken" ? 30 : 44) * (agent.juvenile ? 0.85 : 1) * Math.max(0.8, view.scale * 2.2);
-        const ax = agent.sleeping ? agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26 : agent.x;
-        const ay = agent.sleeping ? agent.home.y - 30 : agent.y;
+        const ax = agent.sleeping && !agent.simMotion ? agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26 : agent.x;
+        const ay = agent.sleeping && !agent.simMotion ? agent.home.y - 30 : agent.y;
         consider("animal", id, ax, ay, big * (agent.juvenile ? 0.7 : 1), r);
       }
     };

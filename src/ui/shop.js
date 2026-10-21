@@ -1,6 +1,7 @@
 // Market panel. Buy tab: seeds, feed, animals, buildings, beds. Sell tab:
 // everything sellable. Icons, numerals and states only.
 import { ICONS, itemIcon } from "./icons.js";
+import { maturityTime } from "./crop-info.js";
 import { NIGHT_ICONS as N } from "./night-icons.js";
 import { fmt } from "./juice.js";
 import { BALANCE as B } from "../config/balance.js";
@@ -22,11 +23,14 @@ export function createShop({ game, hud, juice, audio, onKit }) {
   el.id = "shop";
   el.className = "glass";
   el.setAttribute("role", "dialog");
-  el.innerHTML = `<div class="shophead"><button class="tab buy" aria-label="Buy">${ICONS.basket}</button><button class="tab sell" aria-label="Sell">${ICONS.coins}</button><div class="pill money"><span class="ico">${ICONS.coin}</span><span class="num"></span></div><button class="close" aria-label="Close">${ICONS.close}</button></div><div class="shopbody"></div>`;
+  el.innerHTML = `<div class="shophead"><button class="tab buy" aria-label="Buy">${ICONS.basket}</button><button class="tab sell" aria-label="Sell">${ICONS.coins}</button><div class="pill money"><span class="ico">${ICONS.coin}</span><span class="num"></span></div><button class="close" aria-label="Close">${ICONS.close}</button></div><div class="quantity-stepper"><button class="less" aria-label="Decrease quantity">−</button><span>1</span><button class="more" aria-label="Increase quantity">+</button></div><div class="shopbody"></div>`;
   document.body.append(veil, el);
   const body = el.querySelector(".shopbody"),
     numEl = el.querySelector(".num"),
     tabs = { buy: el.querySelector(".tab.buy"), sell: el.querySelector(".tab.sell") };
+  let quantity=1;
+  el.querySelector(".quantity-stepper .less").onclick=()=>{quantity=Math.max(1,quantity-1);el.querySelector(".quantity-stepper span").textContent=quantity;render();};
+  el.querySelector(".quantity-stepper .more").onclick=()=>{quantity=Math.min(99,quantity+1);el.querySelector(".quantity-stepper span").textContent=quantity;render();};
   let tab = "buy",
     isOpen = false,
     signature = "",
@@ -67,6 +71,7 @@ export function createShop({ game, hud, juice, audio, onKit }) {
     t.setAttribute("aria-label", key);
     const animal = /^animal_(\w+)_(f|m)$/.exec(key);
     t.innerHTML = `<div class="art">${itemIcon(key)}${animal ? `<span class="sex">${animal[2] === "f" ? ICONS.female : ICONS.male}</span>` : ""}</div><div class="price"><span class="ico">${ICONS.coin}</span><span class="n"></span></div>`;
+    if(key.startsWith('seed_')){const crop=key.slice(5),C=B.crops[crop],good=C.good??crop;t.insertAdjacentHTML('beforeend',`<span class="crop-yield">+<span>${ICONS.coin}</span>${sellPrice(s,good)*C.yield}</span><span class="maturity">◷ ${maturityTime(C.grow)}</span>`);t.classList.add('seed-tile');}
     if (animal) t.insertAdjacentHTML("beforeend", `<div class="cap"><span class="ico">${ICONS.house}</span><span class="c"></span></div>`);
     else if (key.startsWith("kit_") || FEEDS.includes(key) || SEEDS.includes(key)) t.insertAdjacentHTML("beforeend", `<span class="count"></span>`);
     t.addEventListener("pointerdown", (e) => startHold(e, t, key));
@@ -80,11 +85,11 @@ export function createShop({ game, hud, juice, audio, onKit }) {
   function updateBuyTile(s, t, key, hs) {
     const animal = /^animal_(\w+)_(f|m)$/.exec(key);
     const price = buyPrice(s, key);
-    t.querySelector(".n").textContent = fmt(price);
+    t.querySelector(".n").textContent = fmt(price * quantity);
     const check = canBuy(s, key);
     const locked = check.reason === "locked";
     t.classList.toggle("locked", locked);
-    t.classList.toggle("poor", check.reason === "money");
+    t.classList.toggle("poor", check.reason === "money" || s.money < price*quantity);
     t.classList.toggle("blocked", ["full", "max", "stack"].includes(check.reason));
     let mark = t.querySelector(".lockmark");
     if (locked && !mark) {
@@ -113,7 +118,10 @@ export function createShop({ game, hud, juice, audio, onKit }) {
   }
 
   function attemptBuy(t, key) {
-    const r = game.act("buy", key);
+    if(game.state.money<(buyPrice(game.state,key)??0)*quantity){juice.shake(t);juice.shake(hud.moneyEl);return false;}
+    let r={ok:false},total=0;
+    for(let i=0;i<quantity;i++){const result=game.act("buy",key);if(!result.ok){if(!i)r=result;break;}r=result;total+=result.price;}
+    if(r.ok)r={...r,price:total};
     const p = juice.center(t);
     if (r.ok) {
       juice.coinPop(p.x, p.y - 20, -r.price, hud.moneyEl);
@@ -165,7 +173,7 @@ export function createShop({ game, hud, juice, audio, onKit }) {
     t.innerHTML = `<div class="art">${itemIcon(entry.key)}${entry.sex ? `<span class="sex">${entry.sex === "f" ? ICONS.female : ICONS.male}</span>` : ""}</div><div class="price"><span class="ico">${ICONS.coin}</span><span class="n"></span><span class="trend"></span></div><span class="count"></span><button class="all" aria-label="Sell all">${ICONS.all}</button>`;
     t.onclick = (e) => {
       if (e.target.closest(".all")) return;
-      sell(t, entry.key, 1);
+      sell(t, entry.key, quantity);
     };
     t.querySelector(".all").onclick = () => sell(t, entry.key, "all");
     return t;

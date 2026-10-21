@@ -2,6 +2,7 @@
 // ripe or dry beds, and the original ambient affection/koi bubbles.
 import { NIGHT_ICONS as N } from "./night-icons.js";
 import { ICONS, itemIcon } from "./icons.js";
+import { BALANCE as B } from "../config/balance.js";
 import { needsOf, plotStage, foodsFor, layout } from "../sim/index.js";
 
 const { footprintCenter, footprintOf, plotPosition } = layout;
@@ -53,13 +54,22 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
       const agent = bridge.agentOf(a.id);
       if (!agent) continue;
       const hidden = agent.sheltered || agent.sleeping;
-      const at = agent.sheltered ? agent.home.door : agent.sleeping ? { x: agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26, y: agent.home.y - 30 } : agent;
+      const at = agent.sheltered ? agent.home.door : agent.sleeping && !agent.simMotion ? { x: agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26, y: agent.home.y - 30 } : agent;
       const html = (a.injured ? `<span class="injured ico">${N.bandage}</span>` : "") + (n.hungry ? `<button data-act="food" aria-label="Feed">${foodIcon(a.sp)}</button>` : "") + (n.thirsty ? `<button data-act="water" aria-label="Water">${ICONS.drop}</button>` : "");
-      const e = element("a" + a.id, html, (n.level === "urgent" || n.level === "sad" ? "urgent" : "") + (hidden ? " small" : ""), {
+      const e = element("a" + a.id, html, (n.unmet >= B.neglect.deathDays*B.time.cycleSeconds*.70 ? "urgent" : n.unmet >= B.neglect.deathDays*B.time.cycleSeconds*.30 ? "warning" : "") + (hidden ? " small" : ""), {
         food: (b, el) => onAnimal(a.id, "food", b, el),
         water: (b, el) => onAnimal(a.id, "water", b, el),
       });
       position(e, at.x, at.y, (HEIGHT[a.sp] ?? 1.2) * (agent.juvenile ? 0.75 : 1) * (hidden ? 0.8 : 1), a.id);
+    }
+    if(game.clock.hour>=B.coop.callHour||game.clock.hour<6){
+      const chickens=s.animals.filter(a=>a.sp==='chicken'&&a.state==='alive');
+      if(chickens.length){const inside=chickens.filter(a=>a.indoors).length;
+        for(const coop of [{id:null,x:layout.BASE_COOP.x,y:layout.BASE_COOP.y},...s.buildings.filter(b=>b.type==='coop').map(b=>({id:b.id,...layout.frontOf(b)}))]){
+          const html=`<button data-act="inside" aria-label="Call chickens into coop">${inside===chickens.length?ICONS.moon:ICONS.hen}<span class="coop-arrow">${N.arrow}</span>${ICONS.coop}<span class="coop-count">${inside}/${chickens.length}</span></button>`;
+          const e=element('coop-call'+coop.id,html,'coop-call '+(inside===chickens.length?'settled':'calling'),{inside:()=>game.act('callChickensIn')});position(e,coop.x,coop.y,2.15,0);
+        }
+      }
     }
     for (const bed of s.beds) {
       const ripe = bed.plots.find((p) => plotStage(p) === 2);

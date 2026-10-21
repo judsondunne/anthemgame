@@ -152,12 +152,18 @@ export function createFarmLayer(ctx) {
   }
 
   function pickupObject(p) {
-    const o = p.kind === "egg" ? model("egg", { height: 0.23 }) : model("carton-small", { height: 0.32 });
+    const o = p.kind === "egg" ? model("egg", { height: 0.33 }) : model("carton-small", { height: 0.32 });
     toWorld(p.x, p.y, 0, o.position);
     o.rotation.y = (p.id * 1.7) % 6.28;
     o.userData.base = o.scale.x;
+    let ring=null;
+    if(p.kind==='egg'){
+      ownMaterials(o);o.traverse(m=>{if(m.isMesh){for(const material of(Array.isArray(m.material)?m.material:[m.material])){material.color.set('#fff7df');material.emissive.set('#d6b16b');material.emissiveIntensity=.13;}}});
+      const mat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{pulse:{value:0}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec2 vUv;uniform float pulse;void main(){float r=length(vUv-.5)*2.;float ring=(1.-smoothstep(.78,.92,r))*smoothstep(.58,.72,r);float glow=pow(max(0.,1.-r),2.)*.2;gl_FragColor=vec4(1.,.86,.49,(ring*.58+glow)*(.85+.15*sin(pulse)));}'});
+      ring=new THREE.Mesh(new THREE.PlaneGeometry(.72,.72),mat);ring.rotation.x=-Math.PI/2;toWorld(p.x,p.y,.035,ring.position);group.add(ring);
+    }
     group.add(o);
-    return { o, born: now };
+    return { o, ring, born: now };
   }
 
   function remainsObject(a) {
@@ -314,7 +320,7 @@ export function createFarmLayer(ctx) {
     for (const b of state.buildings) {
       let o = buildings.get(b.id);
       if (!o) buildings.set(b.id, (o = buildingObject(b)));
-      o.g.scale.setScalar(overshoot((now - o.born) / B.ui.popInSeconds));
+      o.g.scale.setScalar((o.g.userData.baseScale??1)*overshoot((now - o.born) / B.ui.popInSeconds));
     }
 
     for (const p of state.pickups) {
@@ -323,10 +329,12 @@ export function createFarmLayer(ctx) {
       const t = now - o.born;
       o.o.scale.setScalar(o.o.userData.base * overshoot(t / B.ui.popInSeconds));
       o.o.position.y = Math.abs(Math.sin(now * 2 + p.id)) * 0.025;
+      if(o.ring)o.ring.material.uniforms.pulse.value=now*2+p.id;
     }
     for (const [id, o] of pickups)
       if (!state.pickups.some((p) => p.id === id)) {
         pickups.delete(id);
+        if(o.ring){group.remove(o.ring);o.ring.geometry.dispose();o.ring.material.dispose();}
         leaving.push({ o: o.o, t: 0, kind: "hop" });
       }
 

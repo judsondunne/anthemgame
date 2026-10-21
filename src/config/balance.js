@@ -63,12 +63,12 @@ export const BALANCE = {
 
   // Cheap/fast/low value -> slow/high value. Growth only accrues while watered.
   crops: {
-    daisy: { seed: 1, grow: 50, yield: 1, sell: 2 },
-    wheat: { seed: 1, grow: 90, yield: 2, good: "hay" },
-    tulip: { seed: 3, grow: 120, yield: 1, sell: 6 },
-    cabbage: { seed: 5, grow: 180, yield: 1, sell: 10 },
-    sunflower: { seed: 8, grow: 260, yield: 1, sell: 16 },
-    lavender: { seed: 12, grow: 360, yield: 1, sell: 24 },
+    daisy: { seed: 1, grow: 50, yield: 2, sell: 2 },
+    wheat: { seed: 1, grow: 90, yield: 4, good: "hay" },
+    tulip: { seed: 3, grow: 120, yield: 2, sell: 6 },
+    cabbage: { seed: 5, grow: 180, yield: 2, sell: 10 },
+    sunflower: { seed: 8, grow: 260, yield: 2, sell: 16 },
+    lavender: { seed: 12, grow: 360, yield: 2, sell: 24 },
   },
   stages: { growing: 0.34 }, // growth fraction where seedling becomes growing; ripe at 1
   water: { seconds: 160 }, // growth seconds supplied by one watering
@@ -117,7 +117,8 @@ export const BALANCE = {
   },
   // Hungry/thirsty animals still produce, slower, so a broke farm can recover.
   neglect: { produceFactor: 0.5, urgentDays: 1, sadDays: 1.5, deathDays: 2, bonesDays: 0.5 },
-  animals: { maxTotal: 30 },
+  animals: { maxTotal: 30, radius: {chicken:12,cow:29,horse:32}, separation:3 },
+  coop: {callHour:18,runSpeed:32,doorRadius:28,roostSpacing:36,rowSpacing:22},
 
   buildings: {
     coop: { price: 400, max: 2, footprint: [4, 4], zone: "garden", capacity: { chicken: 6 }, produce: 1.5, fertility: 1.5 },
@@ -131,7 +132,7 @@ export const BALANCE = {
     feed_horse: { price: 16, units: 4 },
   },
 
-  goods: { egg: 6, milk: 70, hay: 1 }, // crop goods use crops[*].sell
+  goods: { egg: 6, milk: 140, hay: 1 }, // crop goods use crops[*].sell
 
   market: { driftAmplitude: 0.1 }, // gentle deterministic daily price drift, +/- 10%
 

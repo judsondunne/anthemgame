@@ -8,7 +8,7 @@ import { moveToward } from './movement.js';
 
 const P = B.predators;
 const distance = (a, b) => Math.hypot(a.x - b.x, (a.y - b.y) * 1.65);
-const candidates = s => s.animals.filter(a => a.state === 'alive' && ['cow', 'horse'].includes(a.sp) && !isPenned(s, a));
+const candidates = s => s.animals.filter(a => a.state === 'alive' && (['cow', 'horse'].includes(a.sp)||a.sp==='chicken'&&!a.indoors) && !isPenned(s, a));
 export function forcePredator(s, kind = 'wolf', options = {}) {
   if (!['wolf', 'bear'].includes(kind)) return { ok: false, reason: 'unknown' };
   const angle = nextRandom(s) * Math.PI * 2;

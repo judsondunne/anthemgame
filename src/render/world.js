@@ -18,7 +18,7 @@ export function terrainHeight(x, z) {
   const edge = Math.max(Math.abs(x) - W.property.halfWidth, Math.abs(z) - W.property.halfDepth);
   const blend = smooth(0, W.property.blend, edge);
   const hills = 1.1 + 1.0 * Math.sin(x * .049 + z * .028) + .70 * Math.cos(z * .082 - x * .039) + .35 * Math.sin(x * .15 + z * .11);
-  let h = -.035 + Math.max(.03, hills) * blend;
+  let h = -.035 + Math.max(.03, hills) * blend * 1.8;
   const dist = Math.abs(x - brookX(z));
   const shore = 1 - smooth(brookWidth(z) + .1, brookWidth(z) + W.brook.shoreWidth, dist);
   const bed = brookHeight(z) - .40 + .66 * smooth(.4, brookWidth(z) + 1.0, dist);
@@ -118,7 +118,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     if(!batches.has(key))batches.set(key,{name,category,cx:(chunkX+.5)*W.forest.chunkSize-W.radius,cz:(chunkZ+.5)*W.forest.chunkSize-W.radius,placements:[]});
     batches.get(key).placements.push({x,z,y:terrainHeight(x,z),size,heading,stretch,color:new THREE.Color().setHSL(.25+rng()*.06,.10+rng()*.11,.77+rng()*.18)});
   }
-  const trees=['tree_oak','tree_detailed','tree_pineRoundA','tree_pineTallA','tree_thin','tree_oak_dark'];
+  const trees=['forest_fir','forest_fir_b','forest_fir_c','forest_fir_b','forest_leaf_tree','forest_leaf_tree_b'];
   const spacing=W.forest.spacing;
   let treeCount=0;
   for(let z=-W.radius+3;z<W.radius-3;z+=spacing)for(let x=-W.radius+3;x<W.radius-3;x+=spacing){
@@ -131,7 +131,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     const species=trees[Math.floor(rng()*trees.length)],height=4.5+rng()*3.7+(species.includes('Tall')?1.2:0);
     scatter(species,px,pz,height,rng()*Math.PI*2);colliders.push({x:px,z:pz,radius:.29+height*.025,type:'tree'});treeCount++;
   }
-  const plants=['plant_bush','plant_bushDetailed','plant_flatTall','mushroom_redGroup','mushroom_tan','stone_largeA','stone_largeC','log_large'];
+  const plants=['forest_bush','forest_bush_b','forest_fern','mushroom_redGroup','mushroom_tan','forest_rock','forest_boulder','log_large'];
   const bushStep=W.forest.undergrowthSpacing*(low?1.45:1);
   for(let z=-W.radius+4;z<W.radius-4;z+=bushStep)for(let x=-W.radius+4;x<W.radius-4;x+=bushStep){
     const px=x+(rng()-.5)*bushStep,pz=z+(rng()-.5)*bushStep;
@@ -147,7 +147,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     const z=-W.radius+4+rng()*(W.radius*2-8),side=rng()<.5?-1:1;
     if(Math.abs(z-W.brook.crossingZ)<2.4)continue;
     const x=brookX(z)+side*(brookWidth(z)+.15+rng()*1.3),h=.3+rng()*.65;
-    scatter(i%3?'stone_largeA':'stone_largeC',x,z,h,rng()*6.28,'rock');
+    scatter(i%3?'forest_rock':'forest_boulder',x,z,h,rng()*6.28,'rock');
     colliders.push({x,z,radius:h*.45,type:'rock'});
   }
   const dummy=new THREE.Object3D(),geometryCache=new Map();
@@ -185,18 +185,29 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     const geometry=mergeGeometries(parts,false);parts.forEach(g=>g.dispose());geometryCache.set(name,geometry);return geometry;
   }
   function instances(entry,name,simplified=false){
-    const result=new THREE.Group(),im=new THREE.InstancedMesh(sourceGeometry(name),forestMaterial,entry.placements.length);
-    im.castShadow=entry.category==='tree'&&!low&&!simplified;im.receiveShadow=!simplified;
-    entry.placements.forEach((p,i)=>{
-      dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(0,p.heading,0);dummy.scale.set(p.size,p.size*p.stretch,p.size);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);
-      if(entry.category==='tree')im.setColorAt(i,p.color);
-    });
-    im.computeBoundingSphere();result.add(im);return result;
+    const result=new THREE.Group();
+    let parts;
+    if(name.startsWith('forest_')){
+      const cacheKey='textured:'+name;
+      if(!geometryCache.has(cacheKey)){
+        const template=model(name,{height:1});template.updateMatrixWorld(true);const list=[];
+        template.traverse(mesh=>{if(!mesh.isMesh)return;const material=mesh.material.clone();material.color.set('#c9d0b7');material.roughness=.83;
+          if(material.transparent){material.alphaTest=.42;material.transparent=false;material.side=THREE.DoubleSide;}
+          material.onBeforeCompile=shader=>{shader.uniforms.uWindTime=windTime;shader.vertexShader='uniform float uWindTime;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+            float phase=instanceMatrix[3].x*.67+instanceMatrix[3].z*.43;
+            transformed.x+=sin(uWindTime*.9+phase+position.y*2.)*pow(max(0.,position.y),2.)*.012;
+          `);};material.customProgramCacheKey=()=> 'detailed-canopy-v4';
+          list.push({geometry:mesh.geometry.clone().applyMatrix4(mesh.matrixWorld),material});});geometryCache.set(cacheKey,list);
+      }parts=geometryCache.get(cacheKey);
+    }else parts=[{geometry:sourceGeometry(name),material:forestMaterial}];
+    for(const part of parts){const im=new THREE.InstancedMesh(part.geometry,part.material,entry.placements.length);im.castShadow=entry.category==='tree'&&!low&&!simplified;im.receiveShadow=!simplified;
+      entry.placements.forEach((p,i)=>{dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(0,p.heading,0);dummy.scale.set(p.size,p.size*p.stretch,p.size);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);if(entry.category==='tree')im.setColorAt(i,new THREE.Color().setRGB(.94+(i%3)*.015,.97,.89+(i%4)*.018));});im.computeBoundingSphere();result.add(im);
+    }return result;
   }
   for(const entry of batches.values()){
     const near=instances(entry,entry.name);group.add(near);
     let far=null;
-    if(entry.category==='tree') {far=instances(entry,entry.name.includes('pine')?'tree_pineTallA':'tree_oak',true);group.add(far);}
+    if(entry.category==='tree') {far=instances(entry,entry.name.includes('fir')?'forest_pine':'forest_oak',true);group.add(far);}
     chunks.push({...entry,near,far});
   }
   const bridge=model('bridge_wood',{width:brookWidth(W.brook.crossingZ)*2+2.1});

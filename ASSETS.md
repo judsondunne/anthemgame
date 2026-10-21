@@ -143,3 +143,47 @@ width. Forest chunks bake existing source material colors into source vertices
 and merge original primitive geometry before instancing; near canopies sway,
 far chunks use the lighter original oak/pine source meshes. This preserves the
 source topology. Water, terrain and particles are shader surfaces/effects.
+
+## Visual quality upgrade — KayKit Forest Nature Pack (CC0)
+
+Source: https://kaylousberg.itch.io/kaykit-forest . Creator: Kay Lousberg. Original April 2025 free pack, CC0; license retained at public/assets/licenses/kaykit-forest.txt. Original gradient atlas is embedded in each container; only glTF container conversion, no modeled geometry.
+
+|Asset|Path|Triangles|Usage|
+|---|---|---:|---|
+|forest_oak|/assets/models/forest/forest_oak.glb|404|Gradient-textured detailed forest; original source Tree_4_A_Color1|
+|forest_oak_b|/assets/models/forest/forest_oak_b.glb|522|Gradient-textured detailed forest; original source Tree_4_B_Color1|
+|forest_canopy|/assets/models/forest/forest_canopy.glb|988|Gradient-textured detailed forest; original source Tree_3_B_Color1|
+|forest_canopy_b|/assets/models/forest/forest_canopy_b.glb|2228|Gradient-textured detailed forest; original source Tree_3_C_Color1|
+|forest_pine|/assets/models/forest/forest_pine.glb|1428|Gradient-textured detailed forest; original source Tree_2_D_Color1|
+|forest_pine_b|/assets/models/forest/forest_pine_b.glb|1560|Gradient-textured detailed forest; original source Tree_2_E_Color1|
+|forest_bush|/assets/models/forest/forest_bush.glb|108|Gradient-textured detailed forest; original source Bush_4_C_Color1|
+|forest_bush_b|/assets/models/forest/forest_bush_b.glb|240|Gradient-textured detailed forest; original source Bush_3_B_Color1|
+|forest_grass|/assets/models/forest/forest_grass.glb|528|Gradient-textured detailed forest; original source Grass_2_C_Color1|
+|forest_reeds|/assets/models/forest/forest_reeds.glb|396|Gradient-textured detailed forest; original source Grass_1_C_Color1|
+|forest_rock|/assets/models/forest/forest_rock.glb|529|Gradient-textured detailed forest; original source Rock_1_K_Color1|
+|forest_boulder|/assets/models/forest/forest_boulder.glb|320|Gradient-textured detailed forest; original source Rock_3_Q_Color1|
+|forest_pebble|/assets/models/forest/forest_pebble.glb|84|Gradient-textured detailed forest; original source Rock_1_D_Color1|
+|forest_cliff|/assets/models/forest/forest_cliff.glb|428|Gradient-textured detailed forest; original source Rock_2_F_Color1|
+
+### Detailed fir silhouettes — Quaternius Stylized Nature MegaKit
+
+Creator source https://quaternius.com/packs/stylizednaturemegakit.html ; CC0. Full original layered bough geometry/textures retained.
+
+|Asset|Source|Path|Triangles|Usage|
+|---|---|---|---:|---|
+|forest_fir|https://poly.pizza/m/rfnxJv0Rqa|/assets/models/forest/forest_fir.glb|3947|Layered textured Quaternius Stylized Nature MegaKit fir tree|
+|forest_fir_b|https://poly.pizza/m/igSu0cPoBz|/assets/models/forest/forest_fir_b.glb|1646|Layered textured Quaternius Stylized Nature MegaKit fir tree|
+|forest_fir_c|https://poly.pizza/m/79gmlLnweB|/assets/models/forest/forest_fir_c.glb|3370|Layered textured Quaternius Stylized Nature MegaKit fir tree|
+
+The replacement starter and purchased chicken coops use the existing downloaded Fantasy Town timber walls/half-walls, Nature fence pieces, planks, stairs, poles, hay bales and lanterns. The architecture is a raised, open-front henhouse with a short ramp, visible roost and nesting hay. No object topology is generated; all source licenses remain the original recorded CC0 licenses. Sleeping chickens remain rendered on the raised floor.
+
+### Detailed botanical silhouettes — Quaternius Stylized Nature MegaKit
+
+Creator source https://quaternius.com/packs/stylizednaturemegakit.html ; CC0. Full original layered bough geometry/textures retained.
+
+|Asset|Source|Path|Triangles|Usage|
+|---|---|---|---:|---|
+|forest_leaf_tree|https://poly.pizza/m/QVOop92WmG|/assets/models/forest/forest_leaf_tree.glb|3505|Detailed textured Quaternius Stylized Nature MegaKit botany|
+|forest_leaf_tree_b|https://poly.pizza/m/YWjGDJ9F7g|/assets/models/forest/forest_leaf_tree_b.glb|4066|Detailed textured Quaternius Stylized Nature MegaKit botany|
+|forest_fern|https://poly.pizza/m/jqcanvH7D6|/assets/models/forest/forest_fern.glb|288|Detailed textured Quaternius Stylized Nature MegaKit botany|
+|forest_flowers|https://poly.pizza/m/hfPzQAedOe|/assets/models/forest/forest_flowers.glb|755|Detailed textured Quaternius Stylized Nature MegaKit botany|

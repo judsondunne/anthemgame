@@ -18,3 +18,6 @@
 
 ## Parallel boundaries
 Simulation worker owns src/sim, balance.js, simulation tests and scripts/simulate.js. Camera worker owns camera.js and input.js plus camera configuration. Asset/world worker owns downloaded assets, assets.js, animal renderer, world.js and sourcing/license documentation. Main agent owns scene integration, HUD/shop/CSS, threats renderer, tutorials and browser verification. All code shares the same branch; phase commits stage only owned files.
+
+## Follow-up scope from live screenshots
+Correct hotbar vertical alignment and view-switch reliability; smooth zoom anchor correction; strengthen animal body/building collision; replace starter/placed coop with an open, readable raised henhouse assembled from downloaded modules; dusk call-in action with visible sleeping chickens, and wolves may target chickens left outdoors (supersedes original chicken immunity). Add amber/red neglect escalation, improved gait, easy crop value/time discovery, visible egg cues, richer cloud/sun/moon sky, and softer detailed lighting matching the supplied skiing references in a green farm palette. Preserve existing progress and finish outstanding verification.

@@ -145,6 +145,10 @@ export function validate(doc) {
       ...(Number.isFinite(a.calledUntil) ? { calledUntil: a.calledUntil } : {}),
       ...(Number.isFinite(a.lastHurt) ? { lastHurt: a.lastHurt } : {}),
       ...(a.deathCause ? { deathCause: a.deathCause } : {}),
+      ...(typeof a.shelterRequested==='boolean'?{shelterRequested:a.shelterRequested}:{}),
+      ...(typeof a.indoors==='boolean'?{indoors:a.indoors}:{}),
+      ...(typeof a.enteringCoop==='boolean'?{enteringCoop:a.enteringCoop}:{}),
+      ...(typeof a.leavingCoop==='boolean'?{leavingCoop:a.leavingCoop}:{}),
       ...(typeof a.penned === 'boolean' ? { penned: a.penned } : {}),
       ...(typeof a.wandering === 'boolean' ? { wandering: a.wandering } : {}),
     }));

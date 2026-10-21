@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { mergeGeometries as mergeRigGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { clone } from "three/addons/utils/SkeletonUtils.js";
 export const palette = {
   grass: "#94ad70",
@@ -51,7 +52,8 @@ function material(original, key, sway) {
   if (m.map) {
     m.map.colorSpace = THREE.SRGBColorSpace;
     m.map.anisotropy = 8;
-    m.color.set("#eee5d3");
+    m.color.set(key.startsWith("forest_")?"#d7ddbf":"#f2edde");
+    m.map.anisotropy=8;
   }
   if (key.startsWith("wall-window") || key === "wall-door") {
     m.onBeforeCompile = (s) => {
@@ -125,10 +127,12 @@ export async function loadAssets() {
 export function assetInfo(name) {
   return cache.get(name);
 }
+const UPGRADED = {tree_oak:"forest_leaf_tree",tree_detailed:"forest_leaf_tree_b",plant_bush:"forest_bush",plant_bushLarge:"forest_bush_b",stone_largeA:"forest_rock",stone_largeB:"forest_boulder",stone_smallFlatA:"stone_smallFlatA"};
 export function model(
   name,
   { height, width, sway = false, raw = false, tint, recolor } = {},
 ) {
+  name=UPGRADED[name]??name;
   const a = cache.get(name);
   if (!a) throw Error("Missing asset " + name);
   const root = new THREE.Group(),
@@ -236,4 +240,21 @@ export function playOnce(root, action) {
   a[key].fadeIn(0.2).play();
   d.action = key;
   return true;
+}
+
+// Collapse same-rig, flat-colour primitives into one draw while preserving all
+// downloaded vertices, normals, bone indices, skin weights and animation clips.
+// This is a container/render optimisation; it creates no new object topology.
+export function batchFlatRig(root) {
+  const parents=[];root.traverse(o=>{if(o.children?.filter(c=>c.isSkinnedMesh&&!Array.isArray(c.material)&&!c.material.map).length>1)parents.push(o);});
+  for(const parent of parents){const meshes=parent.children.filter(c=>c.isSkinnedMesh&&!Array.isArray(c.material)&&!c.material.map);if(meshes.length<2)continue;
+    const first=meshes[0],signature=m=>m.skeleton.bones.map(b=>b.uuid).join(',')+'|'+m.bindMatrix.elements.join(',');
+    if(!meshes.every(m=>signature(m)===signature(first)&&m.matrix.equals(first.matrix)))continue;
+    let eyeOffset=0;const eyeGroups=[[],[]];
+    const geometries=meshes.map(mesh=>{const g=mesh.geometry.clone();if(/eye.*black|eyes_black|dark eye/i.test(mesh.material.name)){for(let i=0;i<g.attributes.position.count;i++)eyeGroups[g.attributes.position.getX(i)<0?0:1].push(eyeOffset+i);}eyeOffset+=g.attributes.position.count;for(const a of Object.keys(g.attributes))if(!['position','normal','skinIndex','skinWeight'].includes(a))g.deleteAttribute(a);const n=g.attributes.position.count,c=new Float32Array(n*3);for(let i=0;i<n;i++)c.set([mesh.material.color.r,mesh.material.color.g,mesh.material.color.b],i*3);g.setAttribute('color',new THREE.BufferAttribute(c,3));return g;});
+    // Merge is supplied by the module's static import, avoiding runtime fetches.
+    const geometry=mergeRigGeometries(geometries,false);if(!geometry)continue;geometries.forEach(g=>g.dispose());
+    const material=new THREE.MeshStandardMaterial({color:'#ffffff',vertexColors:true,roughness:.87});const mesh=new THREE.SkinnedMesh(geometry,material);mesh.name='Batched downloaded rig';mesh.userData.reflectiveVertexGroups=eyeGroups.filter(g=>g.length);mesh.position.copy(first.position);mesh.quaternion.copy(first.quaternion);mesh.scale.copy(first.scale);mesh.bind(first.skeleton,first.bindMatrix);mesh.castShadow=mesh.receiveShadow=true;for(const m of meshes)m.removeFromParent();parent.add(mesh);
+  }
+  return root;
 }

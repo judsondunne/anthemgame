@@ -254,7 +254,7 @@ function update(dt) {
     world.needs = [];
     world.food = [];
     world.chickens.forEach((b, i) => {
-      if (b.dead) return;
+      if (b.dead || b.simMotion) return;
       if (night) bedtime(b);
       else {
         const home = b.home ?? world.coop;
@@ -297,7 +297,7 @@ function update(dt) {
   for (const [i, b] of world.chickens.entries()) {
     b.pet = Math.max(0, b.pet - dt);
     b.pause -= dt;
-    if (b.sleeping || b.dead) continue;
+    if (b.sleeping || b.dead || b.simMotion) continue;
     if (night) {
       if (b.mode !== "returning") bedtime(b);
       if (!moveChicken(b, dt, 80)) {

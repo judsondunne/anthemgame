@@ -3,7 +3,8 @@ import { isNightAt, dayIndex } from './clock.js';
 import { BASE_COOP, frontOf, ZONES } from './layout.js';
 import { hash32 } from './rng.js';
 import { penAt } from './fences.js';
-import { moveToward } from './movement.js';
+import { stepShelter } from './shelter.js';
+import { separateAnimals, moveToward } from './movement.js';
 
 export function animalHome(s, a, homes) {
   const b = homes?.get(a.id);
@@ -23,6 +24,7 @@ export function stepWandering(s, h, housing) {
   const night = isNightAt(s.time), W = B.wandering;
   for (const a of s.animals) {
     if (a.state !== 'alive') continue;
+    if(stepShelter(s,a,h,housing?.homes))continue;
     const home = animalHome(s, a, housing?.homes), pen = penAt(s, a.x, a.y);
     a.penned = !!pen;
     const period = Math.floor(s.time / W.decisionSeconds), u = hash32(s.seed, a.id, period) / 4294967296;
@@ -50,4 +52,5 @@ export function stepWandering(s, h, housing) {
     }
     moveToward(s, a, target, W.speed * (a.injured ? B.predators.restSpeed : 1), h, { avoidAnimals: true });
   }
+  separateAnimals(s);
 }

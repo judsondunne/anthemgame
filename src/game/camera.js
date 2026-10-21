@@ -241,7 +241,7 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
     camera.near = mode === "fp" ? C.near : Math.max(C.near, Math.min(0.3, distance * 0.003)); camera.far = C.far; camera.updateProjectionMatrix(); camera.updateMatrixWorld();
     if (mode === "god" && zoomAnchor?.world) {
       const after = groundAt(zoomAnchor.x, zoomAnchor.y);
-      if (after) { const correction = zoomAnchor.world.clone().sub(after); focusTarget.add(correction); focus.add(correction); }
+      if (after) { const correction = zoomAnchor.world.clone().sub(after); correction.y=0; focusTarget.add(correction); focus.add(correction); camera.position.add(correction); camera.updateMatrixWorld(); }
       if (Math.abs(distance - targetDistance) < 0.02) zoomAnchor = null;
     }
     persist();

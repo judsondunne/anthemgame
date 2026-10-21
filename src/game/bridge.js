@@ -11,11 +11,11 @@ export function createBridge(G, game) {
   let positionClock = 0;
 
   function homeOf(b) {
-    if (!b) return { x: BASE_COOP.x, y: BASE_COOP.y, door: BASE_COOP.door, approach: BASE_COOP.approach };
+    if (!b) return { roostHeight:.48, x: BASE_COOP.x, y: BASE_COOP.y, door: BASE_COOP.door, approach: BASE_COOP.approach };
     const f = frontOf(b);
     const [w, h] = footprintOf(b.type);
     const c = footprintCenter(b.gx, b.gy, w, h);
-    return { x: c.x, y: f.y - 22, door: f.door, approach: f.approach };
+    return { roostHeight:.38, x: c.x, y: f.y - 22, door: f.door, approach: f.approach };
   }
 
   function create(a, night, initial) {
@@ -83,7 +83,7 @@ export function createBridge(G, game) {
         if (i >= 0) list.splice(i, 1);
         world.needs = world.needs.filter((n) => n.target !== agent);
       }
-    constrain(realDt);
+    if(initial) constrain(realDt);
 
   }
 
@@ -97,8 +97,9 @@ export function createBridge(G, game) {
       agent.x=a.x; agent.y=a.y; agent.moving=moved; agent.heading=a.heading;
       agent.simPrevious={x:a.x,y:a.y};
       if (moved) agent.dir=Math.cos(a.heading??0)>=0?1:-1;
-      if (agent.sp!=='chicken') agent.sheltered=false;
-      else if (Math.hypot(a.x-agent.home.approach.x,(a.y-agent.home.approach.y)*1.65)>70){agent.sleeping=false;agent.sheltered=false;}
+      agent.sheltered=false;
+      if(agent.sp==='chicken'){agent.sleeping=!!a.indoors;agent.mode=a.indoors?'sleeping':moved?'wander':'idle';agent.wakeDelay=0;agent.roostHeight=a.indoors?(agent.home.roostHeight??.48):0;}
+      agent.bodyRadius=B.animals.radius[a.sp];
       if (a.injured) agent.sad=true;
     }
   }

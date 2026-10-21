@@ -1,7 +1,7 @@
 // Animal views: picks the downloaded model for species/sex/age, and shows
 // juvenile growth, sadness, the collapse into a dead pose and sleeping hens.
 import * as THREE from "three";
-import { model, play, playOnce, softTone } from "../../assets.js";
+import { model, play, playOnce, softTone, batchFlatRig } from "../../assets.js";
 import { BALANCE as B } from "../config/balance.js";
 
 export const HEN_COATS = [
@@ -64,6 +64,7 @@ export function createAnimalRenderer(ctx) {
       o.userData.chickenLegs = [legL, legR].filter(Boolean).map((bone) => ({ bone, rotation: bone.rotation.clone() }));
       o.userData.chickenHead = o.getObjectByName("Head");
     }
+    if(!isChicken&&!fish)batchFlatRig(o);
     group.add(o);
     const view = { o, type: s.type, chicken: isChicken, fish, born: now, deadAt: null, dimmed: 0, collapsed: false };
     o.userData.agent = agent;
@@ -100,7 +101,7 @@ export function createAnimalRenderer(ctx) {
       const o = v.o,
         base = o.userData.baseScale;
       const moving = a.simMotion ? a.moving : chicken ? a.path.length > 0 : a.moving;
-      o.position.copy(logical(a.x, a.y, 0));
+      o.position.copy(logical(a.x, a.y, a.roostHeight??0));
       o.visible = !(a.bones || a.sheltered || (a.mode === "waking" && a.wakeDelay > 0));
       const juvenileScale = a.juvenile ? (chicken ? 0.66 + 0.34 * (a.age ?? 0) : 0.5 + 0.5 * (a.age ?? 0)) : 1;
       const pop = Math.min(1, (now - v.born) / B.ui.popInSeconds);
@@ -161,11 +162,16 @@ export function createAnimalRenderer(ctx) {
         play(o, pecking ? "peck" : "idle");
       } else play(o, moving ? ((a.boltUntil ?? 0) > world.elapsed ? "gallop" : "walk") : a.eating ? "eating" : a.sad ? "idle_headlow" : "idle");
       a.shake = Math.max(0, (a.shake ?? 0) - dt);
-      mixer?.update(dt);
+      v.clipTime=(v.clipTime??0)+dt;
+      const far=ctx.getQuality?.()==='low'&&ctx.camera&&o.position.distanceTo(ctx.camera.position)>9;
+      if(!far||v.clipTime>.085){mixer?.update(v.clipTime);v.clipTime=0;}
       if (chicken) {
         // The chosen CC0 hen includes a peck clip. Its existing leg bones get a
         // restrained alternating gait; no extra object geometry is generated.
-        const gait = moving && !a.sleeping ? Math.sin(t * 12 + (a.phase ?? 0)) * .42 : 0;
+        const last=v.lastPosition??{x:a.x,y:a.y};const travelled=Math.hypot(a.x-last.x,(a.y-last.y)*1.65)/50;
+        v.walkPhase=(v.walkPhase??a.phase??0)+travelled*24;v.lastPosition={x:a.x,y:a.y};
+        const gait=moving&&!a.sleeping?Math.sin(v.walkPhase)*.24:0;
+        if(moving){o.rotation.z+=Math.sin(v.walkPhase)*.035;o.position.y+=Math.abs(Math.sin(v.walkPhase))*.012;}
         for (let i = 0; i < o.userData.chickenLegs.length; i++) {
           const { bone, rotation } = o.userData.chickenLegs[i];
           bone.rotation.x = rotation.x + gait * (i ? -1 : 1);
@@ -173,7 +179,7 @@ export function createAnimalRenderer(ctx) {
       }
       if (chicken && !a.sleeping) {
         if (hen < henUniform.value.length) henUniform.value[hen++].copy(o.position);
-        if (moving) o.position.y += Math.abs(Math.sin(t * 9 + a.phase)) * 0.025;
+
       }
     }
     for (; hen < henUniform.value.length; hen++) henUniform.value[hen].set(999, 0, 999);

@@ -54,6 +54,7 @@ const Farm = {
         a.sheltered = false;
         continue;
       }
+      if (a.simMotion) { a.eating=a.feedUntil>world.elapsed; continue; }
       const p = this.pasture(a.kind),
         z = p.zone,
         home = a.home;
@@ -96,7 +97,7 @@ const Farm = {
         for (let j = i + 1; j < this.animals.length; j++) {
           const a = this.animals[i],
             b = this.animals[j];
-          if (a.kind !== b.kind || a.dead || b.dead) continue;
+          if (a.kind !== b.kind || a.dead || b.dead || a.simMotion || b.simMotion) continue;
           const dx = b.x - a.x,
             dy = (b.y - a.y) * 1.8,
             d = Math.hypot(dx, dy);

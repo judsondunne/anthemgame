@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { S, B, DAY, fresh } from './helpers.js';
-const night = s => { s.time = S.clock.nextTimeAtHour(s.time, 22); s.predatorSchedule.lastNight = S.clock.dayIndex(s.time); s.player.mode = 'fp'; };
+const night = s => { s.time = S.clock.nextTimeAtHour(s.time, 22); s.predatorSchedule.lastNight = S.clock.dayIndex(s.time); s.player.mode = 'fp'; for(const a of s.animals)if(a.sp==='chicken')a.indoors=true; };
 function herd(s) { const a = S.spawnAnimal(s, 'cow', 'f'); a.x = -640; a.y = 690; return a; }
 function enclose(s) {
   for (let x = -20; x < -12; x++) for (const y of [26, 31]) s.fences.push({ id: s.nextId++, gx: x, gy: y, axis: 'h', gate: false, open: false });
@@ -14,7 +14,7 @@ test('predator schedule waits into night and an early farm stays safe', () => {
   S.tick(t, 1); assert.equal(t.predators.length, 1); assert.equal(t.predators[0].kind, 'wolf');
   S.tick(t, 1); assert.equal(t.predators.length, 1);
 });
-test('wolves target unprotected cows or horses, never chickens; pens clear alerts', () => {
+test('wolves target exposed livestock; indoor chickens and closed pens stay safe', () => {
   const s = fresh(), a = herd(s); night(s);
   const p = S.forcePredator(s, 'wolf', { x: a.x + 200, y: a.y }).predator;
   S.stepPredators(s, 1); assert.equal(p.target, a.id); assert.ok(s.alerts.some(q => q.animal === a.id));
@@ -76,4 +76,11 @@ test('removing a nearby wall exposes the target without trapping or teleporting 
   S.removeFence(s, wall.id);
   const x = p.x; S.stepPredators(s, 1);
   assert.equal(p.target, a.id); assert.ok(p.x > x); assert.ok(Math.abs(p.x - x) <= B.predators.wolfSpeed);
+});
+
+test('outdoor chickens are wolf targets, while called-in sleeping chickens are protected',()=>{
+ const s=fresh();night(s);const chicken=s.animals[0];chicken.indoors=false;
+ const p=S.forcePredator(s,'wolf',{x:chicken.x+5,y:chicken.y}).predator;
+ S.stepPredators(s,1);assert.equal(p.target,chicken.id);assert.ok(chicken.health<100);
+ chicken.indoors=true;S.stepPredators(s,1);assert.equal(p.target,null);
 });

@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js";
+import { VISUAL } from "./src/config/visual.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
@@ -20,8 +22,10 @@ import { createAnimalRenderer } from "./src/render/animals.js";
 import { Game } from "./src/game/controller.js";
 import { createBridge } from "./src/game/bridge.js";
 import { createCameraController } from "./src/game/camera.js";
+import { createSkyMaterial } from "./src/render/sky.js";
 import { createWorld } from "./src/render/world.js";
 import { createThreats } from "./src/render/threats.js";
+import { createCropInfo } from "./src/ui/crop-info.js";
 import { createTutorial } from "./src/ui/tutorial.js";
 import { createInput } from "./src/game/input.js";
 import { createHud } from "./src/ui/hud.js";
@@ -46,11 +50,11 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMapping = THREE.AgXToneMapping;
 renderer.toneMappingExposure = 1.15;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2("#b6c9b0", 0.012);
+scene.fog = new THREE.FogExp2("#b6c9b0", 0.0065);
 const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, .035, 430);
 let cameraControl = null, largerWorld = null, threats = null;
 const root = new THREE.Group();
@@ -97,7 +101,10 @@ const buildingLights = Array.from({ length: 6 }, () => {
   return l;
 });
 const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new RenderPass(scene,camera));
+const ssao = new SSAOPass(scene,camera,innerWidth,innerHeight,16);
+ssao.kernelRadius=VISUAL.ao.radius;ssao.minDistance=VISUAL.ao.minDistance;ssao.maxDistance=VISUAL.ao.maxDistance;
+composer.addPass(ssao);
 const bloom = new UnrealBloomPass(
   new THREE.Vector2(innerWidth, innerHeight),
   0.15,
@@ -125,6 +132,7 @@ function qualitySet(q, automatic = false) {
   sun.shadow.map?.dispose();
   sun.shadow.map = null;
   bloom.enabled = !low;
+  ssao.enabled = !low;
   grass && (grass.count = low ? 8500 : 28000);
   threats?.setQuality(q);
   largerWorld?.setQuality?.(q);
@@ -143,7 +151,7 @@ await loadAssets();
 const house = place(building({}, windows), 630, 460);
 house.scale.setScalar(1.03);
 const coop = place(building({ coop: true }, windows), 320, 818);
-coop.scale.setScalar(0.65);
+coop.scale.setScalar(1);
 lantern.position.copy(logical(715, 476, 1.8));
 // Hours come from the farm simulation's monotonic game time (5 min day + 5 min night);
 // the original normalized cycle is still published for the behaviour scripts.
@@ -189,7 +197,7 @@ groundMat.onBeforeCompile = (s) => {
     "#include <color_fragment>",
     `#include <color_fragment>
  vec2 p=vGround.xz;float z=p.y;float pathX=-1.2+sin(z*.29)*.55;float pathMask=(1.-smoothstep(.57,.92,abs(p.x-pathX)))*smoothstep(-7.,-5.3,z);
- float n=sin(p.x*3.8+sin(z*2.4))*sin(z*4.1)*.025;
+ float n=sin(p.x*3.8+sin(z*2.4))*sin(z*4.1)*.021+sin(p.x*91.+sin(z*43.))*sin(z*79.)*.008;
  diffuseColor.rgb*=1.+n;diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.65,.54,.36),pathMask*.65);
  vec2 pond=(p-vec2(5.98,-.792))/vec2(3.02,2.376);float d=length(pond);if(d<.98)discard;float shore=1.-smoothstep(.97,1.08,d);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.18,.36,.32),shore);
  float caustic=pow(max(0.,sin(p.x*8.+uTime)*sin(p.y*7.-uTime*.7)),12.);diffuseColor.rgb+=caustic*shore*.13;
@@ -322,21 +330,6 @@ for (let i = 0; i < 95; i++) {
   );
 }
 // Distant downloaded rock silhouettes and forest create the backdrop without handmade objects.
-for (let i = 0; i < 35; i++) {
-  const x = -60 + i * 4;
-  const o = model(i % 3 ? "tree_oak" : "tree_detailed", {
-    height: 4 + G.rand() * 4,
-    sway: true,
-  });
-  o.position.set(x, 0, -15 - G.rand() * 12);
-  root.add(o);
-}
-for (let i = 0; i < 12; i++) {
-  const o = model("stone_largeB", { width: 8 + G.rand() * 5 });
-  o.position.set(-60 + i * 11, -1, -48 - G.rand() * 12);
-  o.scale.y *= 1.6;
-  root.add(o);
-}
 // Allowed pond surface shader: shore gradient, moving ripples, reflections and event rings.
 const waterUniforms = {
   uTime: windTime,
@@ -487,6 +480,8 @@ for (const [material, meshes] of staticBatches) {
   const geometry = mergeGeometries(geometries, false);
   if (!geometry) throw Error("Incompatible static asset batch");
   const batch = new THREE.Mesh(geometry, material);
+  let triangleOffset=0;
+  batch.userData.sources=meshes.map(mesh=>{let parent=mesh,asset='';while(parent&&parent!==root){asset=parent.userData.asset||asset;parent=parent.parent;}const count=(mesh.geometry.index?.count??mesh.geometry.attributes.position.count)/3;const record={asset,start:triangleOffset,count};triangleOffset+=count;return record;});
   batch.castShadow = true;
   batch.receiveShadow = true;
   root.add(batch);
@@ -514,24 +509,7 @@ for (let i = 0; i < 7; i++) {
 let lastGooseCycle = -1;
 
 // Allowed sky dome shader with clouds, sun/moon discs and stars.
-const skyMat = new THREE.ShaderMaterial({
-  side: THREE.BackSide,
-  depthWrite: false,
-  uniforms: {
-    uTime: windTime,
-    uHour: { value: 12 },
-    uNight: { value: 0 },
-    uSun: { value: new THREE.Vector3(-0.4, 0.6, -0.8) },
-    uMoon: { value: new THREE.Vector3(-0.5, 0.7, -0.6) },
-    uGold: { value: 0 },
-  },
-  vertexShader:
-    "varying vec3 vDir;void main(){vDir=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
-  fragmentShader: `uniform float uTime;uniform float uHour;uniform float uNight;uniform vec3 uSun;uniform vec3 uMoon;uniform float uGold;varying vec3 vDir;
-float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}void main(){vec3 d=normalize(vDir);float h=max(0.,d.y);float gold=uGold;vec3 top=mix(vec3(.57,.73,.76),vec3(.62,.47,.50),gold);vec3 horizon=mix(vec3(.85,.87,.71),vec3(.97,.71,.48),gold);vec3 c=mix(horizon,top,pow(h,.5));c=mix(c,mix(vec3(.20,.29,.41),vec3(.045,.09,.20),h),uNight);float disc=dot(d,normalize(uSun));c+=vec3(1.,.75,.35)*pow(max(0.,disc),700.)*(1.-uNight);float md=max(0.,dot(d,normalize(uMoon)));c+=vec3(.78,.84,.95)*(pow(md,1900.)+pow(md,90.)*.08)*uNight;
-vec2 starUv=vec2(atan(d.z,d.x)/6.283185+.5,asin(d.y)/3.14159+.5)*vec2(420.,210.);vec2 starCell=floor(starUv);vec2 starPoint=fract(starUv)-.5;float starSeed=hash(vec3(starCell,8.));float stars=step(.983,starSeed)*(1.-smoothstep(.015,.19,length(starPoint)))*(.65+.35*sin(uTime*.6+starSeed*60.));c+=stars*uNight*smoothstep(.1,.4,h)*.85;
-float cl=sin(d.x*16.+uTime*.012+sin(d.z*11.))*sin(d.z*21.+uTime*.015);float cloud=smoothstep(.32,.75,cl)*smoothstep(.0,.2,h)*(1.-smoothstep(.5,.85,h));c=mix(c,vec3(.96,.93,.82)*(1.-uNight*.88),cloud*.3);gl_FragColor=vec4(c,1.);}`,
-});
+const skyMat = createSkyMaterial(windTime);
 const sky = new THREE.Mesh(new THREE.SphereGeometry(110, 32, 16), skyMat);
 scene.add(sky);
 // Particles: ambient fireflies, smoke, petals and care bursts, no modeled props.
@@ -561,9 +539,9 @@ scene.add(particles);
 let currentNight = 0;
 const tone = (hex) => new THREE.Color(hex);
 const LIGHT = {
-  hemiDay: tone("#fff1d3"), hemiGold: tone("#ffd9b4"), hemiNight: tone("#a4bce0"),
-  groundDay: tone("#697e50"), groundNight: tone("#596b7d"),
-  sunDay: tone("#fff0d4"), sunDusk: tone("#ffc487"), sunDawn: tone("#ffd1a4"),
+  hemiDay: tone("#dcecf5"), hemiGold: tone("#ffd9b4"), hemiNight: tone("#a4bce0"),
+  groundDay: tone("#5d7053"), groundNight: tone("#596b7d"),
+  sunDay: tone("#fff5e5"), sunDusk: tone("#ffc487"), sunDawn: tone("#ffd1a4"),
   fogDay: tone("#b6c9b0"), fogDusk: tone("#c7b09a"), fogDawn: tone("#cdbbb6"), fogNight: tone("#344a65"),
 };
 const mix = new THREE.Color();
@@ -581,10 +559,11 @@ function lighting() {
     morning = dawn > dusk;
   currentNight = night;
   duskUniform.value = night;
-  const pan = cameraControl?.isFirstPerson ? camera.position.x : Farm.pan / 50;
+  const shadowFocus=cameraControl?.snapshot().focus;
+  const pan = cameraControl?.isFirstPerson ? camera.position.x : shadowFocus?.[0] ?? Farm.pan / 50;
   const sunAngle = ((h - 6) / 14) * Math.PI;
   sun.position.set(-Math.cos(sunAngle) * 22 + pan, Math.max(3, Math.sin(sunAngle) * 26), 12);
-  const shadowZ = cameraControl?.isFirstPerson ? camera.position.z : 0;
+  const shadowZ = cameraControl?.isFirstPerson ? camera.position.z : shadowFocus?.[2] ?? 0;
   sun.position.z += shadowZ;
   sun.target.position.set(pan, 0, shadowZ);
   const shadowSpan = Math.max(7, Math.min(29, (cameraControl?.snapshot().distance ?? 35) * .65));
@@ -594,7 +573,7 @@ function lighting() {
   const moonHigh = Math.max(0, Math.sin(moonAngle));
   moon.position.set(-Math.cos(moonAngle) * 20 + pan, Math.max(4, moonHigh * 24), 10);
   moon.target.position.set(pan, 0, 0);
-  hemi.intensity = 1.12 - night * (cameraControl?.isFirstPerson ? .78 : .42);
+  hemi.intensity = 1.32 - night * (cameraControl?.isFirstPerson ? .78 : .42);
   // Cool night tints arrive late in the dusk so twilight keeps its warmth.
   const cool = S(night, 0.3, 0.8);
   hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.2).lerp(LIGHT.hemiNight, cool);
@@ -807,7 +786,7 @@ cameraControl = createCameraController({camera, canvas, game, Farm, view, params
   onModeChange: () => { document.exitPointerLock?.(); },
 });
 farmLayer = createFarmLayer({ scene, camera, world, lights: buildingLights, footprints: G.FarmFootprints, registerLantern: (l) => windows.push(l), onFootprints: updateHide });
-const animals = createAnimalRenderer({ group: dynamicRoot, world, Farm, logical, henUniform, burst: G.burst });
+const animals = createAnimalRenderer({ group: dynamicRoot, world, Farm, logical, henUniform, burst: G.burst, camera, getQuality:()=>quality });
 const bridge = createBridge(G, game);
 const juice = createJuice({ audio: AudioGarden });
 let input = null, tutorial = null;
@@ -818,7 +797,7 @@ const hud = createHud({
   onShop: () => (shop.isOpen ? shop.close() : shop.open(shop.tab)),
   onConfirm: () => input.confirm(),
   onCancel: () => input?.cancel(),
-  onMode: () => cameraControl.toggle(),
+  onMode: () => { hud.toggleInventory(false); shop.close(); cameraControl.toggle(); game.persist.noteAction(); },
   onHelp: () => tutorial?.help(),
   onFlashlight: () => threats?.toggleFlashlight(),
 });
@@ -828,6 +807,7 @@ input = createInput({ canvas, camera, G, game, hud, shop, farm: farmLayer, bridg
  onInventory: () => hud.toggleInventory(), onFlashlight: () => threats?.toggleFlashlight(),
 });
 threats = createThreats({scene,camera,renderer,game,cameraControl,bridge,animalRenderer:animals,hud,audio:AudioGarden,screen});
+const cropInfo=createCropInfo({game,hud,input,canvas});
 tutorial = createTutorial({game,onMode:()=>cameraControl.setMode('fp'),onFence:()=>{hud.select('fence');}});
 
 function selectItem(k, index) {
@@ -927,6 +907,7 @@ function tick(now) {
     input.update(dt);
     largerWorld.update(dt,{night:currentNight,camera});
     tutorial.update(dt,game.clock);
+    if(frameCount%6===0)cropInfo.update();
     AudioGarden.worldAmbience?.(currentNight,largerWorld.brook.distanceTo(camera.position.x,camera.position.z),cameraControl.isFirstPerson);
     farmLayer.sync(game.state, dt);
     animateObjects(dt);
@@ -934,7 +915,7 @@ function tick(now) {
     particleUpdate();
     hud.update(game.state, game.clock);
     hud.setValid(farmLayer.ghostValid);
-    bubbleUi.update();
+    if(frameCount % (quality === "low" ? 3 : 2) === 0) bubbleUi.update();
     if (shop.isOpen && frameCount % 8 === 0) shop.render();
     frameCount++;
     if (quality === "high") composer.render();
@@ -967,8 +948,8 @@ const anchorScreen = (kind, id) => {
     const agent = bridge.agentOf(id);
     if (!agent) return null;
     const h = agent.sp === "chicken" ? 0.3 : agent.sp === "cow" ? 0.7 : 0.85;
-    const x = agent.sleeping ? agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26 : agent.x,
-      y = agent.sleeping ? agent.home.y - 30 : agent.y;
+    const x = agent.sleeping && !agent.simMotion ? agent.home.x + (((agent.sleepSlot ?? 0) % 4) - 1.5) * 26 : agent.x,
+      y = agent.sleeping && !agent.simMotion ? agent.home.y - 30 : agent.y;
     return screen(x, y, h * (agent.juvenile ? 0.7 : 1));
   }
   const a = farmLayer.anchorOf(kind, id, game.state);
