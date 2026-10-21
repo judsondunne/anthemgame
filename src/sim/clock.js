@@ -3,7 +3,7 @@
 import { BALANCE } from "../config/balance.js";
 
 const T = BALANCE.time;
-const mod = (a, n) => ((a % n) + n) % n;
+const mod = (a, n) => {const r=((a % n)+n)%n;return r<1e-8||n-r<1e-8?0:r;};
 const nightHours = 24 - T.duskHour + T.dawnHour;
 const startOffset = ((T.startHour - T.dawnHour) / (T.duskHour - T.dawnHour)) * T.daySeconds;
 

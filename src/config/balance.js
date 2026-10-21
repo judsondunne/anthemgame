@@ -41,14 +41,14 @@ export const BALANCE = {
     maxFloodCells: 60000, nudge: 5, playerClearance: 14,
   },
   predators: {
-    delayIntoNight: 75, maxWolves: 3, bearAfterHerd: 6, bearChance: 0.16,
+    delayIntoNight: 40, maxWolves: 3, bearAfterHerd: 6, bearChance: 0.16,
     wolfSpeed: 34, bearSpeed: 23, fleeSpeed: 100, spawnRadius: 2250,
     attackRange: 34, alertRange: 400, wolfDamage: 0.16, bearDamage: 0.32,
-    scareSeconds: 1.5, exposureDecay: 1, encounterChance: 0.5,
+    targetSpread: 450, scareSeconds: 1.5, exposureDecay: 1, encounterChance: 0.5,
     retreatSeconds: 12, maxHealth: 100, healPerSecond: 0.4,
     injuryThreshold: 60, restSpeed: 0.65,
   },
-  wandering: { speed: 9, chickenRadius: 72, herdRadius: 165, wanderRadius: 650, wanderChance: 0.24, decisionSeconds: 24, returnRadius: 30 },
+  wandering: { chickenSpeed: 17, chickenDecisionSeconds: 9, speed: 9, chickenRadius: 72, herdRadius: 165, wanderRadius: 650, wanderChance: 0.24, decisionSeconds: 24, returnRadius: 30 },
 
   start: {
     money: 1000,

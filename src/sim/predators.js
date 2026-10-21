@@ -63,7 +63,8 @@ export function illuminate(s, id, seconds, mode = 'fp') {
   return { ok: true, ready: p.exposure >= P.scareSeconds, exposure: p.exposure };
 }
 function targetFor(s, p) {
-  return candidates(s).sort((a, b) => distance(p, a) - distance(p, b) || a.id - b.id)[0] || null;
+  const score=a=>distance(p,a)+(s.predators??[]).filter(q=>q!==p&&q.target===a.id&& !['flee','encounter'].includes(q.state)).length*P.targetSpread;
+  return candidates(s).sort((a, b) => score(a)-score(b) || a.id - b.id)[0] || null;
 }
 export function stepPredators(s, h) {
   s.predators ??= []; s.alerts ??= [];
@@ -75,7 +76,7 @@ export function stepPredators(s, h) {
   } else if (s.predatorSchedule.lastNight !== day && cyclePosition(s.time) >= B.time.daySeconds + P.delayIntoNight) {
     s.predatorSchedule.lastNight = day;
     const herd = s.animals.filter(a => a.state === 'alive' && a.sp !== 'chicken');
-    if (herd.length) {
+    if (s.animals.some(a=>a.state==='alive')) {
       const first = s.predatorSchedule.encounters === 0;
       const n = first ? 1 : Math.min(P.maxWolves, 1 + Math.floor(herd.length / 5));
       const kind = !first && herd.length >= P.bearAfterHerd && nextRandom(s) < P.bearChance ? 'bear' : 'wolf';
@@ -98,7 +99,7 @@ export function stepPredators(s, h) {
     const a = targetFor(s, p); p.target = a?.id ?? null;
     if (!a) {
       p.state = 'prowl';
-      const protectedAnimal = s.animals.filter(q => q.state === 'alive' && q.sp !== 'chicken').sort((a, b) => distance(p, a) - distance(p, b))[0];
+      const protectedAnimal = s.animals.filter(q => q.state === 'alive').sort((a, b) => distance(p, a) - distance(p, b))[0];
       p.prowlTarget = protectedAnimal?.id ?? null;
       if (protectedAnimal) moveToward(s, p, protectedAnimal, (p.kind === 'wolf' ? P.wolfSpeed : P.bearSpeed) * 0.55, h);
       continue;

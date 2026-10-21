@@ -27,7 +27,7 @@ export function terrainHeight(x, z) {
 }
 function random(seed) { let x = seed >>> 0; return () => { x += 0x6D2B79F5; let t = Math.imul(x ^ x >>> 15, 1 | x); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function terrainMaterial() {
-  const m = new THREE.MeshStandardMaterial({color: '#8fa772', roughness: 1});
+  const m = new THREE.MeshStandardMaterial({color: '#859e65', roughness: 1});
   m.onBeforeCompile = (s) => {
     s.uniforms.uTerrainTime=windTime;
     s.vertexShader = 'varying vec3 vTerrain;\n' + s.vertexShader;
@@ -187,7 +187,24 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
   function instances(entry,name,simplified=false){
     const result=new THREE.Group();
     let parts;
-    if(name.startsWith('forest_')){
+    if(name.startsWith('forest_fir')||name.startsWith('forest_leaf_tree')){
+      const key='merged-textured:'+name;
+      if(!geometryCache.has(key)){
+        const template=model(name,{height:1});template.updateMatrixWorld(true);const geometries=[];let bark=null,leaves=null;
+        template.traverse(mesh=>{if(!mesh.isMesh)return;const foliage=mesh.material.alphaTest>0;if(foliage)leaves=mesh.material.map;else bark=mesh.material.map;
+          const g=mesh.geometry.clone().applyMatrix4(mesh.matrixWorld);for(const a of Object.keys(g.attributes))if(!['position','normal','uv'].includes(a))g.deleteAttribute(a);g.setAttribute('aForestPart',new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(foliage?1:0),1));geometries.push(g);});
+        const geometry=mergeGeometries(geometries,false);geometries.forEach(g=>g.dispose());
+        const material=new THREE.MeshStandardMaterial({map:bark??leaves,color:'#edf0df',roughness:.83,alphaTest:.42,side:THREE.DoubleSide});
+        material.onBeforeCompile=shader=>{shader.uniforms.uWindTime=windTime;shader.uniforms.uFoliageMap={value:leaves??bark};shader.vertexShader='uniform float uWindTime;attribute float aForestPart;varying float vForestPart;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+          vForestPart=aForestPart;float phase=instanceMatrix[3].x*.67+instanceMatrix[3].z*.43;transformed.x+=sin(uWindTime*.9+phase+position.y*2.)*pow(max(0.,position.y),2.)*.012;
+        `);shader.fragmentShader='uniform sampler2D uFoliageMap;varying float vForestPart;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#ifdef USE_MAP
+          vec4 sampledDiffuseColor=mix(texture2D(map,vMapUv),texture2D(uFoliageMap,vMapUv),vForestPart);diffuseColor*=sampledDiffuseColor;
+        #endif`);};material.customProgramCacheKey=()=> 'detailed-tree-single-draw-v1';
+        const depth=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:bark??leaves,alphaTest:.42,side:THREE.DoubleSide});depth.onBeforeCompile=material.onBeforeCompile;depth.customProgramCacheKey=()=> 'detailed-tree-depth-v1';
+        const distance=new THREE.MeshDistanceMaterial({map:bark??leaves,alphaTest:.42,side:THREE.DoubleSide});distance.onBeforeCompile=material.onBeforeCompile;distance.customProgramCacheKey=()=> 'detailed-tree-distance-v1';
+        geometryCache.set(key,[{geometry,material,depth,distance}]);
+      }parts=geometryCache.get(key);
+    }else if(name.startsWith('forest_')){
       const cacheKey='textured:'+name;
       if(!geometryCache.has(cacheKey)){
         const template=model(name,{height:1});template.updateMatrixWorld(true);const list=[];
@@ -200,14 +217,14 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
           list.push({geometry:mesh.geometry.clone().applyMatrix4(mesh.matrixWorld),material});});geometryCache.set(cacheKey,list);
       }parts=geometryCache.get(cacheKey);
     }else parts=[{geometry:sourceGeometry(name),material:forestMaterial}];
-    for(const part of parts){const im=new THREE.InstancedMesh(part.geometry,part.material,entry.placements.length);im.castShadow=entry.category==='tree'&&!low&&!simplified;im.receiveShadow=!simplified;
+    for(const part of parts){const im=new THREE.InstancedMesh(part.geometry,part.material,entry.placements.length);im.castShadow=entry.category==='tree'&&!low&&!simplified;im.receiveShadow=!simplified;if(part.depth)im.customDepthMaterial=part.depth;if(part.distance)im.customDistanceMaterial=part.distance;
       entry.placements.forEach((p,i)=>{dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(0,p.heading,0);dummy.scale.set(p.size,p.size*p.stretch,p.size);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);if(entry.category==='tree')im.setColorAt(i,new THREE.Color().setRGB(.94+(i%3)*.015,.97,.89+(i%4)*.018));});im.computeBoundingSphere();result.add(im);
     }return result;
   }
   for(const entry of batches.values()){
     const near=instances(entry,entry.name);group.add(near);
     let far=null;
-    if(entry.category==='tree') {far=instances(entry,entry.name.includes('fir')?'forest_pine':'forest_oak',true);group.add(far);}
+    if(entry.category==='tree') {far=instances(entry,entry.name,true);group.add(far);}
     chunks.push({...entry,near,far});
   }
   const bridge=model('bridge_wood',{width:brookWidth(W.brook.crossingZ)*2+2.1});

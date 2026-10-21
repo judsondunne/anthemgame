@@ -820,3 +820,27 @@ body.wolf-lunge canvas { animation: wolf-shock .1s linear infinite; }@keyframes 
 body.wolf-lunge #hud,body.wolf-lunge #toolbar,body.wolf-lunge #tutorial,body.wolf-lunge #needs,body.wolf-lunge #crop-inspector,body.wolf-lunge #seed-helper,body.wolf-lunge #held-item,body.wolf-lunge #crosshair,body.wolf-lunge #predator-alert,body.wolf-lunge .fp-touch-controls {visibility:hidden!important;}
 @media(max-width:700px){.toolbar-actions .shopbtn{width:44px;min-width:44px;}}
 .bubble.pen-gap{width:30px;height:30px;opacity:.65;color:#c78666;}.bubble.pen-suggestion{width:30px;height:30px;border:1px dashed #f6edcca8;border-radius:50%;padding:5px;opacity:.5;}.pen-gap .ico,.pen-suggestion .ico{display:block;width:100%;height:100%;}
+
+/* Explicit keyboard guidance requested for player view. */
+#toolbar .toolbar-actions .shopbtn{width:94px;height:64px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;padding:5px 7px;}
+#toolbar .toolbar-actions .shopbtn>svg{width:29px;height:29px;flex:none;}
+.action-label{display:block;white-space:nowrap;font-size:10px;font-weight:650;line-height:16px;}
+kbd{font:inherit;font-weight:750;border:1px solid #aa987a60;border-radius:4px;padding:0 3px;background:#fff9e8a0;}
+#crosshair{width:8px;height:8px;background:#fff8e6;box-shadow:0 0 0 2px #17291c90,0 0 8px #08190d66;opacity:1!important;}
+#crosshair:after{content:'';position:absolute;inset:-8px;border:1px solid #fff6db75;border-radius:50%;}
+#crosshair.active{width:10px;height:10px;background:#ecffcd;box-shadow:0 0 0 2px #2b523cd9,0 0 13px #dcffc6c9;}
+#pause-screen{position:fixed;inset:0;z-index:150;background:#17291eb3;backdrop-filter:blur(12px);display:grid;place-items:center;padding:24px;}
+#pause-screen[hidden]{display:none;}
+.pause-card{width:min(420px,100%);padding:36px 30px;background:linear-gradient(145deg,#fff9e9,#e8e0c9);border:1px solid #fff9ed;border-radius:30px;text-align:center;color:#62543f;box-shadow:0 28px 90px #08110d66;}
+.pause-symbol{display:inline-grid;place-items:center;width:60px;height:60px;border-radius:20px;background:#dbe4ce;color:#526b4e;font-size:28px;}
+.pause-card h1{font-size:30px;margin:20px 0 8px;letter-spacing:-1px;}.pause-card p{font-size:14px;opacity:.8;margin:0 0 28px;}
+.resume-game{width:100%;min-height:52px;border-radius:16px;border:1px solid #879a7280;background:#74916b;color:#fffced;font:600 16px inherit;cursor:pointer;box-shadow:0 6px 14px #314c3626;}.resume-game kbd{color:#4f6344;margin-left:10px;}
+.pause-shortcuts{display:flex;gap:15px;justify-content:center;margin-top:24px;font-size:11px;}
+.game-paused #toolbar,.game-paused #tutorial,.game-paused #crop-inspector,.game-paused #seed-helper,.game-paused .fp-touch-controls{pointer-events:none;}
+@media(max-width:700px){#toolbar .toolbar-actions .shopbtn{width:49px;height:57px;padding:3px;}.action-label{font-size:7px;line-height:12px;}#toolbar .toolbar-actions .shopbtn>svg{width:25px;height:25px;}.action-label kbd{font-size:9px;border:0;padding:0;background:none;}}
+
+#held-item{display:none!important;}
+
+#night-sighting{position:fixed;left:18px;top:120px;z-index:15;display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:17px;border:1px solid #f2dcad;background:#f1e3c4ed;box-shadow:0 7px 20px #162d222d;color:#715c40;cursor:pointer;font:600 12px system-ui;}
+#night-sighting[hidden]{display:none;}#night-sighting span{width:28px;height:28px;}#night-sighting b{border-radius:50%;background:#bd915a;color:#fff8e6;min-width:21px;line-height:21px;}
+body.wolf-lunge #night-sighting{visibility:hidden;}

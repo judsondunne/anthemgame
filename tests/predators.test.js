@@ -7,8 +7,8 @@ function enclose(s) {
   for (let x = -20; x < -12; x++) for (const y of [26, 31]) s.fences.push({ id: s.nextId++, gx: x, gy: y, axis: 'h', gate: false, open: false });
   for (let y = 26; y < 31; y++) for (const x of [-20, -12]) s.fences.push({ id: s.nextId++, gx: x, gy: y, axis: 'v', gate: false, open: false });
 }
-test('predator schedule waits into night and an early farm stays safe', () => {
-  const s = fresh(); S.tick(s, 400); assert.equal(s.predators.length, 0);
+test('night wolves appear for the starter chicken farm as well as a larger herd', () => {
+  const s = fresh(); S.tick(s, 400); assert.equal(s.predators.length, 1);assert.equal(s.predators[0].kind,'wolf');
   const t = fresh(); herd(t); t.time = S.clock.nextTimeAtHour(t.time, 20);
   S.tick(t, B.predators.delayIntoNight - 1); assert.equal(t.predators.length, 0);
   S.tick(t, 1); assert.equal(t.predators.length, 1); assert.equal(t.predators[0].kind, 'wolf');

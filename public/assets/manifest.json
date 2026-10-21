@@ -959,5 +959,86 @@
     "triangles": 755,
     "usage": "Detailed textured Quaternius Stylized Nature MegaKit botany",
     "sha256": "4b944bea371dda0c133dc46a0aea7d41dc78c1fc656e3facd337a372aa6a0154"
+  },
+  {
+    "name": "watering-can",
+    "path": "/assets/models/tools/watering-can.glb",
+    "source": "https://poly.pizza/m/hybuUvYsri",
+    "license": "CC0-1.0",
+    "triangles": 630,
+    "clips": [],
+    "sha256": "6da7a1248e0dd61f80a4ac5d0102465176caf364caf2282b942ff3fc574a9141"
+  },
+  {
+    "name": "hand-flashlight",
+    "path": "/assets/models/tools/flashlight.glb",
+    "source": "https://poly.pizza/m/z2s5i0TBUi",
+    "license": "CC0-1.0",
+    "triangles": 330,
+    "clips": [],
+    "sha256": "68820605ba3e7470c54fd2e7432f401789979a5468ba52f475ea96df87f8dc0c"
+  },
+  {
+    "name": "feed-sack",
+    "path": "/assets/models/tools/feed-sack.glb",
+    "source": "https://kenney.nl/assets/food-kit",
+    "license": "CC0-1.0",
+    "triangles": 46,
+    "clips": [],
+    "sha256": "17803bb1e467d5cfd5ca9479a206870e60d160548c884b07ea294f1265334a06"
+  },
+  {
+    "name": "seed-sack",
+    "path": "/assets/models/tools/seed-sack.glb",
+    "source": "https://kenney.nl/assets/food-kit",
+    "license": "CC0-1.0",
+    "triangles": 114,
+    "clips": [],
+    "sha256": "97d736b7a0cb00b1b9da5d7e548182ef6e0cef27b979b07ee69d153d4ecf9cd9"
+  },
+  {
+    "name": "roof-window",
+    "path": "/assets/models/town/roof-window.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 176,
+    "clips": [],
+    "sha256": "9c95c71b7ea2a284f9ea37d0f684fe5aa654cdff14815969bc97d234014bbd53"
+  },
+  {
+    "name": "roof-high-window",
+    "path": "/assets/models/town/roof-high-window.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 258,
+    "clips": [],
+    "sha256": "b5bea885f9dc0a2b1195748a1c4b9994e16256ab740b6cdc6783ebbcf8b96946"
+  },
+  {
+    "name": "wall-detail-horizontal",
+    "path": "/assets/models/town/wall-detail-horizontal.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 46,
+    "clips": [],
+    "sha256": "ff7607024a93d3e7256dc4975afb038e9299a08bdfb40a544fcabe40c9be29e4"
+  },
+  {
+    "name": "farm-cottage",
+    "path": "/assets/models/architecture/cottage.glb",
+    "source": "https://poly.pizza/m/k6tP5nFUd2",
+    "license": "CC0-1.0",
+    "triangles": 4012,
+    "clips": [],
+    "sha256": "e3423546ab2d5ed2248eec14d074f6c28cd1e441cb7b35eb1edc82a2447c4cbc"
+  },
+  {
+    "name": "farm-barn",
+    "path": "/assets/models/architecture/barn.glb",
+    "source": "https://poly.pizza/m/ZIdWHxYsUv",
+    "license": "CC0-1.0",
+    "triangles": 1612,
+    "clips": [],
+    "sha256": "3a49b4ce98b433c5b75cf94bbc7e4545e3cfafbd7767c976e4354450516ce2c7"
   }
 ]

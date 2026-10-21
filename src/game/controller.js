@@ -12,6 +12,7 @@ export class Game {
     this.timescale = params.has("timescale") && Number.isFinite(ts) ? Math.min(B.time.maxTimescale, Math.max(0, ts)) : 1;
     this.listeners = new Set();
     this.following = false;
+    this.paused = false;
     this.hiddenAt = null;
     this.persist = new Persistence({
       params,
@@ -70,7 +71,7 @@ export class Game {
   }
 
   frame(realDt) {
-    if (this.following) return;
+    if (this.following || this.paused) return;
     const dt = Math.min(Math.max(0, realDt), B.time.maxFrameSeconds) * this.timescale;
     if (dt > 0) Sim.tick(this.state, dt);
     this.pump();
@@ -80,6 +81,7 @@ export class Game {
 
   // Run a player action against the live state. Refused actions change nothing.
   act(name, ...args) {
+    if(this.paused)return {ok:false,reason:"paused"};
     this.takeOver();
     const fn = Sim[name];
     if (typeof fn !== "function") return { ok: false, reason: "unknown" };
@@ -112,12 +114,14 @@ export class Game {
     if (this.following) return this.takeOver();
     if (this.hiddenAt !== null) {
       // Hidden for minutes or hours: capped catch-up, never fatal.
-      Sim.catchUp(this.state, (Date.now() - this.hiddenAt) / 1000);
+      if(!this.paused)Sim.catchUp(this.state, (Date.now() - this.hiddenAt) / 1000);
       Sim.drainEvents(this.state);
       this.hiddenAt = null;
       this.emit({ type: "resume" });
     }
   }
+
+  setPaused(value){this.paused=!!value;if(this.paused)this.persist.flush(this.state);this.emit({type:"pause",paused:this.paused});}
 
   setTimescale(n) {
     this.timescale = Math.min(B.time.maxTimescale, Math.max(0, Number(n) || 0));

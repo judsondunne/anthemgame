@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { mergeGeometries as mergeRigGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { clone } from "three/addons/utils/SkeletonUtils.js";
 export const palette = {
-  grass: "#94ad70",
+  grass: "#859e65",
   leaf: "#78985b",
   leafLight: "#a2b879",
   bark: "#816752",
@@ -88,6 +88,18 @@ function material(original, key, sway) {
       );
     };
     m.customProgramCacheKey = () => "foliage-wind-v1";
+  }
+  if(/^(wall|roof|planks|pillar|stairs|balcony)/.test(key)){
+    const previous=m.onBeforeCompile,cacheKey=m.customProgramCacheKey.bind(m);const priorKey=cacheKey();
+    m.onBeforeCompile=(shader)=>{previous(shader);shader.vertexShader='varying vec3 vBuildingSurface;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n vBuildingSurface=(modelMatrix*vec4(transformed,1.)).xyz;');shader.fragmentShader='varying vec3 vBuildingSurface;\n'+shader.fragmentShader;
+      shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+        vec3 bp=vBuildingSurface;float grain=sin(bp.y*135.+sin((bp.x+bp.z)*8.)*3.)*.012+sin((bp.x+bp.z)*28.+sin(bp.y*7.))*.016;
+        float weather=sin(bp.x*2.7+bp.z*1.4)*sin(bp.y*3.1)*.018;
+        diffuseColor.rgb*=1.+grain+weather;
+        ${key.startsWith('roof')?'vec2 tile=vec2(bp.x*5.,bp.z*6.);tile.x+=floor(tile.y)*.5;vec2 seam=abs(fract(tile)-.5);vec2 aa=fwidth(tile)*1.1+.018;float edge=max(1.-smoothstep(.0,aa.x,seam.x),1.-smoothstep(.0,aa.y,seam.y));diffuseColor.rgb*=1.-edge*.11;':''}
+      `);
+      shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n roughnessFactor=clamp(roughnessFactor+sin(vBuildingSurface.y*93.)*.07,.55,1.);');};
+    m.customProgramCacheKey=()=>priorKey+'|crafted-building-v1|'+(key.startsWith('roof')?'roof':'timber');
   }
   materials.set(id, m);
   return m;

@@ -6,7 +6,8 @@ export const CAMERA = Object.freeze({
   dragThreshold: 7, touchDragThreshold: 9, bounds: 88, softEdge: 8,
   eyeHeight: 1.7, radius: 0.26, walkSpeed: 3.25, sprintSpeed: 5.4,
   acceleration: 12, gravity: 18, jumpSpeed: 6.1, lookSpeed: 0.0021,
-  pitchLimit: 1.45, maxSlopeStep: 0.3, reach: 3.5,
+  pitchLimit: 1.45, maxSlopeStep: 0.3, reach: 4.5,
+  assistRadius: 88, doubleTapMs: 300,
   headBob: 0.018, transitionRate: 9, collisionStep: 0.12,
   godKeySpeed: 0.65, near: 0.035, far: 430,
 });

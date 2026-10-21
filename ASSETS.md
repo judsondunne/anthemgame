@@ -187,3 +187,26 @@ Creator source https://quaternius.com/packs/stylizednaturemegakit.html ; CC0. Fu
 |forest_leaf_tree_b|https://poly.pizza/m/YWjGDJ9F7g|/assets/models/forest/forest_leaf_tree_b.glb|4066|Detailed textured Quaternius Stylized Nature MegaKit botany|
 |forest_fern|https://poly.pizza/m/jqcanvH7D6|/assets/models/forest/forest_fern.glb|288|Detailed textured Quaternius Stylized Nature MegaKit botany|
 |forest_flowers|https://poly.pizza/m/hfPzQAedOe|/assets/models/forest/forest_flowers.glb|755|Detailed textured Quaternius Stylized Nature MegaKit botany|
+
+## First-person props and architecture detail (follow-up)
+
+Downloaded source topology retained. The creator model pages list Public Domain (CC0). Kenney source archives and their existing license records are retained.
+
+| Key | Source | License | Path | Triangles |
+|---|---|---|---|---:|
+| watering-can | https://poly.pizza/m/hybuUvYsri | CC0-1.0 | public/assets/models/tools/watering-can.glb | 630 |
+| hand-flashlight | https://poly.pizza/m/z2s5i0TBUi | CC0-1.0 | public/assets/models/tools/flashlight.glb | 330 |
+| feed-sack | https://kenney.nl/assets/food-kit | CC0-1.0 | public/assets/models/tools/feed-sack.glb | 46 |
+| seed-sack | https://kenney.nl/assets/food-kit | CC0-1.0 | public/assets/models/tools/seed-sack.glb | 114 |
+| roof-window | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-window.glb | 176 |
+| roof-high-window | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-high-window.glb | 258 |
+| wall-detail-horizontal | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/wall-detail-horizontal.glb | 46 |
+
+## Detailed architectural bodies
+
+Quaternius CC0 source bodies retain individual roof tiles, structural beams, plank edges and foundations. Cottage windows/porch use the existing downloaded Kenney modules; no generated solid geometry.
+
+| Key | Source | License | Path | Triangles |
+|---|---|---|---|---:|
+| farm-cottage | https://poly.pizza/m/k6tP5nFUd2 | CC0-1.0 | public/assets/models/architecture/cottage.glb | 4012 |
+| farm-barn | https://poly.pizza/m/ZIdWHxYsUv | CC0-1.0 | public/assets/models/architecture/barn.glb | 1612 |

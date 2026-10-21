@@ -73,8 +73,12 @@ export function needsOf(a) {
   return { hungry, thirsty, unmet, level, content: !hungry && !thirsty, untilDeath: N.deathDays * DAY - unmet };
 }
 
+const housingCache=new WeakMap();
+
 // Housing: placed buildings fill first (best multipliers), then the starter coop.
 export function housing(s) {
+  const signature=s.buildings.map(b=>b.id+':'+b.type).join(';')+'|'+s.animals.filter(a=>a.state==='alive').map(a=>a.id+':'+a.sp).join(';');
+  const cached=housingCache.get(s);if(cached?.signature===signature)return cached.value;
   const cap = { chicken: B.species.chicken.baseCapacity, cow: B.species.cow.baseCapacity, horse: B.species.horse.baseCapacity };
   const slots = { chicken: [], cow: [], horse: [] };
   for (const b of [...s.buildings].sort((p, q) => p.id - q.id))
@@ -90,7 +94,7 @@ export function housing(s) {
     for (const slot of slots[sp]) for (let i = 0; i < slot.n && k < list.length; i++) homes.set(list[k++].id, slot.b);
     for (; k < list.length; k++) homes.set(list[k].id, slots[sp][0]?.b ?? null);
   }
-  return { cap, homes };
+  const value={cap,homes};housingCache.set(s,{signature,value});return value;
 }
 
 export function homeBuilding(s, a, h = housing(s)) {

@@ -1,1 +1,1 @@
-export const VISUAL = {ao:{radius:5,minDistance:.0003,maxDistance:.055},shadow:{high:2048,low:1024},hudHz:10,lowMotionHz:12,egg:{height:.32,ringRadius:.23},detail:{sunRadius:.0074,moonRadius:.009},maturityBadge:64};
+export const VISUAL = {grass:{high:8500,low:2600,blades:6,height:.16,width:.018},held:{size:1.05,x:.54,y:-.56,z:-1.6},ao:{radius:5,minDistance:.0003,maxDistance:.055},shadow:{high:2048,low:1024},hudHz:10,lowMotionHz:12,egg:{height:.32,ringRadius:.23},detail:{sunRadius:.0074,moonRadius:.009},maturityBadge:64};

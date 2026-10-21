@@ -25,7 +25,7 @@ export function pathCenterX(y) {
 const rect = (x0, x1, y0, y1) => ({ kind: "rect", x0, x1, y0, y1 });
 const circle = (x, y, r) => ({ kind: "circle", x, y, r });
 export const OBSTACLES = [
-  rect(495, 800, 380, 522), // cottage and porch
+  rect(495, 800, 330, 522), // cottage and porch
   rect(220, 458, 728, 866), // starter coop
   { kind: "ellipse", x: 999, y: 626, rx: 178, ry: 94 }, // pond and bank stones
   { kind: "path", y0: 470, margin: 50 },

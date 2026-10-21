@@ -1,3 +1,6 @@
+import { meadowGeometry } from './src/render/meadow.js';
+import { createHeldItem } from './src/render/held-item.js';
+import { createPause } from './src/ui/pause.js';
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js";
@@ -6,6 +9,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import { FXAAShader } from "three/addons/shaders/FXAAShader.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import {
   loadAssets,
@@ -23,7 +27,7 @@ import { Game } from "./src/game/controller.js";
 import { createBridge } from "./src/game/bridge.js";
 import { createCameraController } from "./src/game/camera.js";
 import { createSkyMaterial } from "./src/render/sky.js";
-import { createWorld } from "./src/render/world.js";
+import { terrainHeight, createWorld } from "./src/render/world.js";
 import { createThreats } from "./src/render/threats.js";
 import { createCropInfo } from "./src/ui/crop-info.js";
 import { createTutorial } from "./src/ui/tutorial.js";
@@ -56,7 +60,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2("#b6c9b0", 0.0065);
 const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, .035, 430);
-let cameraControl = null, largerWorld = null, threats = null;
+let cameraControl = null, largerWorld = null, threats = null, pause = null;
 const root = new THREE.Group();
 scene.add(root);
 const hemi = new THREE.HemisphereLight("#fff4d7", "#687b55", 2);
@@ -101,6 +105,7 @@ const buildingLights = Array.from({ length: 6 }, () => {
   return l;
 });
 const composer = new EffectComposer(renderer);
+
 composer.addPass(new RenderPass(scene,camera));
 const ssao = new SSAOPass(scene,camera,innerWidth,innerHeight,16);
 ssao.kernelRadius=VISUAL.ao.radius;ssao.minDistance=VISUAL.ao.minDistance;ssao.maxDistance=VISUAL.ao.maxDistance;
@@ -121,7 +126,8 @@ const grade = new ShaderPass({
 });
 composer.addPass(grade);
 composer.addPass(new OutputPass());
-let quality = params.get("quality") === "low" ? "low" : "high",
+const fxaa=new ShaderPass(FXAAShader);composer.addPass(fxaa);
+let quality = params.get("quality") === "low" || (!params.has("quality") && matchMedia("(pointer:coarse)").matches) ? "low" : "high",
   fallback = false;
 function qualitySet(q, automatic = false) {
   quality = q;
@@ -133,7 +139,7 @@ function qualitySet(q, automatic = false) {
   sun.shadow.map = null;
   bloom.enabled = !low;
   ssao.enabled = !low;
-  grass && (grass.count = low ? 8500 : 28000);
+  grass && (grass.count = low ? VISUAL.grass.low : VISUAL.grass.high);
   threats?.setQuality(q);
   largerWorld?.setQuality?.(q);
   resize();
@@ -384,13 +390,14 @@ water.rotation.x = -Math.PI / 2;
 water.position.copy(logical(999, 626, 0.12));
 root.add(water);
 // Only grass blades use generated mesh geometry; the instanced meadow bends around hens.
-let grass;
+let grass, grassBase;
 const henUniform = {
   value: Array.from({ length: 12 }, () => new THREE.Vector3(999, 0, 999)),
 };
 const hideUniform = { value: Array.from({ length: 24 }, () => new THREE.Vector4(0, 0, 0, 0)) };
 const grassMat = new THREE.MeshStandardMaterial({
-  color: "#91ab70",
+  color: "#a4b97d",
+  vertexColors:true,
   side: THREE.DoubleSide,
   roughness: 1,
 });
@@ -399,14 +406,14 @@ grassMat.onBeforeCompile = (s) => {
   s.uniforms.uHens = henUniform;
   s.uniforms.uHide = hideUniform;
   s.vertexShader =
-    "uniform float uTime;uniform vec3 uHens[12];uniform vec4 uHide[24];varying float vTip;\n" +
+    "uniform float uTime;uniform vec3 uHens[12];varying float vTip;\n" +
     s.vertexShader;
   s.vertexShader = s.vertexShader.replace(
     "#include <begin_vertex>",
     `#include <begin_vertex>
  vTip=uv.y;vec3 anchor=(instanceMatrix*vec4(0.,0.,0.,1.)).xyz;float gust=sin(anchor.x*.7+anchor.z*.42+uTime*1.3)+.35*sin(anchor.x*1.9-uTime*2.2);transformed.x+=gust*uv.y*uv.y*.10;
- for(int i=0;i<12;i++){vec2 delta=anchor.xz-uHens[i].xz;float d=length(delta);if(d<.7&&d>.001)transformed.xz+=delta/d*(.7-d)*uv.y*.65;}
- for(int i=0;i<24;i++){vec4 r=uHide[i];if(anchor.x>r.x&&anchor.x<r.z&&anchor.z>r.y&&anchor.z<r.w)transformed*=0.;}`,
+ for(int i=0;i<12;i++){vec2 delta=anchor.xz-uHens[i].xz;float d2=dot(delta,delta);if(d2<.49&&d2>.000001){float d=sqrt(d2);transformed.xz+=delta/d*(.7-d)*uv.y*.65;}}
+`,
   );
   s.fragmentShader = "varying float vTip;\n" + s.fragmentShader;
   s.fragmentShader = s.fragmentShader.replace(
@@ -414,14 +421,13 @@ grassMat.onBeforeCompile = (s) => {
     "#include <color_fragment>\n diffuseColor.rgb*=mix(.68,1.16,vTip);",
   );
 };
-const blade = new THREE.PlaneGeometry(0.035, 0.17, 1, 2);
-blade.translate(0, 0.085, 0);
-grass = new THREE.InstancedMesh(blade, grassMat, 28000);
+const blade = meadowGeometry();
+grass = new THREE.InstancedMesh(blade, grassMat, VISUAL.grass.high);
 grass.receiveShadow = true;
 const dummy = new THREE.Object3D();
 let gi = 0;
-while (gi < 28000) {
-  const central = gi < 22000,
+while (gi < VISUAL.grass.high) {
+  const central = gi < VISUAL.grass.high*.82,
     x = central
       ? (G.rand() + G.rand() + G.rand() - 1.5) * 25
       : -95 + G.rand() * 190,
@@ -438,13 +444,14 @@ while (gi < 28000) {
     (lx > 233 && lx < 445 && ly > 744 && ly < 850)
   )
     continue;
-  dummy.position.set(x, 0.006, z);
+  dummy.position.set(x, Math.max(0,terrainHeight(x,z))+.006, z);
   dummy.rotation.y = G.rand() * 6.28;
   dummy.scale.setScalar(0.65 + G.rand() * 0.85);
   dummy.updateMatrix();
   grass.setMatrixAt(gi++, dummy.matrix);
 }
 grass.instanceMatrix.needsUpdate = true;
+grassBase=grass.instanceMatrix.array.slice();
 scene.add(grass);
 // Batch repeated static meshes by shared material while retaining downloaded topology.
 root.updateMatrixWorld(true);
@@ -541,9 +548,9 @@ let currentNight = 0;
 const tone = (hex) => new THREE.Color(hex);
 const LIGHT = {
   hemiDay: tone("#dcecf5"), hemiGold: tone("#ffd9b4"), hemiNight: tone("#a4bce0"),
-  groundDay: tone("#5d7053"), groundNight: tone("#596b7d"),
+  groundDay: tone("#4c6458"), groundNight: tone("#596b7d"),
   sunDay: tone("#fff5e5"), sunDusk: tone("#ffc487"), sunDawn: tone("#ffd1a4"),
-  fogDay: tone("#b6c9b0"), fogDusk: tone("#c7b09a"), fogDawn: tone("#cdbbb6"), fogNight: tone("#344a65"),
+  fogDay: tone("#b8c9c4"), fogDusk: tone("#c7b09a"), fogDawn: tone("#cdbbb6"), fogNight: tone("#344a65"),
 };
 const mix = new THREE.Color();
 moon.target.position.set(0, 0, 0);
@@ -574,7 +581,7 @@ function lighting() {
   const moonHigh = Math.max(0, Math.sin(moonAngle));
   moon.position.set(-Math.cos(moonAngle) * 20 + pan, Math.max(4, moonHigh * 24), 10);
   moon.target.position.set(pan, 0, 0);
-  hemi.intensity = 1.32 - night * (cameraControl?.isFirstPerson ? .78 : .42);
+  hemi.intensity = 1.08 - night * (cameraControl?.isFirstPerson ? .57 : .28);
   // Cool night tints arrive late in the dusk so twilight keeps its warmth.
   const cool = S(night, 0.3, 0.8);
   hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.2).lerp(LIGHT.hemiNight, cool);
@@ -617,6 +624,7 @@ function resize() {
   composer.setPixelRatio(renderer.getPixelRatio());
   composer.setSize(innerWidth, innerHeight);
   ssao.setSize(Math.ceil(innerWidth*.6),Math.ceil(innerHeight*.6));
+  fxaa.material.uniforms.resolution.value.set(1/(innerWidth*renderer.getPixelRatio()),1/(innerHeight*renderer.getPixelRatio()));
   view.w = innerWidth; view.h = innerHeight; view.dpr = renderer.getPixelRatio();
   cameraControl?.resize();
 }
@@ -780,6 +788,9 @@ function updateHide() {
     if (r) v.set((r.x0 - 700) / 50, ((r.y0 - 650) * 1.65) / 50, (r.x1 - 700) / 50, ((r.y1 - 650) * 1.65) / 50);
     else v.set(0, 0, 0, 0);
   });
+  // Building footprints change only on placement/load: hide tufts once here,
+  // instead of running 24 footprint tests for every blade vertex every frame.
+  if(grassBase){const matrices=grass.instanceMatrix.array;matrices.set(grassBase);for(let i=0;i<VISUAL.grass.high;i++){const n=i*16,x=grassBase[n+12],z=grassBase[n+14];if(hideUniform.value.some(r=>x>r.x&&x<r.z&&z>r.y&&z<r.w))for(let j=0;j<12;j++)matrices[n+j]=0;}grass.instanceMatrix.needsUpdate=true;}
 }
 largerWorld = createWorld({scene, camera, quality, seed: game.state.seed});
 largerWorld.colliders.push(...propertyColliders);
@@ -787,7 +798,8 @@ function bindWorldCollision(){Sim.setWorldColliders(game.state,largerWorld.colli
 bindWorldCollision();
 cameraControl = createCameraController({camera, canvas, game, Farm, view, params,
   worldGeometry: {terrainHeight: largerWorld.heightAt, blocked: largerWorld.isBlocked, colliders: largerWorld.colliders},
-  isUIBlocked: () => !!(document.querySelector('#shop.open') || document.querySelector('#backpack:not([hidden])')),
+  onPointerUnlock: () => pause?.set(true),
+  isUIBlocked: () => game.paused || !!(document.querySelector('#shop.open') || document.querySelector('#backpack:not([hidden])')),
   onModeChange: () => { document.exitPointerLock?.(); },
 });
 farmLayer = createFarmLayer({ scene, camera, world, lights: buildingLights, footprints: G.FarmFootprints, registerLantern: (l) => windows.push(l), onFootprints: updateHide });
@@ -809,10 +821,13 @@ const hud = createHud({
 const shop = createShop({ game, hud, juice, audio: AudioGarden, onKit: (kit) => input.startPlacement(kit) });
 input = createInput({ canvas, camera, G, game, hud, shop, farm: farmLayer, bridge, juice, screen, cameraControl,
  onSelect: (k,index) => index != null ? hud.selectSlot(index,true) : selectItem(k),
- onInventory: () => hud.toggleInventory(), onFlashlight: () => threats?.toggleFlashlight(),
+ onInventory: () => {shop.close();hud.toggleInventory();}, onFlashlight: () => threats?.toggleFlashlight(),
+ onPause:()=>pause.toggle(),onMode:()=>cameraControl.toggle(),
 });
 threats = createThreats({scene,camera,renderer,game,cameraControl,bridge,animalRenderer:animals,hud,audio:AudioGarden,screen});
 const cropInfo=createCropInfo({game,hud,input,canvas});
+pause=createPause({game,cameraControl,hud,shop,canvas});
+const heldItem=createHeldItem({renderer,hud,game,cameraControl,getNight:()=>currentNight});
 tutorial = createTutorial({game,onMode:()=>cameraControl.setMode('fp'),onFence:()=>{hud.select('fence');}});
 
 function selectItem(k, index) {
@@ -896,7 +911,7 @@ scene.remove(warm);
 function tick(now) {
   const raw = last ? (now - last) / 1000 : 0;
   last = now;
-  const dt = Math.min(0.05, raw);
+  const dt = game.paused ? 0 : Math.min(0.05, raw);
   if (!document.hidden) {
     const start = performance.now();
     renderer.info.reset();
@@ -908,7 +923,7 @@ function tick(now) {
     bridge.constrain?.(dt);
     windTime.value = world.elapsed;
     lighting();
-    cameraUpdate(dt);
+    if(!game.paused)cameraUpdate(dt);
     input.update(dt);
     largerWorld.update(dt,{night:currentNight,camera});
     tutorial.update(dt,game.clock);
@@ -925,6 +940,7 @@ function tick(now) {
     frameCount++;
     if (quality === "high") composer.render();
     else renderer.render(scene, camera);
+    heldItem.render(dt);
     if (!window.Garden.ready) {
       window.Garden.ready = true;
       document.body.classList.add("ready");
@@ -982,6 +998,7 @@ window.Garden = {
     Sim.tick(game.state, seconds, { offline });
     game.pump();
   },
+  pause, heldItem,
   timescale: (n) => game.setTimescale(n),
   anchor: anchorScreen,
   save: () => game.persist.flush(game.state),

@@ -4,7 +4,7 @@ import { BASE_COOP, frontOf, ZONES } from './layout.js';
 import { hash32 } from './rng.js';
 import { penAt } from './fences.js';
 import { stepShelter } from './shelter.js';
-import { separateAnimals, moveToward } from './movement.js';
+import { separateAnimals, moveToward, recoverAnimal, groundBlocked } from './movement.js';
 
 export function animalHome(s, a, homes) {
   const b = homes?.get(a.id);
@@ -24,10 +24,11 @@ export function stepWandering(s, h, housing) {
   const night = isNightAt(s.time), W = B.wandering;
   for (const a of s.animals) {
     if (a.state !== 'alive') continue;
+    if(!a.indoors&&!a.leavingCoop)recoverAnimal(s,a);
     if(stepShelter(s,a,h,housing?.homes))continue;
     const home = animalHome(s, a, housing?.homes), pen = penAt(s, a.x, a.y);
     a.penned = !!pen;
-    const period = Math.floor(s.time / W.decisionSeconds), u = hash32(s.seed, a.id, period) / 4294967296;
+    const period = Math.floor(s.time / (a.sp==='chicken'?W.chickenDecisionSeconds:W.decisionSeconds)), u = hash32(s.seed, a.id, period) / 4294967296;
     const angle = u * Math.PI * 2;
     const out = a.sp !== 'chicken' && !pen && hash32(s.seed, a.id, dayIndex(s.time)) / 4294967296 < W.wanderChance;
     a.wandering = out && !night;
@@ -48,9 +49,9 @@ export function stepWandering(s, h, housing) {
       if (Math.hypot(a.x - target.x, (a.y - target.y) * 1.65) <= W.returnRadius) continue;
     } else {
       const radius = a.sp === 'chicken' ? W.chickenRadius : out ? W.wanderRadius : W.herdRadius;
-      target = { x: home.x + Math.cos(angle) * radius, y: home.y + Math.sin(angle) * radius / 1.65 };
+      for(let i=0;i<16;i++){const heading=angle+i*Math.PI/8;target={x:home.x+Math.cos(heading)*radius,y:home.y+Math.sin(heading)*radius/1.65};if(!groundBlocked(s,target.x,target.y,a))break;}
     }
-    moveToward(s, a, target, W.speed * (a.injured ? B.predators.restSpeed : 1), h, { avoidAnimals: true });
+    moveToward(s, a, target, (a.sp==='chicken'?W.chickenSpeed:W.speed) * (a.injured ? B.predators.restSpeed : 1), h, { avoidAnimals: true });
   }
   separateAnimals(s);
 }

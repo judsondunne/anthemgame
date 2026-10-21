@@ -36,7 +36,7 @@ export function blockedByFences(state, x, z, radius = C.radius) {
   return false;
 }
 
-export function createCameraController({ camera, canvas, game, Farm, view, params = new URLSearchParams(), worldGeometry = {}, onModeChange = () => {}, isUIBlocked = () => false }) {
+export function createCameraController({ camera, canvas, game, Farm, view, params = new URLSearchParams(), worldGeometry = {}, onModeChange = () => {}, onPointerUnlock = () => {}, isUIBlocked = () => false }) {
   const focus = new THREE.Vector3(0, 0, -0.5), focusTarget = focus.clone();
   let yaw = C.defaultYaw, pitch = C.defaultPitch, distance = C.defaultDistance;
   let targetYaw = yaw, targetPitch = pitch, targetDistance = distance;
@@ -46,6 +46,7 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
   const start = toWorld(Number.isFinite(saved.x) ? saved.x : 620, Number.isFinite(saved.y) ? saved.y : 700);
   const player = { x: start.x, z: start.z, y: 0, yaw: saved.yaw || 0, pitch: saved.pitch || 0, vx: 0, vz: 0, vy: 0, grounded: true };
   let lookYaw = player.yaw, lookPitch = player.pitch, stepPhase = 0, joystick = { x: 0, y: 0 };
+  let lastForwardDown=-Infinity, doubleSprint=false;
   const keys = new Set(), pointers = new Map(), desiredPosition = new THREE.Vector3(), desiredQuat = new THREE.Quaternion();
   const lookEuler = new THREE.Euler(0, 0, 0, "YXZ"), raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), rayHit = new THREE.Vector3();
@@ -72,16 +73,17 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
     const p = toLogical(player.x, player.z);
     game.state.player = { mode, x: p.x, y: p.y, yaw: player.yaw, pitch: player.pitch };
   }
-  function releasePointer() { if (document.pointerLockElement === canvas) document.exitPointerLock?.(); keys.clear(); joystick = { x: 0, y: 0 }; }
+  function releasePointer() { doubleSprint=false; player.vx=player.vz=0; panVelocity.set(0,0,0);orbitVelocity={x:0,y:0}; if (document.pointerLockElement === canvas) document.exitPointerLock?.(); keys.clear(); joystick = { x: 0, y: 0 }; }
   function setMode(next, { immediate = false } = {}) {
     next = next === "fp" ? "fp" : "god";
     if (mode === next && transitioned) return;
     const previousMode = mode; mode = next; transitioned = true; transitionSeconds = immediate ? 0 : 0.7;
-    pointers.clear(); keys.clear(); gestureConsumed = false; lastPinch = null; orbitVelocity = { x: 0, y: 0 }; panVelocity.set(0, 0, 0);
+    pointers.clear(); keys.clear(); doubleSprint=false; gestureConsumed = false; lastPinch = null; orbitVelocity = { x: 0, y: 0 }; panVelocity.set(0, 0, 0);
     if (mode === "god") { releasePointer(); if (previousMode === "fp") focusTarget.set(player.x, terrain(player.x, player.z), player.z); }
     else if (collides(player.x, player.z)) recoverPlayer();
     document.body.classList.toggle("first-person", mode === "fp");
     controls.hidden = mode !== "fp"; persist(); onModeChange(mode);
+    if(mode==="fp"&&navigator.userActivation?.isActive&&!matchMedia("(pointer:coarse)").matches&&document.pointerLockElement!==canvas)canvas.requestPointerLock?.()?.catch?.(()=>{});
     if (immediate) update(0.016, true);
   }
   function terrain(x, z) { return Number((worldGeometry.terrainHeight ?? worldGeometry.heightAt)?.(x, z)) || 0; }
@@ -176,13 +178,13 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
   listen(window, "keydown", (e) => {
     if (e.altKey || e.ctrlKey || e.metaKey || /INPUT|TEXTAREA|SELECT/.test(e.target?.tagName)) return;
     if (["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight"].includes(e.code)) {
-      e.preventDefault(); e.stopImmediatePropagation(); if (blocked()) return; keys.add(e.code); if (e.code === "Space" && !e.repeat) jump();
+      e.preventDefault(); e.stopImmediatePropagation(); if (blocked()) return; if(e.code==="KeyW"&&!e.repeat){const now=performance.now();doubleSprint=now-lastForwardDown<C.doubleTapMs;lastForwardDown=now;} keys.add(e.code); if (e.code === "Space" && !e.repeat) jump();
     }
   }, true);
-  listen(window, "keyup", (e) => { keys.delete(e.code); if (Farm) Farm.held = 0; }, true);
+  listen(window, "keyup", (e) => { keys.delete(e.code); if(e.code==="KeyW")doubleSprint=false; if (Farm) Farm.held = 0; }, true);
   listen(window, "blur", releasePointer);
   listen(document, "visibilitychange", () => { if (document.hidden) releasePointer(); });
-  listen(document, "pointerlockchange", () => { if (document.pointerLockElement !== canvas) { keys.clear(); joystick = { x: 0, y: 0 }; } });
+  listen(document, "pointerlockchange", () => { if (document.pointerLockElement !== canvas) { keys.clear(); joystick = { x: 0, y: 0 }; if(mode==="fp"&&!blocked())onPointerUnlock(); } });
   listen(window, "resize", resize);
 
   // Thumb controls are isolated from canvas interactions and never capture look.
@@ -204,7 +206,7 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
       player.yaw = damp(player.yaw, lookYaw, 22, dt); player.pitch = damp(player.pitch, lookPitch, 22, dt);
       const forward = Number(keys.has("KeyW") || keys.has("ArrowUp")) - Number(keys.has("KeyS") || keys.has("ArrowDown")) - joystick.y;
       const strafe = Number(keys.has("KeyD") || keys.has("ArrowRight")) - Number(keys.has("KeyA") || keys.has("ArrowLeft")) + joystick.x;
-      const len = Math.max(1, Math.hypot(forward, strafe)), speed = keys.has("ShiftLeft") || keys.has("ShiftRight") ? C.sprintSpeed : C.walkSpeed;
+      const len = Math.max(1, Math.hypot(forward, strafe)), speed = doubleSprint || keys.has("ShiftLeft") || keys.has("ShiftRight") ? C.sprintSpeed : C.walkSpeed;
       const vx = (-Math.sin(player.yaw) * forward + Math.cos(player.yaw) * strafe) / len * speed;
       const vz = (-Math.cos(player.yaw) * forward - Math.sin(player.yaw) * strafe) / len * speed;
       player.vx = damp(player.vx, vx, C.acceleration, dt); player.vz = damp(player.vz, vz, C.acceleration, dt);

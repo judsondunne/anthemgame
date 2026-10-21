@@ -11,7 +11,7 @@ import { CAMERA as C } from "../config/camera.js";
 const { footprintOf, cellRect, plotPosition, snapFootprint, checkPlacement, zoneCells, ZONES, ZONE_OF, TROUGHS, STALL, CELL_X, CELL_Y } = layout;
 const inRect = (r, x, y, m = 0) => x >= r.x0 - m && x <= r.x1 + m && y >= r.y0 - m && y <= r.y1 + m;
 
-export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, juice, screen, cameraControl = null, onInventory = () => hud.toggleInventory?.(), onSelect = (k, i) => i === undefined ? hud.select(k) : hud.selectSlot?.(i), onFlashlight = () => {} }) {
+export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, juice, screen, cameraControl = null, onInventory = () => hud.toggleInventory?.(), onSelect = (k, i) => i === undefined ? hud.select(k) : hud.selectSlot?.(i), onFlashlight = () => {}, onPause=()=>{}, onMode=()=>cameraControl?.toggle() }) {
   const { world, Farm, view } = G;
   const raycaster = new THREE.Raycaster(),
     pointer = new THREE.Vector2(),
@@ -25,7 +25,7 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
   crosshairEl.id = "crosshair"; crosshairEl.hidden = true; crosshairEl.setAttribute("aria-hidden", "true");
   if (!crosshairEl.isConnected) document.body.append(crosshairEl);
   const firstPerson = () => !!cameraControl?.isFirstPerson;
-  const uiBlocked = () => shop.isOpen || !!hud.inventoryOpen;
+  const uiBlocked = () => game.paused || shop.isOpen || !!hud.inventoryOpen;
   const centerEvent = () => ({ clientX: innerWidth / 2, clientY: innerHeight / 2, pointerType: "mouse" });
   function ground(e = centerEvent()) {
     if (firstPerson()) e = centerEvent();
@@ -50,14 +50,14 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
   function pick(e, p) {
     const s = game.state;
     if (firstPerson()) e = centerEvent();
-    if(s.ui.fenceDelete){for(const f of s.fences??[]){const l=Sim.fenceLine(f),x=(l.x1+l.x2)/2,y=(l.y1+l.y2)/2;if(!reachable(x,y,.4))continue;const q=screen(x,y,.4);if(firstPerson()?Math.hypot(q.x-e.clientX,q.y-e.clientY)<42:p.x>l.x1-15&&p.x<l.x2+15&&p.y>l.y1-10&&p.y<l.y2+10)return{kind:'fence',id:f.id,gate:f.gate};}}
+    if(s.ui.fenceDelete){for(const f of s.fences??[]){const l=Sim.fenceLine(f),x=(l.x1+l.x2)/2,y=(l.y1+l.y2)/2;if(!reachable(x,y,.4))continue;const q=screen(x,y,.4);if(firstPerson()?Math.hypot(q.x-e.clientX,q.y-e.clientY)<C.assistRadius:p.x>l.x1-15&&p.x<l.x2+15&&p.y>l.y1-10&&p.y<l.y2+10)return{kind:'fence',id:f.id,gate:f.gate};}}
     let best = null,
       bestD = 1e9;
     const consider = (kind, id, x, y, h, radius) => {
       if (!reachable(x, y, h)) return;
       const q = screen(x, y, h);
       const d = Math.hypot(q.x - e.clientX, q.y - e.clientY);
-      if (d < (firstPerson() ? Math.min(42, radius) : radius) && d < bestD) {
+      if (d < (firstPerson() ? Math.max(C.assistRadius, radius) : radius*1.25) && d < bestD) {
         best = { kind, id };
         bestD = d;
       }
@@ -82,6 +82,7 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
     const k = tool();
     const forAnimals = k === "can" || k === "hay" || k.startsWith("feed_");
     const bedTarget = () => {
+    if(firstPerson()){let target=null,closest=C.assistRadius;for(const b of s.beds)for(let i=0;i<b.plots.length;i++){const pos=plotPosition(b,i);if(!reachable(pos.x,pos.y,.14))continue;const q=screen(pos.x,pos.y,.14),d=Math.hypot(q.x-e.clientX,q.y-e.clientY);if(d<closest){closest=d;target={kind:'bed',id:b.id,index:i};}}if(target)return target;}
     for (const bed of s.beds) {
       const [w, h] = footprintOf("bed");
       if (reachable(p.x, p.y, 0.12) && inRect(cellRect(bed.gx, bed.gy, w, h), p.x, p.y, 6)) {
@@ -116,12 +117,13 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
       const mx = (line.x1 + line.x2) / 2, my = (line.y1 + line.y2) / 2;
       if (!reachable(mx, my, 0.45)) continue;
       const q = screen(mx, my, 0.45);
-      if ((firstPerson() && Math.hypot(q.x - e.clientX, q.y - e.clientY) < 42) || (!firstPerson() && p.x > line.x1 - 13 && p.x < line.x2 + 13 && p.y > line.y1 - 8 && p.y < line.y2 + 8)) return { kind: "fence", id: f.id, gate: f.gate };
+      if ((firstPerson() && Math.hypot(q.x - e.clientX, q.y - e.clientY) < C.assistRadius) || (!firstPerson() && p.x > line.x1 - 13 && p.x < line.x2 + 13 && p.y > line.y1 - 8 && p.y < line.y2 + 8)) return { kind: "fence", id: f.id, gate: f.gate };
     }
     for (const b of s.buildings) {
       const [w, h] = footprintOf(b.type);
       if (reachable(p.x, p.y, 0.2) && inRect(cellRect(b.gx, b.gy, w, h), p.x, p.y, 4)) return { kind: "building", id: b.id, type: b.type };
     }
+    if(firstPerson()){for(const b of s.buildings){const f=layout.frontOf(b);consider('building',b.id,f.x,f.y,.8,120);}consider('building',null,320,818,.8,120);if(best)return {...best,type:best.id===null?'coop':s.buildings.find(b=>b.id===best.id)?.type};}
     if (!reachable(p.x, p.y, 0)) return { kind: "distant" };
     if (inRect({ x0: 225, x1: 455, y0: 728, y1: 866 }, p.x, p.y)) return { kind: "building", id: null, type: "coop" };
     for (const [zone, list] of Object.entries(TROUGHS)) if (list.some((t) => Math.abs(t.x - p.x) < 40 && Math.abs(t.y - p.y) < 30)) return { kind: "trough", zone };
@@ -326,6 +328,8 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
     const s = game.state,
       type = kit.slice(4);
     const zone = ZONES[ZONE_OF[type]];
+    if(firstPerson()){cameraControl.setMode('god');cameraControl.focus((zone.x0+zone.x1)/2,(zone.y0+zone.y1)/2,0,type==='bed'?16:25);}
+
     const cameraFocus = cameraControl?.snapshot().focusTarget;
     const viewX = cameraFocus ? cameraFocus[0] * 50 + 700 : 700 + Farm.targetPan;
     const cx = Math.min(zone.x1 - 120, Math.max(zone.x0 + 120, viewX));
@@ -487,16 +491,16 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
   addEventListener("keydown", (e) => {
     if (e.altKey || e.ctrlKey || e.metaKey || /INPUT|TEXTAREA|SELECT/.test(e.target?.tagName)) return;
     const key = e.key.toLowerCase();
+    if(game.paused&&key!=='escape'){e.preventDefault();e.stopImmediatePropagation();return;}
     if (/^[0-9]$/.test(key)) { e.preventDefault(); e.stopImmediatePropagation(); onSelect(null, key === "0" ? 9 : Number(key) - 1); return; }
     if(key==="r"&&!fenceMode())return;
     if (["e", "q", "i", "tab", "m", "f", "r", "delete", "backspace", "escape"].includes(key)) {
       e.preventDefault(); e.stopImmediatePropagation(); if (e.repeat) return;
-      if (key === "escape") { if (hud.inventoryOpen) onInventory(); else cancel(); cameraControl?.releasePointer(); }
-      else if (key === "i" || key === "tab") { cameraControl?.releasePointer(); onInventory(); }
+      if (key === "escape") { onPause(); }
+      else if (key === "i" || key === "tab" || key === "e") { cameraControl?.releasePointer(); onInventory(); }
       else if (key === "m") { cameraControl?.releasePointer(); shop.isOpen ? shop.close() : shop.open("buy"); }
-      else if (key === "q") { cancel(); hud.select("hand"); }
+      else if (key === "q") { hud.toggleInventory(false);shop.close();cancel();onMode(); }
       else if (key === "f") onFlashlight();
-      else if (key === "e" && firstPerson()) interact();
       else if (key === "r" && fenceMode()) rotateFence();
       else if ((key === "delete" || key === "backspace") && fenceMode()) deleteToggle();
     }
@@ -511,7 +515,7 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
       if (fenceMode()) fenceGhost(p);
     } else if (!fenceMode()) game.state.ui.fenceGhost = null;
     const crosshair = document.querySelector("#crosshair");
-    if (crosshair) { crosshair.hidden = !firstPerson() || uiBlocked(); crosshair.dataset.target = aimed.kind; crosshair.dataset.tool = tool(); crosshair.classList.toggle("active", firstPerson() && !["ground", "distant"].includes(aimed.kind) && !uiBlocked()); }
+    if (crosshair) { crosshair.hidden = !firstPerson(); crosshair.dataset.target = aimed.kind; crosshair.dataset.tool = tool(); crosshair.classList.toggle("active", firstPerson() && !["ground", "distant"].includes(aimed.kind) && !uiBlocked()); }
   }
   return { startPlacement, confirm, cancel, pick, apply, ground, harvestAll, feedOne, waterOne, attachCamera, update, interact, reachable, deleteToggle, rotateFence, get aimed() { return aimed; } };
 }
