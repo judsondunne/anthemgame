@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
 export const palette = {grass:'#94ad70', leaf:'#78985b', leafLight:'#a2b879', bark:'#816752', cream:'#f4e6c7', blush:'#d39b8f', gold:'#e3bf73', stone:'#b5b6a0', roof:'#738d88', water:'#659e9a', night:'#354c72'};
 export const windTime={value:0};
+export const duskUniform={value:0};
 export const manifest=await fetch('/assets/manifest.json').then(r=>r.json());
 const loader=new GLTFLoader(), cache=new Map(), materials=new Map();
 function material(original,key,sway){
@@ -12,6 +13,10 @@ function material(original,key,sway){
  const colors={leafsGreen:palette.leaf,grass:palette.leafLight,leafsDark:'#537e67',woodBark:palette.bark,woodBarkDark:'#6e594a',woodInner:'#d2b28a',wood:'#c3ab86',woodDark:'#aa8c6d',stone:palette.stone,dirt:'#aa8a68',dirtDark:'#876e52',colorPurple:'#b39fcb',colorRed:palette.blush,colorYellow:palette.gold,Chicken_Main:palette.cream,Chicken_Red:'#cf8273',Beak:palette.gold};
  if(colors[m.name])m.color.set(colors[m.name]);
  if(m.map){m.map.colorSpace=THREE.SRGBColorSpace;m.color.set('#eee5d3');}
+ if(key.startsWith('wall-window')||key==='wall-door'){m.onBeforeCompile=s=>{s.uniforms.uDusk=duskUniform;s.fragmentShader='uniform float uDusk;\n'+s.fragmentShader;s.fragmentShader=s.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+ #ifdef USE_MAP
+ vec3 glassSample=texture2D(map,vMapUv).rgb;float glassMask=step(glassSample.r*1.16,glassSample.b)*step(glassSample.r*1.1,glassSample.g);totalEmissiveRadiance+=glassMask*uDusk*vec3(1.2,.58,.18);
+ #endif`);};m.customProgramCacheKey=()=> 'window-light-v1';}
  if(sway){m.onBeforeCompile=s=>{s.uniforms.uWindTime=windTime;s.vertexShader='uniform float uWindTime;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(uWindTime*1.2+position.x*2.3+position.z*3.1)*0.023*max(0.,position.y);');};m.customProgramCacheKey=()=> 'foliage-wind-v1';}
  materials.set(id,m);return m;
 }
