@@ -13,14 +13,14 @@ function material(original,key,sway){
  const colors={leafsGreen:palette.leaf,grass:palette.leafLight,leafsDark:'#537e67',woodBark:palette.bark,woodBarkDark:'#6e594a',woodInner:'#d2b28a',wood:'#c3ab86',woodDark:'#aa8c6d',stone:palette.stone,dirt:'#aa8a68',dirtDark:'#876e52',colorPurple:'#b39fcb',colorRed:palette.blush,colorYellow:palette.gold,Chicken_Main:palette.cream,Chicken_Red:'#cf8273',Beak:palette.gold};
  if(colors[m.name])m.color.set(colors[m.name]);
  if(m.map){m.map.colorSpace=THREE.SRGBColorSpace;m.color.set('#eee5d3');}
- if(key.startsWith('wall-window')||key==='wall-door'){m.onBeforeCompile=s=>{s.uniforms.uDusk=duskUniform;s.fragmentShader='uniform float uDusk;\n'+s.fragmentShader;s.fragmentShader=s.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+ if(key.startsWith('wall-window')||key==='wall-door'){m.onBeforeCompile=s=>{s.uniforms.uDusk=duskUniform;s.vertexShader='attribute float aWindowMask;varying float vWindowMask;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vWindowMask=aWindowMask;');s.fragmentShader='uniform float uDusk;varying float vWindowMask;\n'+s.fragmentShader;s.fragmentShader=s.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
  #ifdef USE_MAP
- vec3 glassSample=texture2D(map,vMapUv).rgb;float glassMask=step(glassSample.r*1.16,glassSample.b)*step(glassSample.r*1.1,glassSample.g);totalEmissiveRadiance+=glassMask*uDusk*vec3(1.2,.58,.18);
+ vec3 glassSample=texture2D(map,vMapUv).rgb;float glassMask=vWindowMask*step(glassSample.r*1.16,glassSample.b)*step(glassSample.r*1.1,glassSample.g);totalEmissiveRadiance+=glassMask*uDusk*vec3(1.2,.58,.18);
  #endif`);};m.customProgramCacheKey=()=> 'window-light-v1';}
  if(sway){m.onBeforeCompile=s=>{s.uniforms.uWindTime=windTime;s.vertexShader='uniform float uWindTime;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(uWindTime*1.2+position.x*2.3+position.z*3.1)*0.023*max(0.,position.y);');};m.customProgramCacheKey=()=> 'foliage-wind-v1';}
  materials.set(id,m);return m;
 }
-export async function loadAssets(){await Promise.all(manifest.map(async a=>{const gltf=await loader.loadAsync(a.path);gltf.scene.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(gltf.scene), size=bounds.getSize(new THREE.Vector3());cache.set(a.name,{...a,gltf,bounds,size});}));}
+export async function loadAssets(){await Promise.all(manifest.map(async a=>{const gltf=await loader.loadAsync(a.path);if(a.name.startsWith('wall-window')||a.name==='wall-door')gltf.scene.traverse(o=>{if(!o.isMesh)return;const pos=o.geometry.attributes.position,mask=new Float32Array(pos.count);for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);mask[i]=Math.abs(x-.45)<.019&&y>.23&&y<.77&&Math.abs(z)<.22?1:0;}o.geometry.setAttribute('aWindowMask',new THREE.BufferAttribute(mask,1));});gltf.scene.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(gltf.scene), size=bounds.getSize(new THREE.Vector3());cache.set(a.name,{...a,gltf,bounds,size});}));}
 export function assetInfo(name){return cache.get(name);}
 export function model(name,{height,width,sway=false,raw=false,tint}={}){
  const a=cache.get(name);if(!a)throw Error('Missing asset '+name);
