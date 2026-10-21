@@ -150,6 +150,29 @@ const AudioGarden = {
   fanfare() {
     this.blip([523.25, 659.25, 783.99, 1046.5, 1318.5], 0.11, 1.8, 0.075);
   },
+  lightClick() { this.blip([260, 350], .025, .06, .018); },
+  wolfHowl(volume=1) {
+    if(!this.ctx||this.muted||document.hidden)return;
+    const c=this.ctx,t=c.currentTime,o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+    o.type='triangle';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(420,t+.65);o.frequency.exponentialRampToValueAtTime(240,t+2.2);f.type='lowpass';f.frequency.value=950;
+    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.09*volume,t+.4);g.gain.exponentialRampToValueAtTime(.0001,t+2.6);o.connect(f);f.connect(g);g.connect(this.master);o.start();o.stop(t+2.7);
+  },
+  wolfYelp() { this.blip([520, 720, 340], .07, .3, .04); },
+  wolfJump() {
+    if(!this.ctx||this.muted||document.hidden)return;
+    const c=this.ctx,t=c.currentTime,src=c.createBufferSource(),b=c.createBuffer(1,c.sampleRate*.35,c.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
+    src.buffer=b;const f=c.createBiquadFilter(),g=c.createGain();f.type='lowpass';f.frequency.setValueAtTime(2600,t);f.frequency.exponentialRampToValueAtTime(240,t+.3);g.gain.value=.38;src.connect(f);f.connect(g);g.connect(this.master);src.start();
+    this.blip([92,65],.06,.4,.16);
+  },
+  danger() { this.blip([155,146,110],.12,.9,.08); },
+  worldAmbience(night,waterDistance,fp) {
+    if(!this.ctx||this.muted||document.hidden)return;
+    const c=this.ctx,t=c.currentTime;
+    if(!this.brookGain){const b=c.createBuffer(1,c.sampleRate*3,c.sampleRate),d=b.getChannelData(0);let brown=0;for(let i=0;i<d.length;i++){brown=(brown+(Math.random()*2-1)*.04)/1.025;d[i]=brown;}const src=c.createBufferSource();src.buffer=b;src.loop=true;const filter=c.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1100;filter.Q.value=.55;this.brookGain=c.createGain();this.brookGain.gain.value=0;src.connect(filter);filter.connect(this.brookGain);this.brookGain.connect(this.master);src.start();this.nextForestCall=0;}
+    this.brookGain.gain.setTargetAtTime(Math.max(0,.5-Math.max(0,waterDistance)*.04)*(fp?1:.35),t,.8);
+    if(t>this.nextForestCall){this.nextForestCall=t+3+Math.random()*6;if(night>.5){this.blip([880,940,880],.09,.22,.012);if(Math.random()<.13)this.blip([310,280],.3,.6,.016);}else this.blip([1800,2400,2100],.07,.13,.016);}
+  },
   toggle() {
     this.muted = !this.muted;
     if (this.master)

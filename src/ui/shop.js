@@ -1,11 +1,13 @@
 // Market panel. Buy tab: seeds, feed, animals, buildings, beds. Sell tab:
 // everything sellable. Icons, numerals and states only.
 import { ICONS, itemIcon } from "./icons.js";
+import { NIGHT_ICONS as N } from "./night-icons.js";
 import { fmt } from "./juice.js";
 import { BALANCE as B } from "../config/balance.js";
 import { SEEDS, FEEDS, GOODS, SPECIES, buyPrice, sellPrice, canBuy, housing, alive, ownedOf, driftOf, sellableAnimals } from "../sim/index.js";
 
 const SECTIONS = [
+  { icon: () => N.fence, keys: ["fence", "gate"] },
   { icon: () => itemIcon("seed_daisy"), keys: SEEDS },
   { icon: () => itemIcon("feed_chicken"), keys: FEEDS },
   { icon: () => ICONS.hen, keys: SPECIES.flatMap((sp) => ["f", "m"].map((x) => `animal_${sp}_${x}`)) },
@@ -35,6 +37,8 @@ export function createShop({ game, hud, juice, audio, onKit }) {
   tabs.sell.onclick = () => show("sell");
 
   function open(which = "buy", focus = null) {
+    document.exitPointerLock?.();
+    hud.toggleInventory?.(false);
     isOpen = true;
     el.classList.add("open");
     veil.classList.add("open");

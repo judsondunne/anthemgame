@@ -57,6 +57,7 @@ export function createBridge(G, game) {
       agent.home = homeOf(hs.homes.get(a.id) ?? null);
       agent.simThirsty = n.thirsty;
       agent.sad = n.level === "sad";
+      agent.injured = !!a.injured; agent.health = a.health; agent.simMotion = true;
       agent.urgent = n.level === "urgent" || n.level === "sad";
       const wasDead = agent.dead;
       agent.dead = a.state !== "alive";
@@ -82,12 +83,23 @@ export function createBridge(G, game) {
         if (i >= 0) list.splice(i, 1);
         world.needs = world.needs.filter((n) => n.target !== agent);
       }
-    positionClock += realDt;
-    if (positionClock >= B.save.positionSyncSeconds) {
-      positionClock = 0;
-      const list = [];
-      for (const [id, agent] of agents) if (!agent.dead && !agent.sleeping && !agent.sheltered) list.push({ id, x: agent.x, y: agent.y });
-      setPositions(s, list);
+    constrain(realDt);
+
+  }
+
+  // State owns motion: visual-only behaviour can animate and choose poses, but
+  // cannot cross a fence, deep water or a building between sim ticks.
+  function constrain(dt) {
+    for (const a of game.state.animals) {
+      const agent = agents.get(a.id); if (!agent) continue;
+      const previous = agent.simPrevious ?? {x:a.x,y:a.y};
+      const moved = Math.hypot(a.x-previous.x,(a.y-previous.y)*1.65) > .01;
+      agent.x=a.x; agent.y=a.y; agent.moving=moved; agent.heading=a.heading;
+      agent.simPrevious={x:a.x,y:a.y};
+      if (moved) agent.dir=Math.cos(a.heading??0)>=0?1:-1;
+      if (agent.sp!=='chicken') agent.sheltered=false;
+      else if (Math.hypot(a.x-agent.home.approach.x,(a.y-agent.home.approach.y)*1.65)>70){agent.sleeping=false;agent.sheltered=false;}
+      if (a.injured) agent.sad=true;
     }
   }
 
@@ -103,5 +115,5 @@ export function createBridge(G, game) {
     sync(0, { initial: true });
   }
 
-  return { sync, reset, agentOf: (id) => agents.get(id), agents };
+  return { sync, constrain, reset, agentOf: (id) => agents.get(id), agents };
 }

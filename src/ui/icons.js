@@ -1,3 +1,4 @@
+import { NIGHT_ICONS } from "./night-icons.js";
 // Icon-only interface: every glyph is an inline SVG on a 48x48 grid using the
 // garden palette. No letters anywhere.
 const C = {
@@ -114,6 +115,7 @@ const cropGlyph = (crop) => (crop === "wheat" ? parts.grain : parts[crop]);
 
 // Icon for any inventory/shop key.
 export function itemIcon(key) {
+  if (NIGHT_ICONS[key]) return NIGHT_ICONS[key];
   if (key.startsWith("seed_")) {
     const crop = key.slice(5);
     return svg(packet(cropGlyph(crop), CROP_TINT[crop]));
@@ -127,7 +129,7 @@ export function itemIcon(key) {
   return ICONS[key] ?? ICONS.sparkle;
 }
 
-export const TOOL_ICONS = { hand: ICONS.hand, can: ICONS.can, fish: ICONS.fishfood };
+export const TOOL_ICONS = { hand: ICONS.hand, can: ICONS.can, fish: ICONS.fishfood, flashlight: NIGHT_ICONS.flashlight };
 
 // Small CSS cursor reflecting the selected item (desktop pointers).
 export function cursorFor(key) {

@@ -30,6 +30,24 @@ export class Game {
       const h = Number(this.params.get("time"));
       if (Number.isFinite(h)) Sim.advanceToHour(this.state, h, { offline: true });
     }
+    // Deterministic test fixtures are opt-in URL parameters and render no UI.
+    const money=Number(this.params.get("money"));
+    if(this.params.has("money")&&Number.isFinite(money))this.state.money=Math.max(0,Math.floor(money));
+    for(const spec of (this.params.get("give")??"").split(",")){
+      const [key,raw]=spec.split(":"),n=Number(raw);
+      if(key&&Number.isInteger(n)&&n>0)Sim.addInventory(this.state,key,Math.min(5000,n));
+    }
+    if(this.params.get("needs")==="1")for(const a of this.state.animals){a.hunger=Sim.BALANCE.species[a.sp].hungryAfter+1;a.thirst=Sim.BALANCE.species[a.sp].thirstyAfter+1;}
+    if(this.params.get("fences")==="demo"){
+      Sim.addInventory(this.state,"fence",100);Sim.addInventory(this.state,"gate",1);
+      const x0=-22,x1=-12,y0=25,y1=35;
+      for(let x=x0;x<x1;x++){Sim.placeFence(this.state,x,y0,"h");Sim.placeFence(this.state,x,y1,"h",x===x0+4);}
+      for(let y=y0;y<y1;y++){Sim.placeFence(this.state,x0,y,"v");Sim.placeFence(this.state,x1,y,"v");}
+    }
+    if(["wolf","bear"].includes(this.params.get("predator"))){
+      if(!Sim.clock.isNightAt(this.state.time))Sim.advanceToHour(this.state,21,{offline:true});
+      Sim.forcePredator(this.state,this.params.get("predator"),{x:560,y:850});
+    }
     Sim.drainEvents(this.state);
     addEventListener("visibilitychange", () => this.visibility(document.hidden));
     addEventListener("pagehide", () => this.persist.flush(this.state));

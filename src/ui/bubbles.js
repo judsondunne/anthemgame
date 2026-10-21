@@ -1,5 +1,6 @@
 // Floating request bubbles: animal food/water needs (urgent ones pulse warm red),
 // ripe or dry beds, and the original ambient affection/koi bubbles.
+import { NIGHT_ICONS as N } from "./night-icons.js";
 import { ICONS, itemIcon } from "./icons.js";
 import { needsOf, plotStage, foodsFor, layout } from "../sim/index.js";
 
@@ -37,6 +38,7 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
 
   function position(e, x, y, h, bob) {
     const p = screen(x, y, h);
+    e.style.visibility = p.visible === false ? "hidden" : "visible";
     e.style.left = p.x + "px";
     e.style.top = p.y + Math.sin(G.world.elapsed * 2 + bob) * 3 + "px";
   }
@@ -47,12 +49,12 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
     for (const a of s.animals) {
       if (a.state !== "alive") continue;
       const n = needsOf(a);
-      if (!n.hungry && !n.thirsty) continue;
+      if (!n.hungry && !n.thirsty && !a.injured) continue;
       const agent = bridge.agentOf(a.id);
       if (!agent) continue;
       const hidden = agent.sheltered || agent.sleeping;
       const at = agent.sheltered ? agent.home.door : agent.sleeping ? { x: agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26, y: agent.home.y - 30 } : agent;
-      const html = (n.hungry ? `<button data-act="food" aria-label="Feed">${foodIcon(a.sp)}</button>` : "") + (n.thirsty ? `<button data-act="water" aria-label="Water">${ICONS.drop}</button>` : "");
+      const html = (a.injured ? `<span class="injured ico">${N.bandage}</span>` : "") + (n.hungry ? `<button data-act="food" aria-label="Feed">${foodIcon(a.sp)}</button>` : "") + (n.thirsty ? `<button data-act="water" aria-label="Water">${ICONS.drop}</button>` : "");
       const e = element("a" + a.id, html, (n.level === "urgent" || n.level === "sad" ? "urgent" : "") + (hidden ? " small" : ""), {
         food: (b, el) => onAnimal(a.id, "food", b, el),
         water: (b, el) => onAnimal(a.id, "water", b, el),

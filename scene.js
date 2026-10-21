@@ -19,6 +19,10 @@ import { createFarmLayer } from "./src/render/farm-layer.js";
 import { createAnimalRenderer } from "./src/render/animals.js";
 import { Game } from "./src/game/controller.js";
 import { createBridge } from "./src/game/bridge.js";
+import { createCameraController } from "./src/game/camera.js";
+import { createWorld } from "./src/render/world.js";
+import { createThreats } from "./src/render/threats.js";
+import { createTutorial } from "./src/ui/tutorial.js";
 import { createInput } from "./src/game/input.js";
 import { createHud } from "./src/ui/hud.js";
 import { createShop } from "./src/ui/shop.js";
@@ -47,7 +51,8 @@ renderer.toneMappingExposure = 1.15;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2("#b6c9b0", 0.012);
-const camera = new THREE.OrthographicCamera(-18, 18, 12, -12, 0.1, 240);
+const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, .035, 430);
+let cameraControl = null, largerWorld = null, threats = null;
 const root = new THREE.Group();
 scene.add(root);
 const hemi = new THREE.HemisphereLight("#fff4d7", "#687b55", 2);
@@ -121,6 +126,8 @@ function qualitySet(q, automatic = false) {
   sun.shadow.map = null;
   bloom.enabled = !low;
   grass && (grass.count = low ? 8500 : 28000);
+  threats?.setQuality(q);
+  largerWorld?.setQuality?.(q);
   resize();
 }
 const logicalVector = new THREE.Vector3();
@@ -189,7 +196,7 @@ groundMat.onBeforeCompile = (s) => {
  float cloud=sin(p.x*.2+uTime*.035+sin(p.y*.25))*sin(p.y*.19+uTime*.02);diffuseColor.rgb*=1.-smoothstep(.35,.85,cloud)*.07;`,
   );
 };
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(230, 200), groundMat);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 40), groundMat);
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
@@ -522,7 +529,7 @@ const skyMat = new THREE.ShaderMaterial({
     "varying vec3 vDir;void main(){vDir=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
   fragmentShader: `uniform float uTime;uniform float uHour;uniform float uNight;uniform vec3 uSun;uniform vec3 uMoon;uniform float uGold;varying vec3 vDir;
 float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}void main(){vec3 d=normalize(vDir);float h=max(0.,d.y);float gold=uGold;vec3 top=mix(vec3(.57,.73,.76),vec3(.62,.47,.50),gold);vec3 horizon=mix(vec3(.85,.87,.71),vec3(.97,.71,.48),gold);vec3 c=mix(horizon,top,pow(h,.5));c=mix(c,mix(vec3(.20,.29,.41),vec3(.045,.09,.20),h),uNight);float disc=dot(d,normalize(uSun));c+=vec3(1.,.75,.35)*pow(max(0.,disc),700.)*(1.-uNight);float md=max(0.,dot(d,normalize(uMoon)));c+=vec3(.78,.84,.95)*(pow(md,1900.)+pow(md,90.)*.08)*uNight;
-vec3 cell=floor(d*220.);float stars=step(.9975,hash(cell))*pow(max(0.,sin(uTime*.4+hash(cell)*8.)),.3);c+=stars*uNight*smoothstep(.1,.4,h)*.65;
+vec2 starUv=vec2(atan(d.z,d.x)/6.283185+.5,asin(d.y)/3.14159+.5)*vec2(420.,210.);vec2 starCell=floor(starUv);vec2 starPoint=fract(starUv)-.5;float starSeed=hash(vec3(starCell,8.));float stars=step(.983,starSeed)*(1.-smoothstep(.015,.19,length(starPoint)))*(.65+.35*sin(uTime*.6+starSeed*60.));c+=stars*uNight*smoothstep(.1,.4,h)*.85;
 float cl=sin(d.x*16.+uTime*.012+sin(d.z*11.))*sin(d.z*21.+uTime*.015);float cloud=smoothstep(.32,.75,cl)*smoothstep(.0,.2,h)*(1.-smoothstep(.5,.85,h));c=mix(c,vec3(.96,.93,.82)*(1.-uNight*.88),cloud*.3);gl_FragColor=vec4(c,1.);}`,
 });
 const sky = new THREE.Mesh(new THREE.SphereGeometry(110, 32, 16), skyMat);
@@ -574,22 +581,27 @@ function lighting() {
     morning = dawn > dusk;
   currentNight = night;
   duskUniform.value = night;
-  const pan = Farm.pan / 50;
+  const pan = cameraControl?.isFirstPerson ? camera.position.x : Farm.pan / 50;
   const sunAngle = ((h - 6) / 14) * Math.PI;
   sun.position.set(-Math.cos(sunAngle) * 22 + pan, Math.max(3, Math.sin(sunAngle) * 26), 12);
-  sun.target.position.set(pan, 0, 0);
+  const shadowZ = cameraControl?.isFirstPerson ? camera.position.z : 0;
+  sun.position.z += shadowZ;
+  sun.target.position.set(pan, 0, shadowZ);
+  const shadowSpan = Math.max(7, Math.min(29, (cameraControl?.snapshot().distance ?? 35) * .65));
+  Object.assign(sun.shadow.camera, {left:-shadowSpan,right:shadowSpan,top:shadowSpan,bottom:-shadowSpan});
+  sun.shadow.camera.updateProjectionMatrix();
   const moonAngle = (((h >= 20 ? h - 20 : h + 4) % 24) / 10) * Math.PI;
   const moonHigh = Math.max(0, Math.sin(moonAngle));
   moon.position.set(-Math.cos(moonAngle) * 20 + pan, Math.max(4, moonHigh * 24), 10);
   moon.target.position.set(pan, 0, 0);
-  hemi.intensity = 1.12 - night * 0.42;
+  hemi.intensity = 1.12 - night * (cameraControl?.isFirstPerson ? .78 : .42);
   // Cool night tints arrive late in the dusk so twilight keeps its warmth.
   const cool = S(night, 0.3, 0.8);
   hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.2).lerp(LIGHT.hemiNight, cool);
   hemi.groundColor.copy(LIGHT.groundDay).lerp(LIGHT.groundNight, cool);
   sun.intensity = (3.1 + gold * 0.65) * (1 - night);
   sun.color.copy(LIGHT.sunDay).lerp(morning ? LIGHT.sunDawn : LIGHT.sunDusk, S(gold, 0.12, 0.45));
-  moon.intensity = night * (0.6 + 0.3 * moonHigh);
+  moon.intensity = night * (cameraControl?.isFirstPerson ? .27 + .16 * moonHigh : .6 + .3 * moonHigh);
   lantern.intensity = night * (7 + Math.sin(world.elapsed * 5) * 0.2);
   for (const l of windowLights) l.intensity = night * 2.2;
   farmLayer?.lightsAtNight(night);
@@ -619,47 +631,22 @@ function lighting() {
     });
 }
 function resize() {
-  const aspect = innerWidth / innerHeight;
-  // Portrait phones: a closer framing so the farm, not the sky, fills the screen.
-  let halfH = aspect < 1 ? 10.6 / aspect : 10.7,
-    halfW = halfH * aspect;
-  if (params.get("close")) {
-    halfH = params.get("close") === "house" ? 4.6 : 4;
-    halfW = halfH * aspect;
-  }
-  Object.assign(camera, {
-    left: -halfW,
-    right: halfW,
-    top: halfH,
-    bottom: -halfH,
-  });
+  camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
   composer.setPixelRatio(renderer.getPixelRatio());
   composer.setSize(innerWidth, innerHeight);
-  view.w = innerWidth;
-  view.h = innerHeight;
-  view.scale = innerWidth / (halfW * 100);
-  view.dpr = renderer.getPixelRatio();
+  view.w = innerWidth; view.h = innerHeight; view.dpr = renderer.getPixelRatio();
+  cameraControl?.resize();
 }
-const focus = new THREE.Vector3(),
-  projection = new THREE.Vector3();
-function cameraUpdate() {
-  const close = params.get("close");
-  if (close === "house") focus.copy(logical(630, 440, 1));
-  else if (close === "pond") focus.copy(logical(999, 626, 0.1));
-  else if (close === "chickens") focus.copy(logical(620, 760, 0.3));
-  else if (/^-?\d+,\d+$/.test(close ?? "")) focus.copy(logical(...close.split(",").map(Number), 0.3));
-  else focus.set(Farm.pan / 50, 0, -0.5);
-  camera.position.copy(focus).add(new THREE.Vector3(5, 25, 24.5));
-  camera.lookAt(focus);
-  camera.updateMatrixWorld();
-}
+const projection = new THREE.Vector3();
+function cameraUpdate(dt = .016) { cameraControl?.update(dt); }
 function screen(x, y, height = 0) {
   projection.copy(logical(x, y, height)).project(camera);
   return {
     x: (projection.x * 0.5 + 0.5) * innerWidth,
     y: (-0.5 * projection.y + 0.5) * innerHeight,
+    visible: projection.z > -1 && projection.z < 1,
   };
 }
 function animateObjects(dt) {
@@ -813,25 +800,41 @@ function updateHide() {
     else v.set(0, 0, 0, 0);
   });
 }
+largerWorld = createWorld({scene, camera, quality, seed: game.state.seed});
+cameraControl = createCameraController({camera, canvas, game, Farm, view, params,
+  worldGeometry: {terrainHeight: largerWorld.heightAt, blocked: largerWorld.isBlocked, colliders: largerWorld.colliders},
+  isUIBlocked: () => !!(document.querySelector('#shop.open') || document.querySelector('#backpack:not([hidden])')),
+  onModeChange: () => { document.exitPointerLock?.(); },
+});
 farmLayer = createFarmLayer({ scene, camera, world, lights: buildingLights, footprints: G.FarmFootprints, registerLantern: (l) => windows.push(l), onFootprints: updateHide });
 const animals = createAnimalRenderer({ group: dynamicRoot, world, Farm, logical, henUniform, burst: G.burst });
 const bridge = createBridge(G, game);
 const juice = createJuice({ audio: AudioGarden });
-let input = null;
+let input = null, tutorial = null;
 const hud = createHud({
   game,
   audio: AudioGarden,
   onSelect: (k) => selectItem(k),
   onShop: () => (shop.isOpen ? shop.close() : shop.open(shop.tab)),
   onConfirm: () => input.confirm(),
-  onCancel: () => input.cancel(),
+  onCancel: () => input?.cancel(),
+  onMode: () => cameraControl.toggle(),
+  onHelp: () => tutorial?.help(),
+  onFlashlight: () => threats?.toggleFlashlight(),
 });
 const shop = createShop({ game, hud, juice, audio: AudioGarden, onKit: (kit) => input.startPlacement(kit) });
-input = createInput({ canvas, camera, G, game, hud, shop, farm: farmLayer, bridge, juice, screen });
-function selectItem(k) {
+input = createInput({ canvas, camera, G, game, hud, shop, farm: farmLayer, bridge, juice, screen, cameraControl,
+ onSelect: (k,index) => index != null ? hud.selectSlot(index,true) : selectItem(k),
+ onInventory: () => hud.toggleInventory(), onFlashlight: () => threats?.toggleFlashlight(),
+});
+threats = createThreats({scene,camera,renderer,game,cameraControl,bridge,animalRenderer:animals,hud,audio:AudioGarden,screen});
+tutorial = createTutorial({game,onMode:()=>cameraControl.setMode('fp'),onFence:()=>{hud.select('fence');}});
+
+function selectItem(k, index) {
+  if (!k) return;
   G.startAudio();
   if (k.startsWith("kit_")) return input.startPlacement(k);
-  if (["daisy", "tulip", "sunflower", "lavender", "cabbage", "egg", "milk"].includes(k)) return shop.open("sell", k);
+
   hud.select(k);
 }
 const bubbleUi = createBubbles({
@@ -869,7 +872,9 @@ game.on((e) => {
   } else if (e.type === "unlock") juice.flourish([ICONS[e.building], itemIcon(`animal_${e.sp}_f`)]);
   else if (e.type === "gift") {
     for (const k of Object.keys(e.items)) juice.fly(innerWidth / 2, innerHeight * 0.35, itemIcon(k), hud.slotEl(k));
-  } else if (e.type === "arrive" && e.sp !== "chicken") Farm.targetPan = herdHomeX[e.sp] - 700;
+  } else if (e.type === "arrive" && e.sp !== "chicken" && !cameraControl.isFirstPerson) cameraControl.focus(herdHomeX[e.sp],750,.4,28);
+  else if (e.type === "fencePlaced") { G.burst(e.x,e.y,"dust"); AudioGarden.pop?.(); }
+  else if (e.type === "scared") AudioGarden.wolfYelp?.();
   else if (e.type === "death") AudioGarden.soft?.();
 });
 bridge.sync(0, { initial: true });
@@ -915,11 +920,17 @@ function tick(now) {
     bridge.sync(dt);
     G.update(dt);
     Farm.update(dt);
+    bridge.constrain?.(dt);
     windTime.value = world.elapsed;
     lighting();
-    cameraUpdate();
+    cameraUpdate(dt);
+    input.update(dt);
+    largerWorld.update(dt,{night:currentNight,camera});
+    tutorial.update(dt,game.clock);
+    AudioGarden.worldAmbience?.(currentNight,largerWorld.brook.distanceTo(camera.position.x,camera.position.z),cameraControl.isFirstPerson);
     farmLayer.sync(game.state, dt);
     animateObjects(dt);
+    threats.update(dt,currentNight);
     particleUpdate();
     hud.update(game.state, game.clock);
     hud.setValid(farmLayer.ghostValid);
@@ -978,6 +989,7 @@ window.Garden = {
   input,
   farmLayer,
   animals,
+  cameraControl, camera, scene, renderer, largerWorld, threats, tutorial,
   state: () => game.state,
   clock: () => game.clock,
   advance(seconds, offline = false) {
@@ -1012,6 +1024,7 @@ window.Garden = {
       animals: game.state.animals.length,
       beds: game.state.beds.length,
       buildings: game.state.buildings.length,
+      world: largerWorld.stats, mode: cameraControl.isFirstPerson ? "fp" : "god",
       webgl: renderer.getContext().getParameter(renderer.getContext().VERSION),
     };
   },
