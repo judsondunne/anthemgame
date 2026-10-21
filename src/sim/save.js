@@ -3,7 +3,7 @@ import { BALANCE as B } from "../config/balance.js";
 import { SPECIES, CROPS, KITS, BUILDING_TYPES, SEEDS, FEEDS, GOODS } from "./catalog.js";
 import { createState, SCHEMA_VERSION } from "./sim.js";
 import { initializeInventory, syncInventory, SLOT_COUNT } from './inventory.js';
-import { dayIndex } from './clock.js';
+import { dayIndex, isNightAt } from './clock.js';
 
 export { SCHEMA_VERSION };
 const ITEM_KEYS = new Set([...SEEDS, ...FEEDS, ...GOODS, ...KITS, 'fence', 'gate']);
@@ -62,7 +62,13 @@ function fromV2(doc) {
   initializeInventory(next);
   return next;
 }
-const MIGRATIONS = { 0: fromV0, 1: fromV1, 2: fromV2 };
+function fromV3(doc) {
+  const open = !isNightAt(Number(doc.time) || 0);
+  const coops = { base: { doorOpen: open, doorProgress: open ? 1 : 0 } };
+  for (const b of doc.buildings || []) if (b.type === 'coop') coops[String(b.id)] = { doorOpen: open, doorProgress: open ? 1 : 0 };
+  return { ...doc, schemaVersion: 4, coops };
+}
+const MIGRATIONS = { 0: fromV0, 1: fromV1, 2: fromV2, 3: fromV3 };
 
 export function migrate(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw Error("not an object");
@@ -122,6 +128,11 @@ export function validate(doc) {
   s.buildings = (Array.isArray(doc.buildings) ? doc.buildings : [])
     .filter((b) => b && BUILDING_TYPES.includes(b.type) && Number.isInteger(b.gx) && Number.isInteger(b.gy))
     .map((b) => ({ id: Math.floor(num(b.id)), type: b.type, gx: b.gx, gy: b.gy }));
+  s.coops = {};
+  for (const key of ['base', ...s.buildings.filter(b => b.type === 'coop').map(b => String(b.id))]) {
+    const c = doc.coops?.[key], open = typeof c?.doorOpen === 'boolean' ? c.doorOpen : !isNightAt(s.time);
+    s.coops[key] = { doorOpen: open, doorProgress: clamp(num(c?.doorProgress, open ? 1 : 0), 0, 1) };
+  }
   s.animals = doc.animals
     .filter((a) => a && SPECIES.includes(a.sp) && ["f", "m"].includes(a.sex) && ["alive", "dead", "bones"].includes(a.state))
     .map((a) => ({
@@ -149,13 +160,18 @@ export function validate(doc) {
       ...(typeof a.indoors==='boolean'?{indoors:a.indoors}:{}),
       ...(typeof a.enteringCoop==='boolean'?{enteringCoop:a.enteringCoop}:{}),
       ...(typeof a.leavingCoop==='boolean'?{leavingCoop:a.leavingCoop}:{}),
+      ...(typeof a.sleeping==='boolean'?{sleeping:a.sleeping}:{}),
+      ...(typeof a.overflowRoost==='boolean'?{overflowRoost:a.overflowRoost}:{}),
+      ...(Number.isInteger(a.roostSlot)?{roostSlot:Math.max(0,a.roostSlot)}:{}),
       ...(typeof a.penned === 'boolean' ? { penned: a.penned } : {}),
       ...(typeof a.wandering === 'boolean' ? { wandering: a.wandering } : {}),
     }));
   s.pickups = (Array.isArray(doc.pickups) ? doc.pickups : [])
     .filter((p) => p && ["egg", "milk"].includes(p.kind) && Number.isFinite(p.x) && Number.isFinite(p.y))
     .slice(0, B.pickups.max)
-    .map((p) => ({ id: Math.floor(num(p.id)), kind: p.kind, x: p.x, y: p.y, t: num(p.t), from: p.from ?? null }));
+    .map((p) => ({ id: Math.floor(num(p.id)), kind: p.kind, x: p.x, y: p.y, t: num(p.t), from: p.from ?? null,
+      ...(p.nest === true ? { nest: true, coopId: Number.isInteger(p.coopId) ? p.coopId : null } : {}),
+    }));
   const fenceKeys = new Set();
   s.fences = (Array.isArray(doc.fences) ? doc.fences : []).filter(f => {
     if (!f || !Number.isInteger(f.gx) || !Number.isInteger(f.gy) || !['h', 'v'].includes(f.axis)) return false;

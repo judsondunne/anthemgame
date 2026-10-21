@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { S, B, DAY, fresh } from './helpers.js';
-const night = s => { s.time = S.clock.nextTimeAtHour(s.time, 22); s.predatorSchedule.lastNight = S.clock.dayIndex(s.time); s.player.mode = 'fp'; for(const a of s.animals)if(a.sp==='chicken')a.indoors=true; };
+const night = s => { s.time = S.clock.nextTimeAtHour(s.time, 22); s.predatorSchedule.lastNight = S.clock.dayIndex(s.time); s.player.mode = 'fp'; S.coopState(s).doorOpen=false; S.coopState(s).doorProgress=0; for(const a of s.animals)if(a.sp==='chicken')a.indoors=true; };
 function herd(s) { const a = S.spawnAnimal(s, 'cow', 'f'); a.x = -640; a.y = 690; return a; }
 function enclose(s) {
   for (let x = -20; x < -12; x++) for (const y of [26, 31]) s.fences.push({ id: s.nextId++, gx: x, gy: y, axis: 'h', gate: false, open: false });

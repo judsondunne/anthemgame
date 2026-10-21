@@ -25,7 +25,7 @@ export const BALANCE = {
   },
 
   save: {
-    schemaVersion: 3,
+    schemaVersion: 4,
     localDebounceMs: 2000,
     serverDebounceMs: 5000,
     requestTimeoutMs: 4000,
@@ -49,6 +49,10 @@ export const BALANCE = {
     injuryThreshold: 60, restSpeed: 0.65,
   },
   wandering: { chickenSpeed: 17, chickenDecisionSeconds: 9, speed: 9, chickenRadius: 72, herdRadius: 165, wanderRadius: 650, wanderChance: 0.24, decisionSeconds: 24, returnRadius: 30 },
+  movement: { stepHeight: .32, maxJumpTop: 1.2, swimSpeed: 1.6, wadeSpeed: 2.1, buoyancy: 8, floatEyeHeight: 1.05, waterDrag: 5, shoreStep: .45, rippleInterval: .45, diveDip: .85 },
+  waterBodies: { pond: { x: 5.98, z: -.792, rx: 3.02, rz: 2.376, surface: .12, maxDepth: 1.8, edgeDepth: .03 }, brook: { maxDepth: 1.65, edgeDepth: .08 } },
+  livestockWater: { visitChance: 1, visitSpeed: 100, durationSeconds: 32, decisionSeconds: 180, thirstRecovery: 12, startHour: 8, returnHour: 18 },
+  wildlife: { highCount: 16, lowCount: 7, activeDistance: 65, despawnDistance: 84, fleeDistance: 9, predatorFleeDistance: 13, wanderSpeed: .65, fleeSpeed: 3.4, hopHeight: .16, drinkHours: [5, 8, 17, 20], repathSeconds: 4 },
 
   start: {
     money: 1000,
@@ -118,7 +122,13 @@ export const BALANCE = {
   // Hungry/thirsty animals still produce, slower, so a broke farm can recover.
   neglect: { produceFactor: 0.5, urgentDays: 1, sadDays: 1.5, deathDays: 2, bonesDays: 0.5 },
   animals: { maxTotal: 30, radius: {chicken:12,cow:29,horse:32}, separation:3 },
-  coop: {callHour:18,runSpeed:32,doorRadius:28,roostSpacing:36,rowSpacing:22},
+  coop: {
+    callHour: 18, runSpeed: 46, doorRadius: 32, doorHalfWidth: 24,
+    roostSpacing: 36, rowSpacing: 22, roostColumns: 3,
+    roostBack: 23, arriveRadius: 5, exitDistance: 48,
+    doorAnimationSeconds: 1.4, lateEntryRadius: 80,
+    overflowDistance: 84, nestSpread: 22,
+  },
 
   buildings: {
     coop: { price: 400, max: 2, footprint: [4, 4], zone: "garden", capacity: { chicken: 6 }, produce: 1.5, fertility: 1.5 },
@@ -141,6 +151,9 @@ export const BALANCE = {
   softlock: { intervalSeconds: 45, seeds: { seed_daisy: 3 }, feedPerHungryAnimal: 1 },
 
   ui: {
+    iconPixels: 256, iconDprMax: 3, iconLogicalPixels: 96,
+    bubbleScaleMin: .76, bubbleScaleMax: 1.08, bubbleDistanceScale: 900,
+    inventoryHoldMs: 420, inventoryDragPixels: 7, renderEveryMs: 100,
     coinPopMs: 900,
     shakeMs: 420,
     holdToSellAllMs: 550,

@@ -1,13 +1,113 @@
+// Coop occupancy and door animation are simulation state; renderers only read it.
 import { BALANCE as B } from '../config/balance.js';
 import { housing } from './sim.js';
 import { BASE_COOP, frontOf, footprintOf, cellRect } from './layout.js';
-import { moveToward, navigateToward } from './movement.js';
+import { navigateToward } from './movement.js';
 import { isNightAt, hourAt } from './clock.js';
-export function coopFor(s,a,homes=housing(s).homes){const b=homes.get(a.id);if(b?.type==='coop'){const f=frontOf(b);return {id:b.id,x:f.x,y:f.y,door:{x:f.x,y:f.y+8},rect:cellRect(b.gx,b.gy,...footprintOf('coop'))};}return {id:null,x:BASE_COOP.x,y:BASE_COOP.y,door:{x:BASE_COOP.x,y:BASE_COOP.y+12},rect:{x0:220,x1:458,y0:728,y1:866}};}
-export function callChickensIn(s){const hour=hourAt(s.time);if(hour< B.coop.callHour && hour>=B.time.dawnHour)return {ok:false,reason:'daylight'};let n=0;for(const a of s.animals)if(a.sp==='chicken'&&a.state==='alive'){a.shelterRequested=true;n++;}s.events.push({type:'coopCall',count:n});return {ok:true,count:n};}
-export function coopEntryAllowed(s,a,x,y){if(a.sp!=='chicken'||(!a.shelterRequested&&!a.indoors&&!a.leavingCoop))return null;const c=coopFor(s,a);if(!a.enteringCoop&&!a.indoors&&!a.leavingCoop&&(Math.abs(x-c.door.x)>22||y<c.door.y-12))return null;if(x<c.rect.x0-5||x>c.rect.x1+5||y<c.rect.y0-5||y>c.rect.y1+5)return null;return c;}
-export function stepShelter(s,a,h,homes){if(a.sp!=='chicken')return false;const c=coopFor(s,a,homes),night=isNightAt(s.time),hour=hourAt(s.time);if(hour>=6&&hour< B.coop.callHour){a.enteringCoop=false;if(a.indoors){a.indoors=false;a.leavingCoop=true;}a.shelterRequested=false;if(a.leavingCoop){navigateToward(s,a,{x:c.door.x,y:c.door.y+42},B.coop.runSpeed,h,{avoidAnimals:true});if(a.y>c.door.y+30)a.leavingCoop=false;return true;}return false;}if(!a.shelterRequested&&!a.indoors)return false;
- const residents=s.animals.filter(q=>q.sp==='chicken'&&q.state==='alive'&&coopFor(s,q,homes).id===c.id).sort((p,q)=>p.id-q.id),slot=residents.findIndex(q=>q.id===a.id);const roost={x:c.x+((slot%3)-1)*B.coop.roostSpacing,y:c.y-23-Math.floor(slot/3)*B.coop.rowSpacing};
- const doorDistance=Math.hypot(a.x-c.door.x,(a.y-c.door.y)*1.65);if(!a.enteringCoop&&doorDistance<B.coop.doorRadius)a.enteringCoop=true;const target=a.enteringCoop?roost:Math.abs(a.x-c.door.x)>22?{x:c.door.x,y:c.rect.y1+24}:c.door;
- if(a.indoors)return true;navigateToward(s,a,target,B.coop.runSpeed,h,{avoidAnimals:true});if(a.enteringCoop&&Math.hypot(a.x-roost.x,(a.y-roost.y)*1.65)<4){a.indoors=true;a.x=roost.x;a.y=roost.y;}return true;
+
+const keyOf = id => id == null ? 'base' : String(id);
+const distance = (a, b) => Math.hypot(a.x - b.x, (a.y - b.y) * 1.65);
+
+export function coopState(s, id = null) {
+  s.coops ??= {};
+  return s.coops[keyOf(id)] ??= { doorOpen: !isNightAt(s.time), doorProgress: isNightAt(s.time) ? 0 : 1 };
+}
+
+export function coopFor(s, a, homes = housing(s).homes) {
+  const b = homes.get(a.id), placed = b?.type === 'coop';
+  const f = placed ? frontOf(b) : BASE_COOP;
+  const id = placed ? b.id : null;
+  const residents = s.animals.filter(q => q.sp === 'chicken' && q.state === 'alive' && (homes.get(q.id)?.id ?? null) === id).sort((p, q) => p.id - q.id);
+  const slot = residents.findIndex(q => q.id === a.id);
+  const capacity = placed ? B.buildings.coop.capacity.chicken : B.species.chicken.baseCapacity;
+  return {
+    id, x: f.x, y: f.y,
+    door: { x: f.x, y: f.y + (placed ? 8 : 12) },
+    rect: placed ? cellRect(b.gx, b.gy, ...footprintOf('coop')) : { x0: 220, x1: 458, y0: 728, y1: 866 },
+    capacity, slot, overflow: slot < 0 || slot >= capacity,
+  };
+}
+
+export function chickenSheltered(s, a) {
+  return a.sp === 'chicken' && !!a.indoors && !coopState(s, coopFor(s, a).id).doorOpen;
+}
+
+export function callChickensIn(s) {
+  const hour = hourAt(s.time);
+  if (hour < B.coop.callHour && hour >= B.time.dawnHour) return { ok: false, reason: 'daylight' };
+  let n = 0;
+  for (const a of s.animals) if (a.sp === 'chicken' && a.state === 'alive') { a.shelterRequested = true; n++; }
+  s.events.push({ type: 'coopCall', count: n });
+  return { ok: true, count: n };
+}
+
+export function stepCoops(s, h, homes = housing(s).homes) {
+  const night = isNightAt(s.time), hour = hourAt(s.time);
+  const evening = night || hour >= B.coop.callHour;
+  const ids = [null, ...s.buildings.filter(b => b.type === 'coop').map(b => b.id)];
+  for (const a of s.animals) if (a.sp === 'chicken' && a.state === 'alive' && evening) a.shelterRequested = true;
+  for (const id of ids) {
+    const door = coopState(s, id);
+    // Late birds may still use the door. Close behind the last arrival instead
+    // of trapping a hen outside, and reopen at dawn before anyone exits.
+    const arriving = s.animals.some(a => {
+      if (a.sp !== 'chicken' || a.state !== 'alive' || a.indoors) return false;
+      const c = coopFor(s, a, homes);
+      return c.id === id && !c.overflow && (a.enteringCoop || distance(a, c.door) < B.coop.lateEntryRadius);
+    });
+    const open = !night || arriving;
+    if (door.doorOpen !== open) s.events.push({ type: 'coopDoor', coopId: id, open });
+    door.doorOpen = open;
+    const delta = h / B.coop.doorAnimationSeconds;
+    door.doorProgress = Math.max(0, Math.min(1, door.doorProgress + (open ? delta : -delta)));
+  }
+}
+
+export function coopEntryAllowed(s, a, x, y) {
+  if (a.sp !== 'chicken' || (!a.shelterRequested && !a.indoors && !a.leavingCoop)) return null;
+  const c = coopFor(s, a);
+  if (c.overflow) return null;
+  if (!a.indoors && !a.leavingCoop && !coopState(s, c.id).doorOpen) return null;
+  if (!a.enteringCoop && !a.indoors && !a.leavingCoop && (Math.abs(x - c.door.x) > B.coop.doorHalfWidth || y < c.door.y - B.coop.doorRadius)) return null;
+  if (x < c.rect.x0 - B.coop.arriveRadius || x > c.rect.x1 + B.coop.arriveRadius || y < c.rect.y0 - B.coop.arriveRadius || y > c.rect.y1 + B.coop.arriveRadius) return null;
+  return c;
+}
+
+export function stepShelter(s, a, h, homes) {
+  if (a.sp !== 'chicken') return false;
+  const c = coopFor(s, a, homes), hour = hourAt(s.time);
+  const daytime = !isNightAt(s.time) && hour < B.coop.callHour;
+  if (daytime) {
+    a.enteringCoop = false; a.sleeping = false; a.overflowRoost = false;
+    if (a.indoors) { a.indoors = false; a.leavingCoop = true; }
+    a.shelterRequested = false;
+    if (a.leavingCoop) {
+      const exit = { x: c.door.x, y: Math.max(c.rect.y1, c.door.y) + B.coop.exitDistance };
+      navigateToward(s, a, exit, B.coop.runSpeed, h, { avoidAnimals: true });
+      if (distance(a, exit) < B.coop.arriveRadius) a.leavingCoop = false;
+      return true;
+    }
+    return false;
+  }
+  if (!a.shelterRequested && !a.indoors) return false;
+  a.roostSlot = c.slot;
+  a.overflowRoost = c.overflow;
+  if (c.overflow) {
+    a.indoors = false; a.enteringCoop = false;
+    const overflow = { x: c.door.x + ((c.slot - c.capacity) % B.coop.roostColumns - 1) * B.coop.roostSpacing, y: c.rect.y1 + B.coop.overflowDistance };
+    navigateToward(s, a, overflow, B.coop.runSpeed, h, { avoidAnimals: true });
+    a.sleeping = distance(a, overflow) < B.coop.arriveRadius;
+    return true;
+  }
+  const roost = { x: c.x + ((c.slot % B.coop.roostColumns) - 1) * B.coop.roostSpacing, y: c.y - B.coop.roostBack - Math.floor(c.slot / B.coop.roostColumns) * B.coop.rowSpacing };
+  if (a.indoors) { a.sleeping = true; return true; }
+  if (!coopState(s, c.id).doorOpen && a.enteringCoop) return true;
+  if (!a.enteringCoop && distance(a, c.door) < B.coop.doorRadius) a.enteringCoop = true;
+  const target = a.enteringCoop ? roost : Math.abs(a.x - c.door.x) > B.coop.doorHalfWidth ? { x: c.door.x, y: c.rect.y1 + B.coop.doorRadius } : c.door;
+  navigateToward(s, a, target, B.coop.runSpeed, h, { avoidAnimals: true });
+  if (a.enteringCoop && distance(a, roost) < B.coop.arriveRadius) {
+    a.indoors = true; a.sleeping = true; a.enteringCoop = false;
+    a.x = roost.x; a.y = roost.y;
+  }
+  return true;
 }

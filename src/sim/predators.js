@@ -5,10 +5,11 @@ import { cyclePosition, dayIndex, isNightAt } from './clock.js';
 import { nextRandom } from './rng.js';
 import { isPenned, fenceBlocked } from './fences.js';
 import { groundBlocked, moveToward } from './movement.js';
+import { chickenSheltered } from './shelter.js';
 
 const P = B.predators;
 const distance = (a, b) => Math.hypot(a.x - b.x, (a.y - b.y) * 1.65);
-const candidates = s => s.animals.filter(a => a.state === 'alive' && (['cow', 'horse'].includes(a.sp)||a.sp==='chicken'&&!a.indoors) && !isPenned(s, a));
+const candidates = s => s.animals.filter(a => a.state === 'alive' && (['cow', 'horse'].includes(a.sp)||a.sp==='chicken'&&!chickenSheltered(s,a)) && !isPenned(s, a));
 export function forcePredator(s, kind = 'wolf', options = {}) {
   if (!['wolf', 'bear'].includes(kind)) return { ok: false, reason: 'unknown' };
   const angle = nextRandom(s) * Math.PI * 2;

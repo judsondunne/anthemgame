@@ -9,6 +9,7 @@ import { initializeInventory, addInventory, inventoryCapacity } from './inventor
 import { stepPredators } from './predators.js';
 import { stepWandering } from './wandering.js';
 import { penAt } from './fences.js';
+import { coopFor, stepCoops } from './shelter.js';
 
 export const SCHEMA_VERSION = B.save.schemaVersion;
 
@@ -32,6 +33,7 @@ export function createState({ seed = B.start.seed } = {}) {
     inventoryOverflow: [],
     beds: [],
     buildings: [],
+    coops: { base: { doorOpen: true, doorProgress: 1 } },
     animals: [],
     pickups: [],
     fences: [],
@@ -220,9 +222,13 @@ function layProduct(s, a, h) {
   if (s.pickups.length >= B.pickups.max) return false;
   const home = homePoint(s, a, h);
   const near = a.sp === "chicken" ? { x: home.x + 10, y: home.y + 14 } : { x: home.x, y: home.y + 26 };
-  const p = scatterNear(s, lawnOf(a.sp), near, B.pickups.spread);
+  const coop = a.sp === 'chicken' ? coopFor(s, a, h.homes) : null;
+  // Nest pickups remain beside the door, reachable from either camera mode.
+  const nest = coop ? { x: coop.door.x + (a.id % 2 ? -1 : 1) * B.coop.nestSpread, y: coop.rect.y1 + B.coop.nestSpread } : null;
+  const p = coop ? nest : scatterNear(s, lawnOf(a.sp), near, B.pickups.spread);
   if (!p) return false;
   const pk = { id: newId(s), kind: B.species[a.sp].product, x: p.x, y: p.y, t: s.time, from: a.id };
+  if (coop) { pk.coopId = coop.id; pk.nest = true; }
   s.pickups.push(pk);
   s.events.push({ type: "pickup", id: pk.id, kind: pk.kind, from: a.id });
   return true;
@@ -351,6 +357,7 @@ function stepOnce(s, h, offline) {
 
   if (!offline) softlockStep(s, h);
   if (!offline) {
+    stepCoops(s, h, hs.homes);
     stepWandering(s, h, hs);
     stepPredators(s, h);
   }
