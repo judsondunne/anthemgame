@@ -5,14 +5,14 @@
     },
     {
       "name": "reload restores identical state",
-      "timeDelta": 0.51,
-      "gap": 0.82,
+      "timeDelta": 0.55,
+      "gap": 0.88,
       "animals": 6
     },
     {
       "name": "debounced push reached api/state",
       "rev": 1,
-      "seq": 2
+      "seq": 3
     },
     {
       "name": "server restart (redeploy) + empty browser storage restores the farm",
@@ -70,7 +70,7 @@
       "local": "unknown",
       "leader": true,
       "rev": 6,
-      "caughtUp": 3.951
+      "caughtUp": 3.873
     }
   ],
   "errors": [],

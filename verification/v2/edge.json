@@ -24,6 +24,9 @@
       "name": "feeding a full or dead animal consumes nothing"
     },
     {
+      "name": "tool decides between an animal and the pickup under her"
+    },
+    {
       "name": "housing cap: n/n numerals, greyed, refused",
       "cap": "4/4"
     },
