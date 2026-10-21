@@ -44,8 +44,8 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
         bestD = d;
       }
     };
+    // Eggs, milk and bones compete by distance: whichever the finger is nearest wins.
     for (const pk of s.pickups) consider("pickup", pk.id, pk.x, pk.y, 0.12, 30);
-    if (best) return best;
     for (const a of s.animals) if (a.state === "bones") consider("remains", a.id, a.x, a.y, 0.15, 40);
     if (best) return best;
     for (const [id, agent] of bridge.agents) {

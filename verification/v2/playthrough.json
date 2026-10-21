@@ -9,113 +9,29 @@
     },
     {
       "step": 2,
-      "name": "water the bed with the can",
-      "time": 22,
-      "money": 1000,
-      "animals": 2
+      "name": "neglected hen died: dead pose",
+      "time": 1520,
+      "money": 6354,
+      "animals": 2,
+      "action": "death",
+      "deadAt": true,
+      "dimmed": 1,
+      "visible": true,
+      "bubble": 1
     },
     {
       "step": 3,
-      "name": "plant a daisy seed",
-      "time": 23,
-      "money": 1000,
+      "name": "bones after half a game day",
+      "time": 1821,
+      "money": 6354,
       "animals": 2
     },
     {
       "step": 4,
-      "name": "tap unripe crop: wiggle only",
-      "time": 23,
-      "money": 1000,
+      "name": "tap the bones: cleared with a dust puff",
+      "time": 1822,
+      "money": 6354,
       "animals": 2
-    },
-    {
-      "step": 5,
-      "name": "fast-forward, harvest ripe daisies",
-      "time": 76,
-      "money": 1000,
-      "animals": 2,
-      "daisy": 3
-    },
-    {
-      "step": 6,
-      "name": "sell daisies in the market",
-      "time": 78,
-      "money": 1006,
-      "animals": 2,
-      "unit": 2
-    },
-    {
-      "step": 7,
-      "name": "buy tulip and wheat seeds",
-      "time": 81,
-      "money": 996,
-      "animals": 2
-    },
-    {
-      "step": 8,
-      "name": "plant wheat (for hay) and tulips",
-      "time": 82,
-      "money": 996,
-      "animals": 2
-    },
-    {
-      "step": 9,
-      "name": "buy a hen",
-      "time": 84,
-      "money": 936,
-      "animals": 3
-    },
-    {
-      "step": 10,
-      "name": "collect eggs",
-      "time": 289,
-      "money": 936,
-      "animals": 3,
-      "eggs": 4
-    },
-    {
-      "step": 11,
-      "name": "buy the coop and place it",
-      "time": 296,
-      "money": 518,
-      "animals": 3
-    },
-    {
-      "step": 12,
-      "name": "observe breeding: a chick hatched",
-      "time": 1207,
-      "money": 518,
-      "animals": 4,
-      "chick": 33
-    },
-    {
-      "step": 13,
-      "name": "observe growth: the chick grew up",
-      "time": 3048,
-      "money": 601,
-      "animals": 5
-    },
-    {
-      "step": 14,
-      "name": "buy the barn, then a cow",
-      "time": 5395,
-      "money": 29,
-      "animals": 9
-    },
-    {
-      "step": 15,
-      "name": "feed the cow with hay",
-      "time": 6046,
-      "money": 15,
-      "animals": 10,
-      "hay": 3
-    },
-    {
-      "step": 16,
-      "name": "buy the stable, then a horse",
-      "time": 13884,
-      "money": 11,
-      "animals": 12
     }
   ],
   "errors": [],

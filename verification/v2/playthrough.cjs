@@ -95,10 +95,11 @@ async function foodFor(sp) {
   return "feed_" + sp;
 }
 
-async function care({ starve = null } = {}) {
-  let list = (await needs()).filter((a) => a.id !== starve);
+async function care({ starve = null, skip = null } = {}) {
+  const keep = (a) => a.id !== starve && a.sp !== skip;
+  let list = (await needs()).filter(keep);
   const hens = list.filter((a) => a.sp === "chicken" && a.hungry);
-  if (hens.length && starve === null) {
+  if (hens.length && starve === null && skip !== "chicken") {
     await select(await foodFor("chicken"));
     await tapLogical(560, 790); // scatter grain on open lawn
   }
@@ -118,7 +119,7 @@ async function care({ starve = null } = {}) {
   }
   // Anyone still asking gets an individual tap.
   for (let round = 0; round < 3; round++) {
-    list = (await needs()).filter((a) => a.id !== starve && (a.hungry || a.thirsty));
+    list = (await needs()).filter((a) => keep(a) && (a.hungry || a.thirsty));
     if (!list.length) return;
     for (const a of list) {
       if (a.hungry) {
@@ -209,6 +210,19 @@ async function earn(target, crop, opts = {}) {
   assert((await S()).money >= target, `earned ${target}`);
 }
 
+// The player stops caring for the flock; cows and horses are still tended at
+// their troughs. The first hen to die is followed through dead pose and bones.
+let doomed = null;
+async function neglect() {
+  await lookAt(600);
+  assert((await S()).animals.some((a) => a.sp === "chicken" && a.state === "alive"), "a flock to neglect");
+  for (let i = 0; i < 30 && !doomed; i++) {
+    await play(90, { skip: "chicken" });
+    doomed = (await S()).animals.find((a) => a.sp === "chicken" && a.state === "dead") ?? null;
+  }
+  assert(doomed, "a neglected hen died");
+}
+
 async function placeKit(kit) {
   await buy(kit);
   await page.waitForTimeout(500);
@@ -232,6 +246,22 @@ async function placeKit(kit) {
     await shot("01-start");
     await record("fresh start: $1,000, one bed with daisies, hen + rooster, chicken feed");
 
+    if (process.env.FROM === "neglect") {
+      // Development shortcut only: jump to a late-game farm. Full runs never set FROM.
+      await page.evaluate(() => {
+        const st = Garden.state(),
+          Sim = Garden.Sim;
+        st.money = 9000;
+        for (const k of ["kit_coop", "kit_barn", "kit_stable"]) {
+          st.inv[k] = 1;
+          const sp = Sim.layout.bestSpot(st, k.slice(4));
+          Sim.place(st, k, sp.gx, sp.gy);
+        }
+        for (const k of ["animal_chicken_f", "animal_chicken_f", "animal_cow_f", "animal_horse_f"]) Sim.buy(st, k);
+        Sim.drainEvents(st);
+      });
+      await page.waitForTimeout(800);
+    } else {
     const bed = s.beds[0].id;
     await select("can");
     await tapThing("bed", bed);
@@ -383,11 +413,9 @@ async function placeKit(kit) {
     await page.waitForTimeout(800);
     await shot("07-horse");
     await record("buy the stable, then a horse");
+    }
 
-    // Neglect one hen until she dies; everyone else keeps being cared for.
-    await lookAt(600);
-    const doomed = (await S()).animals.find((a) => a.sp === "chicken" && a.state === "alive" && a.age >= 1);
-    for (let i = 0; i < 20 && (await S()).animals.find((a) => a.id === doomed.id).state === "alive"; i++) await play(90, { starve: doomed.id });
+    await neglect();
     s = await S();
     const dead = s.animals.find((a) => a.id === doomed.id);
     assert(dead.state === "dead", "the neglected hen died after two game days of unmet needs");
