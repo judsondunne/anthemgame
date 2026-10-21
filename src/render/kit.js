@@ -2,6 +2,7 @@
 // Nature / Graveyard module; nothing is hand-modelled.
 import * as THREE from "three";
 import { model } from "../../assets.js";
+import { createCottage } from "./cottage.js";
 
 export function piece(name, parent, x, y, z, sx = 1, sy = sx, sz = sx, rot = 0, tint) {
   const o = model(name, { raw: true, tint });
@@ -36,19 +37,7 @@ export function chickenCoop(lanterns=[]) {
 // Detailed source buildings retain their downloaded tiles, timber joints,
 // bevels and planks. Existing downloaded porch/window modules keep the farm's
 // familiar front entrance and warm, visible windows.
-function cottage(lanterns=[]){
- const g=new THREE.Group(),body=model('farm-cottage',{width:5.4,recolor:{Main:'#769184',Walls:'#c5c8ad',Stone:'#929888',Wood:'#947552',Wood_Light:'#b39a71'}});
- const size=new THREE.Box3().setFromObject(body).getSize(new THREE.Vector3());body.scale.z*=4.1/size.z;body.position.z=-2.05;g.add(body);
- for(const x of [-1.4,1.4])piece('wall-window-shutters',g,x,.28,-.42,.96,1.5,1.12,-Math.PI/2);
- piece('wall-door',g,0,.06,-.51,1.1,1.92,1.25,-Math.PI/2);
- for(let i=-1;i<=1;i++)piece('planks',g,i*1.7,.02,.65,1.7,.9,1.4);
- for(const x of [-2.25,2.25])piece('pillar-wood',g,x,.04,1.18,1.1,1.5,1.1);
- piece('roof-gable',g,0,1.5,.85,.82,.5,5.1,Math.PI/2);
- piece('stairs-wood',g,0,-.02,1.6,.55,.2,1.3,Math.PI/2);
- for(const x of [-1.75,1.75]){piece('balcony-wall-fence',g,x,.05,1.13,1,.65,1.1,-Math.PI/2);const pot=model('pot_small',{height:.34});pot.position.set(x,.67,1.21);g.add(pot);const plant=model('forest_flowers',{height:.48});plant.position.set(x,.92,1.21);g.add(plant);}
- const chimney=model('chimney',{height:1.05});chimney.position.set(1.2,2.65,-2.3);g.add(chimney);
- const lamp=model('lantern',{height:.45});lamp.position.set(1.82,1.2,.25);g.add(lamp);lanterns.push(lamp);g.userData.lantern=lamp;g.userData.depth=4.1;return g;
-}
+function cottage(lanterns=[]){return createCottage(lanterns);}
 function livestockHouse(type,lanterns=[]){
  const g=new THREE.Group(),stable=type==='stable',body=model('farm-barn',{width:4.75,recolor:stable?{DarkRed:'#819985',LightRed:'#9eb09a',White:'#e1d9bb',Brown:'#977958',RoofBlack:'#62796d'}:{DarkRed:'#b67866',LightRed:'#d49b82',White:'#e3d9bd',Brown:'#967452',RoofBlack:'#5b6d65'}});
  const size=new THREE.Box3().setFromObject(body).getSize(new THREE.Vector3());body.scale.z*=3.8/size.z;body.position.z=-1.9;g.add(body);

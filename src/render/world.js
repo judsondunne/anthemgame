@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { model, windTime } from '../../assets.js';
 import { WORLD as W } from '../config/world.js';
+import { waterAtWorld } from '../sim/water.js';
 
 const smooth = (a, b, x) => { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
 export const brookX = (z) => W.brook.x + Math.sin(z * .045) * W.brook.meander + Math.sin(z * .115) * 1.9;
@@ -23,7 +24,8 @@ export function terrainHeight(x, z) {
   const shore = 1 - smooth(brookWidth(z) + .1, brookWidth(z) + W.brook.shoreWidth, dist);
   const bed = brookHeight(z) - .40 + .66 * smooth(.4, brookWidth(z) + 1.0, dist);
   h = THREE.MathUtils.lerp(h, bed, shore);
-  return h;
+  const water=waterAtWorld(x,z);
+  return water?water.bottom:h;
 }
 function random(seed) { let x = seed >>> 0; return () => { x += 0x6D2B79F5; let t = Math.imul(x ^ x >>> 15, 1 | x); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function terrainMaterial() {

@@ -26,6 +26,10 @@ import { createAnimalRenderer } from "./src/render/animals.js";
 import { Game } from "./src/game/controller.js";
 import { createBridge } from "./src/game/bridge.js";
 import { createCameraController } from "./src/game/camera.js";
+import { createPlayerGeometry } from './src/game/surfaces.js';
+import { createWaterFeedback } from './src/render/water-feedback.js';
+import { waterAtWorld } from './src/sim/water.js';
+import { initializeItemIcons } from './src/ui/icon-studio.js';
 import { createSkyMaterial } from "./src/render/sky.js";
 import { terrainHeight, createWorld } from "./src/render/world.js";
 import { createThreats } from "./src/render/threats.js";
@@ -155,9 +159,11 @@ function place(o, x, y, h = 0) {
   return o;
 }
 await loadAssets();
+await initializeItemIcons(renderer);
 // Every architectural component below is a downloaded GLB module (see kit.js).
 const house = place(building({}, windows), 630, 460);
 house.scale.setScalar(1.03);
+const cottage = house.userData.cottage;
 const coop = place(building({ coop: true }, windows), 320, 818);
 coop.scale.setScalar(1);
 lantern.position.copy(logical(715, 476, 1.8));
@@ -319,6 +325,9 @@ for (const [x, y] of [
   place(model("pot_small", { height: 0.4 }), x, y);
   place(model("flower_redA", { height: 0.6, sway: true }), x, y, 0.3);
 }
+for(const[name,x,y,width]of[['forest_stump',1150,810,1.0],['log_large',150,925,1.4],['hay-bale',410,845,.9],['interior-benchCushion',785,485,1.45]]){
+  const rest=place(model(name,{width}),x,y);rest.rotation.y=name.includes('bench')?-.15:.4;
+}
 // Layered borders reuse the same downloaded botanical family. They form the
 // hedge between the farm land and the two pastures.
 for (let i = 0; i < 75; i++) {
@@ -378,7 +387,7 @@ vec3 mDir=normalize(vec3(uMoon.x,max(.15,uMoon.y),-abs(uMoon.z)));vec3 sDir=norm
 c+=vec3(.86,.91,1.)*pow(max(0.,dot(refl,mDir)),180.)*uNight*1.3+vec3(1.,.8,.52)*pow(max(0.,dot(refl,sDir)),140.)*(1.-uNight)*(.25+uGold*.9);float shore=smoothstep(1.,.82,d);gl_FragColor=vec4(c,.28+shore*.24);}`,
 });
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(6.1, 4.8),
+  new THREE.PlaneGeometry(6.1, 4.8, 42, 36),
   new THREE.MeshStandardMaterial({ color: "#548c80", roughness: 1 }),
 );
 floor.material.onBeforeCompile = (s) => {
@@ -386,7 +395,7 @@ floor.material.onBeforeCompile = (s) => {
   s.vertexShader = "varying vec2 vFloor;\n" + s.vertexShader;
   s.vertexShader = s.vertexShader.replace(
     "#include <begin_vertex>",
-    "#include <begin_vertex>\n vFloor=position.xy;",
+    "#include <begin_vertex>\n vFloor=position.xz;",
   );
   s.fragmentShader =
     "uniform float uTime;varying vec2 vFloor;\n" + s.fragmentShader;
@@ -395,8 +404,11 @@ floor.material.onBeforeCompile = (s) => {
     "#include <color_fragment>\n diffuseColor.rgb+=pow(max(0.,sin(vFloor.x*9.+uTime)*sin(vFloor.y*11.-uTime*.7)),14.)*.19;",
   );
 };
-floor.rotation.x = -Math.PI / 2;
-floor.position.copy(logical(999, 626, -0.57));
+floor.geometry.rotateX(-Math.PI/2);
+const floorOrigin=logical(999,626).clone(),floorPositions=floor.geometry.attributes.position;
+for(let i=0;i<floorPositions.count;i++){const waterVolume=waterAtWorld(floorOrigin.x+floorPositions.getX(i),floorOrigin.z+floorPositions.getZ(i));floorPositions.setY(i,waterVolume?.bottom??-.02);}
+floor.geometry.computeVertexNormals();
+floor.position.copy(floorOrigin);
 root.add(floor);
 const water = new THREE.Mesh(new THREE.PlaneGeometry(6.24, 4.92), waterMat);
 water.rotation.x = -Math.PI / 2;
@@ -450,6 +462,7 @@ while (gi < VISUAL.grass.high) {
     lx = x * 50 + 700,
     ly = (z * 50) / 1.65 + 650;
   if (
+    cottage.contains(x,z) ||
     G.inPond(lx, ly, 10) ||
     G.insideBed(lx, ly, 8) ||
     (Math.abs(x - (-1.2 + Math.sin(z * 0.29) * 0.55)) < 0.9 && z > -6) ||
@@ -469,6 +482,7 @@ scene.add(grass);
 // Batch repeated static meshes by shared material while retaining downloaded topology.
 root.updateMatrixWorld(true);
 const staticBatches = new Map();
+root.traverse(o=>{if(o.userData.asset&&/stone|rock|boulder|log|stump|hay-bale|bench|stairs|trough|bowl-cereal/.test(o.userData.asset)){const b=new THREE.Box3().setFromObject(o);if(!b.isEmpty())o.userData.surfaceBounds={min:b.min.toArray(),max:b.max.toArray()};}});
 root.traverse((o) => {
   if (
     !o.isMesh ||
@@ -481,7 +495,7 @@ root.traverse((o) => {
   let p = o,
     lanternPart = false;
   while (p && p !== root) {
-    if (p.userData.asset === "lantern") lanternPart = true;
+    if (p.userData.asset === "lantern" || p.userData.dynamicArchitecture) lanternPart = true;
     p = p.parent;
   }
   if (lanternPart) return;
@@ -809,15 +823,17 @@ largerWorld = createWorld({scene, camera, quality, seed: game.state.seed});
 largerWorld.colliders.push(...propertyColliders);
 function bindWorldCollision(){Sim.setWorldColliders(game.state,largerWorld.colliders.map(c=>({x:c.x*50+700,y:c.z*50/1.65+650,r:c.radius*50})));}
 bindWorldCollision();
+const playerGeometry=createPlayerGeometry({world:largerWorld,cottage,scene,getState:()=>game.state});
 cameraControl = createCameraController({camera, canvas, game, Farm, view, params,
-  worldGeometry: {terrainHeight: largerWorld.heightAt, blocked: largerWorld.isBlocked, colliders: largerWorld.colliders},
+  worldGeometry: playerGeometry,
   onPointerUnlock: () => pause?.set(true),
   isUIBlocked: () => game.paused || !!(document.querySelector('#shop.open') || document.querySelector('#backpack:not([hidden])')),
   onModeChange: () => { document.exitPointerLock?.(); },
 });
 farmLayer = createFarmLayer({ scene, camera, world, lights: buildingLights, footprints: G.FarmFootprints, registerLantern: (l) => windows.push(l), onFootprints: updateHide });
 const animals = createAnimalRenderer({ group: dynamicRoot, world, Farm, logical, henUniform, burst: G.burst, camera, getQuality:()=>quality });
-const bridge = createBridge(G, game);
+const bridge = createBridge(G, game, {heightAt:largerWorld.heightAt});
+const waterFeedback=createWaterFeedback({scene,cameraControl,getState:()=>game.state,audio:AudioGarden});
 const juice = createJuice({ audio: AudioGarden });
 let input = null, tutorial = null;
 const hud = createHud({
@@ -832,7 +848,7 @@ const hud = createHud({
   onFlashlight: () => threats?.toggleFlashlight(),
 });
 const shop = createShop({ game, hud, juice, audio: AudioGarden, onKit: (kit) => input.startPlacement(kit) });
-input = createInput({ canvas, camera, G, game, hud, shop, farm: farmLayer, bridge, juice, screen, cameraControl,
+input = createInput({ canvas, camera, G, game, hud, shop, farm: farmLayer, bridge, juice, screen, cameraControl, cottage,
  onSelect: (k,index) => index != null ? hud.selectSlot(index,true) : selectItem(k),
  onInventory: () => {shop.close();hud.toggleInventory();}, onFlashlight: () => threats?.toggleFlashlight(),
  onPause:()=>pause.toggle(),onMode:()=>cameraControl.toggle(),
@@ -939,6 +955,8 @@ function tick(now) {
     if(!game.paused)cameraUpdate(dt);
     input.update(dt);
     largerWorld.update(dt,{night:currentNight,camera});
+    cottage.update(dt,{cameraControl,night:currentNight});
+    waterFeedback.update(dt);
     tutorial.update(dt,game.clock);
     if(frameCount%6===0)cropInfo.update();
     AudioGarden.worldAmbience?.(currentNight,largerWorld.brook.distanceTo(camera.position.x,camera.position.z),cameraControl.isFirstPerson);
@@ -1011,7 +1029,7 @@ window.Garden = {
     Sim.tick(game.state, seconds, { offline });
     game.pump();
   },
-  pause, heldItem,
+  pause, heldItem, cottage, playerGeometry, waterFeedback,
   timescale: (n) => game.setTimescale(n),
   anchor: anchorScreen,
   save: () => game.persist.flush(game.state),
