@@ -4,13 +4,11 @@ const { spawnSync } = require("node:child_process");
 const path = require("node:path");
 const L = require("./lib.cjs");
 
+// A failing gate throws so the shared server below is still stopped.
 const run = (label, args, env = {}) => {
   console.log(`\n=== ${label} ===`);
   const r = spawnSync(process.execPath, args, { cwd: L.ROOT, stdio: "inherit", env: { ...process.env, ...env } });
-  if (r.status !== 0) {
-    console.error(`✗ ${label} failed`);
-    process.exit(r.status ?? 1);
-  }
+  if (r.status !== 0) throw Object.assign(new Error(`✗ ${label} failed`), { status: r.status ?? 1 });
 };
 
 (async () => {
@@ -27,4 +25,7 @@ const run = (label, args, env = {}) => {
     await server.stop();
   }
   console.log("\nAll gates passed.");
-})();
+})().catch((e) => {
+  console.error(e.message);
+  process.exitCode = e.status ?? 1;
+});
