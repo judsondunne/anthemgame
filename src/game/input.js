@@ -212,7 +212,10 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
       if (agent.sp === "chicken") {
         agent.path = [];
         agent.pause = 2;
-      } else agent.happy = 3;
+      } else {
+        agent.happy = 3;
+        game.act("callAnimal", a.id);
+      }
       G.burst(agent.x, agent.y - (agent.sp === "chicken" ? 40 : 70), "heart");
       world.needs = world.needs.filter((n) => n.target !== agent);
       return;
