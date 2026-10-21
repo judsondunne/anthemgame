@@ -14,18 +14,23 @@ const overshoot = (t) => {
   return 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
 };
 
+const CROP_SCALE = 1.3;
 // Downloaded models for each crop at seedling / growing / ripe.
 function cropModel(crop, stage) {
   const g = new THREE.Group();
   const add = (name, opts, x = 0, y = 0, z = 0, ry = 0) => {
-    const o = model(name, { sway: true, ...opts });
+    const size = {};
+    if (opts.height) size.height = opts.height * CROP_SCALE;
+    if (opts.width) size.width = opts.width * CROP_SCALE;
+    const o = model(name, { sway: true, ...opts, ...size });
+    y *= CROP_SCALE;
     o.position.set(x, y, z);
     o.rotation.y = ry;
     g.add(o);
     return o;
   };
   if (stage === 0) {
-    add(crop === "wheat" ? "crops_wheatStageA" : "crops_leafsStageA", { height: crop === "wheat" ? 0.2 : 0.26 });
+    add(crop === "wheat" ? "crops_wheatStageA" : "crops_leafsStageA", { height: crop === "wheat" ? 0.24 : 0.3 });
     return g;
   }
   if (stage === 1) {
@@ -103,10 +108,21 @@ export function createFarmLayer(ctx) {
     dirt.scale.z *= 1.06;
     ownMaterials(dirt);
     g.add(dirt);
-    for (const s of [-1, 1]) {
-      const log = model("log", { width: 0.22 });
-      log.position.set(s * 1.35, 0.05, 1.25);
-      log.rotation.y = Math.PI / 2;
+    // A low log frame so the bed reads as one planted plot.
+    const halfW = (w * 0.8) / 2 - 0.05,
+      halfD = (h * 0.8) / 2 + 0.02;
+    for (const sz of [-1, 1])
+      for (const sx of [-1, 1]) {
+        const log = model("log", { width: 0.2 });
+        log.position.set(sx * halfW * 0.5, 0.04, sz * halfD);
+        log.rotation.y = Math.PI / 2;
+        log.scale.z *= 2.05;
+        g.add(log);
+      }
+    for (const sx of [-1, 1]) {
+      const log = model("log", { width: 0.2 });
+      log.position.set(sx * halfW, 0.04, 0);
+      log.scale.z *= 2.1;
       g.add(log);
     }
     const plots = bed.plots.map((_, i) => {
@@ -146,7 +162,7 @@ export function createFarmLayer(ctx) {
 
   function remainsObject(a) {
     const g = new THREE.Group();
-    const size = a.sp === "chicken" ? 0.42 : a.sp === "cow" ? 1.0 : 1.1;
+    const size = a.sp === "chicken" ? 0.62 : a.sp === "cow" ? 1.2 : 1.3;
     const rib = model("ribcage", { width: size });
     // Plain bone-white instead of the atlas' tan, same downloaded geometry.
     rib.traverse((m) => {
@@ -171,8 +187,8 @@ export function createFarmLayer(ctx) {
   // ---------- placement ghost and grid ----------
   // Lit, translucent tints keep the building's shape readable while placing.
   const ghostMats = {
-    ok: new THREE.MeshLambertMaterial({ color: "#b9f0b0", emissive: "#2f6a2c", transparent: true, opacity: 0.6, depthWrite: false }),
-    bad: new THREE.MeshLambertMaterial({ color: "#ffb2a8", emissive: "#7a2a22", transparent: true, opacity: 0.6, depthWrite: false }),
+    ok: new THREE.MeshLambertMaterial({ color: "#c6f2bd", emissive: "#1f4d1c", transparent: true, opacity: 0.78 }),
+    bad: new THREE.MeshLambertMaterial({ color: "#ffb8ad", emissive: "#5c1f19", transparent: true, opacity: 0.78 }),
   };
   const cellGeo = new THREE.PlaneGeometry(0.72, 0.72).rotateX(-Math.PI / 2);
   const cellMat = new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 0.32, depthWrite: false });
@@ -233,7 +249,7 @@ export function createFarmLayer(ctx) {
     } else toWorld((placing.gx + w / 2) * CELL_X, (placing.gy + h) * CELL_Y, 0, ghost.g.position);
     ghost.g.position.y = 0.02 + Math.sin(now * 4) * 0.03;
     const mat = check.ok ? ghostMats.ok : ghostMats.bad;
-    mat.opacity = 0.45 + Math.sin(now * 5) * 0.08;
+    mat.opacity = 0.7 + Math.sin(now * 5) * 0.08;
     ghost.g.traverse((o) => o.isMesh && (o.material = mat));
     check.cells.forEach((c, i) => {
       toWorld((c.gx + 0.5) * CELL_X, (c.gy + 0.5) * CELL_Y, 0.03, tmp.position);
@@ -283,9 +299,9 @@ export function createFarmLayer(ctx) {
         slot.obj.position.y = stage === 2 ? Math.abs(Math.sin(now * 2.2 + i)) * 0.03 : 0;
         // Ripe cue: rising golden sparkles.
         if (stage === 2 && (slot.sparkle -= dt) < 0) {
-          slot.sparkle = 0.45 + Math.random() * 0.5;
+          slot.sparkle = 0.28 + Math.random() * 0.35;
           const pp = plotPosition(bed, i);
-          world.particles.push({ x: pp.x + (Math.random() - 0.5) * 20, y: pp.y, vx: (Math.random() - 0.5) * 8, vy: -14 - Math.random() * 10, life: 1.4, kind: "sparkle", size: 4 });
+          world.particles.push({ x: pp.x + (Math.random() - 0.5) * 22, y: pp.y - 6, vx: (Math.random() - 0.5) * 8, vy: -16 - Math.random() * 12, life: 1.6, kind: "sparkle", size: 4 });
         }
       });
     }

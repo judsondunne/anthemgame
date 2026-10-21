@@ -38,19 +38,23 @@ for (const f of files) {
     triangles += tris;
   }
 }
-const code = fs.readFileSync("scene.js", "utf8");
-const constructors = [
-  ...code.matchAll(/new THREE\.([A-Za-z]*Geometry)\(([^;]*)/g),
-].map((m) => m[0]);
-assert(
-  constructors.every(
-    (x) =>
-      x.includes("PlaneGeometry") ||
-      x.includes("SphereGeometry") ||
-      x.includes("BufferGeometry"),
-  ),
+// Every generated geometry in the codebase, with its purpose. Solid objects
+// must come from downloaded models; only surfaces/overlays may be generated.
+const sources = ["scene.js", "assets.js", ...["src/render", "src/ui", "src/game"].flatMap((d) => fs.readdirSync(d).filter((f) => f.endsWith(".js")).map((f) => d + "/" + f))];
+const constructors = sources.flatMap((file) =>
+  [...fs.readFileSync(file, "utf8").matchAll(/new THREE\.([A-Za-z]*Geometry)\(([^;]*)/g)].map((m) => ({ file, kind: m[1], text: m[0].slice(0, 70) })),
 );
-assert.equal(constructors.length, 6);
+const ALLOWED = {
+  "scene.js": { PlaneGeometry: 6, SphereGeometry: 1, BufferGeometry: 1 }, // ground, pond floor, water, grass blade, 2 hidden shader warm-up planes; sky dome; particle points
+  "src/render/farm-layer.js": { PlaneGeometry: 1 }, // placement-grid cell overlay
+};
+const counts = {};
+for (const c of constructors) {
+  counts[c.file] ??= {};
+  counts[c.file][c.kind] = (counts[c.file][c.kind] ?? 0) + 1;
+}
+assert.deepEqual(counts, ALLOWED, "generated geometry outside the allowlist: " + JSON.stringify(counts));
+const code = fs.readFileSync("scene.js", "utf8");
 assert(/const\s+particles\s*=\s*new THREE\.Points\(pg,\s*pm\)/.test(code));
 assert(
   !fs.readFileSync("assets.js", "utf8").includes("new THREE.BufferGeometry"),
@@ -62,7 +66,7 @@ const out = {
   geometryConstructors: constructors,
   licenses: "All CC0-1.0; every GLB has source, path and triangle ledger entry",
   proceduralGeometry:
-    "5 allowed surfaces only: ground, pond floor, water, instanced grass blade, sky dome. Particle BufferGeometry stores point positions only.",
+    "Allowed surfaces only: ground, pond floor, water, instanced grass blade, sky dome, placement-grid cell overlay, two hidden shader warm-up planes. Particle BufferGeometry stores point positions only. Every solid object is a downloaded model.",
 };
 fs.writeFileSync("verification/asset-audit.json", JSON.stringify(out, null, 2));
 console.log(JSON.stringify(out, null, 2));

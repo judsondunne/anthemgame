@@ -6,8 +6,10 @@ import path from "node:path";
 
 export const SAVE_PATHNAME = "farm/save.json";
 
+// Configured when either a read-write token is set or the store is connected
+// to the project (BLOB_STORE_ID + Vercel OIDC, which the SDK picks up itself).
 export function blobStore(env = process.env) {
-  if (!env.BLOB_READ_WRITE_TOKEN) return null;
+  if (!env.BLOB_READ_WRITE_TOKEN && !env.BLOB_STORE_ID) return null;
   const access = env.BLOB_ACCESS === "public" ? "public" : "private";
   let sdk;
   const load = async () => (sdk ??= await import("@vercel/blob"));

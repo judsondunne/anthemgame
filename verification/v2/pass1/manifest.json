@@ -1,0 +1,326 @@
+{
+  "manifest": [
+    {
+      "name": "01-fresh-start",
+      "url": "fresh=1&nosync=1&seed=5&time=9",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "first load: $1,000, one bed, hen and rooster",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "02-toolbar-items",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "hotbar: tools, seeds, feed, hay, kit, goods with count badges; tulip seeds selected",
+      "textOk": true,
+      "text": "1,000 4 3 6 4 3 6 5 12 1 7 3 9 2"
+    },
+    {
+      "name": "03-shop-buy",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "market buy tab at start",
+      "textOk": true,
+      "text": "1,000 4 3 6 1,000 1 4 1 3 3 5 8 12 6 6 10 16 60 2/4 50 2/4 300 0/0 250 0/0 2,200 0/0 2,000 0/0 100 1 400 900 2,500"
+    },
+    {
+      "name": "04-shop-sell",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "market sell tab: unit price, drift arrows, sell-all",
+      "textOk": true,
+      "text": "1,000 4 3 6 9 6 4 3 11 2 1,000 2 6 1 9 6 4 24 3 5 11 74 2 30 1 25 1"
+    },
+    {
+      "name": "05-locked-cows-horses",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "cows and horses greyed with padlock + barn/stable icon",
+      "textOk": true,
+      "text": "1,000 4 3 6 1,000 1 4 1 3 3 5 8 12 6 6 10 16 60 2/4 50 2/4 300 0/0 250 0/0 2,200 0/0 2,000 0/0 100 1 400 900 2,500"
+    },
+    {
+      "name": "06-unlocked-after-barn",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "after placing the barn: cow tiles unlocked (padlock pops), horses still locked",
+      "textOk": true,
+      "text": "2,400 4 3 6 2,400 1 4 1 3 3 5 8 12 6 6 10 16 60 2/4 50 2/4 300 0/4 250 0/4 2,200 0/0 2,000 0/0 100 1 400 900 1 2,500"
+    },
+    {
+      "name": "07-unlock-flourish",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "level-up style flourish when the barn unlocks cows",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "08-placement-valid",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "coop ghost on a valid spot (green) over the zone grid",
+      "textOk": true,
+      "text": "600 4 3 6 1 1,000 1 4 1 3 3 5 8 12 6 6 10 16 60 2/4 50 2/4 300 0/0 250 0/0 2,200 0/0 2,000 0/0 100 1 400 900 2,500"
+    },
+    {
+      "name": "09-placement-invalid",
+      "url": "fresh=1&nosync=1&seed=5&time=10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "ghost over the pond (red), confirm button greyed",
+      "textOk": true,
+      "text": "600 4 3 6 1 1,000 1 4 1 3 3 5 8 12 6 6 10 16 60 2/4 50 2/4 300 0/0 250 0/0 2,200 0/0 2,000 0/0 100 1 400 900 2,500"
+    },
+    {
+      "name": "10-crop-stages",
+      "url": "fresh=1&nosync=1&seed=5&time=10&close=470,640",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "three beds, top to bottom: seedling, growing, ripe; columns are the six crops",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "11-ripe-cue",
+      "url": "fresh=1&nosync=1&seed=5&time=10&close=380,610",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "ripe bed: golden sparkles, ripe bubble",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "12-babies-vs-adults",
+      "url": "fresh=1&nosync=1&seed=5&time=10&close=610,760",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "chick (cube chick), half-grown chick, hen; calf vs cow; foal vs horse (scaled, lighter)",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "13-urgent-bubble",
+      "url": "fresh=1&nosync=1&seed=5&time=10&close=600,780",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "urgent need: warm red pulsing bubble",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "14-dying-animal",
+      "url": "fresh=1&nosync=1&seed=5&time=10&close=600,780",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "sad: drooped, slowed, urgent bubble",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "15-dead-animal",
+      "url": "fresh=1&nosync=1&seed=5&time=10&close=600,780",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "dead: death clip held, muted colours, no bubble",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "16-bones",
+      "url": "fresh=1&nosync=1&seed=5&time=10&close=600,780",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "bones prop where the hen fell",
+      "textOk": true,
+      "text": "1,000 4 3 6"
+    },
+    {
+      "name": "17-full-farm-golden-hour",
+      "url": "fresh=1&nosync=1&seed=5&time=17.7",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "thriving full farm, golden hour",
+      "textOk": true,
+      "text": "40,060 4 3 8 12 18 10 8 14 9 5 23 6"
+    },
+    {
+      "name": "18-night-buildings-lit",
+      "url": "fresh=1&nosync=1&seed=5&time=22.5",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "night: cottage, coops lit; fireflies",
+      "textOk": true,
+      "text": "40,060 4 3 8 12 18 10 8 14 9 5 23 6"
+    },
+    {
+      "name": "19-night-pastures-lit",
+      "url": "fresh=1&nosync=1&seed=5&time=22.5",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "night: both barns lit, herd sheltered",
+      "textOk": true,
+      "text": "40,060 4 3 8 12 18 10 8 14 9 5 23 6"
+    },
+    {
+      "name": "20-full-farm-cows",
+      "url": "fresh=1&nosync=1&seed=5&time=16",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "cow pasture with two barns",
+      "textOk": true,
+      "text": "40,060 4 3 8 12 18 10 8 14 9 5 23 6"
+    },
+    {
+      "name": "21-full-farm-horses",
+      "url": "fresh=1&nosync=1&seed=5&time=16",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "horse meadow with two stables",
+      "textOk": true,
+      "text": "40,060 4 3 8 12 18 10 8 14 9 5 23 6"
+    },
+    {
+      "name": "22-mobile-toolbar",
+      "url": "fresh=1&nosync=1&seed=5&time=11",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "note": "mobile 390x844 hotbar",
+      "textOk": true,
+      "text": "1,000 4 3 6 2 6 5 8 4 12 3"
+    },
+    {
+      "name": "23-mobile-shop-buy",
+      "url": "fresh=1&nosync=1&seed=5&time=11",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "note": "mobile market buy",
+      "textOk": true,
+      "text": "1,000 4 3 6 1,000 1 4 1 3 3 5 8 12 6 6 10 16 60 2/4 50 2/4 300 0/0 250 0/0 2,200 0/0 2,000 0/0 100 1 400 900 2,500"
+    },
+    {
+      "name": "24-mobile-shop-sell",
+      "url": "fresh=1&nosync=1&seed=5&time=11",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "note": "mobile market sell",
+      "textOk": true,
+      "text": "1,000 4 3 6 9 6 4 11 2 1,000 2 6 1 9 6 4 5 11 74 2 30 1 25 1"
+    },
+    {
+      "name": "22-desktop-toolbar",
+      "url": "fresh=1&nosync=1&seed=5&time=11",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "desktop 1440x900 hotbar",
+      "textOk": true,
+      "text": "1,000 4 3 6 2 6 5 8 4 12 3"
+    },
+    {
+      "name": "23-desktop-shop-buy",
+      "url": "fresh=1&nosync=1&seed=5&time=11",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "desktop market buy",
+      "textOk": true,
+      "text": "1,000 4 3 6 1,000 1 4 1 3 3 5 8 12 6 6 10 16 60 2/4 50 2/4 300 0/0 250 0/0 2,200 0/0 2,000 0/0 100 1 400 900 2,500"
+    },
+    {
+      "name": "24-desktop-shop-sell",
+      "url": "fresh=1&nosync=1&seed=5&time=11",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "desktop market sell",
+      "textOk": true,
+      "text": "1,000 4 3 6 9 6 4 11 2 1,000 2 6 1 9 6 4 5 11 74 2 30 1 25 1"
+    },
+    {
+      "name": "25-juice-coin-pop",
+      "url": "fresh=1&nosync=1&seed=5&time=11",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "coin pop flying to the money pill after selling eggs",
+      "textOk": true,
+      "text": "+60 1,060 4 3 6 1,060 30 1 25 1"
+    },
+    {
+      "name": "26-juice-harvest",
+      "url": "fresh=1&nosync=1&seed=5&time=11&close=380,610",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "note": "harvest: sparkles burst, lavender icons fly to the hotbar",
+      "textOk": true,
+      "text": "1,000 4 3 6 6"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "failed": []
+}

@@ -43,7 +43,17 @@ async function open(context, url, label) {
 
 async function tap(page, selector, { touch = false } = {}) {
   const l = page.locator(selector).first();
-  await l.scrollIntoViewIfNeeded();
+  try {
+    await l.scrollIntoViewIfNeeded({ timeout: 6000 });
+  } catch (e) {
+    const info = await page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      const r = el?.getBoundingClientRect();
+      return { exists: !!el, rect: r && [r.x, r.y, r.width, r.height], slots: [...document.querySelectorAll(".slot")].map((x) => x.dataset.key), shop: Garden.shop.isOpen, placing: Garden.state().ui.placing };
+    }, selector);
+    await page.screenshot({ path: path.join(OUT, "tap-failure.png") });
+    throw Error("tap failed " + selector + " " + JSON.stringify(info));
+  }
   await page.waitForTimeout(60);
   const b = await l.boundingBox();
   if (!b) throw Error("not visible: " + selector);
@@ -51,7 +61,7 @@ async function tap(page, selector, { touch = false } = {}) {
     y = b.y + b.height / 2;
   if (touch) await page.touchscreen.tap(x, y);
   else await page.mouse.click(x, y);
-  await page.waitForTimeout(90);
+  await page.waitForTimeout(70);
 }
 
 async function tapAt(page, p, { touch = false } = {}) {

@@ -10,7 +10,7 @@ import { blobStore, fileStore } from "../src/server/stores.js";
 const root = path.resolve(process.env.DIST_DIR || "dist");
 const port = Number(process.env.PORT || 8095);
 const env = { SAVE_KEY: process.env.SAVE_KEY ?? "dev-save-key" };
-const store = process.env.BLOB_READ_WRITE_TOKEN ? blobStore(process.env) : fileStore(path.resolve(process.env.MOCK_BLOB_DIR || ".data/mock-blob"));
+const store = process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID ? blobStore(process.env) : fileStore(path.resolve(process.env.MOCK_BLOB_DIR || ".data/mock-blob"));
 const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".glb": "model/gltf-binary", ".png": "image/png", ".svg": "image/svg+xml" };
 
 http

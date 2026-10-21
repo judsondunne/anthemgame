@@ -618,7 +618,8 @@ function lighting() {
 }
 function resize() {
   const aspect = innerWidth / innerHeight;
-  let halfH = aspect < 1 ? 12.5 / aspect : 10.7,
+  // Portrait phones: a closer framing so the farm, not the sky, fills the screen.
+  let halfH = aspect < 1 ? 10.6 / aspect : 10.7,
     halfW = halfH * aspect;
   if (params.get("close")) {
     halfH = params.get("close") === "house" ? 4.6 : 4;
@@ -698,7 +699,7 @@ function animateObjects(dt) {
 const PARTICLE = {
   heart: [8, "#e49d9c", 2],
   water: [4, "#bce5dd", 3],
-  sparkle: [6, "#ffe6a3", 0],
+  sparkle: [9, "#fff0b8", 0],
   dust: [10, "#d8cbb0", 0],
   feather: [6, "#fff6e4", 0],
 };

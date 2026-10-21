@@ -456,6 +456,12 @@ svg {
   filter: grayscale(0.9);
   opacity: 0.55;
 }
+.tile.locked .cap {
+  display: none;
+}
+.tile:has(.cap) .art {
+  margin-top: 12px;
+}
 .tile.locked .art {
   filter: grayscale(1) brightness(1.08);
   opacity: 0.5;
@@ -604,7 +610,7 @@ svg {
   align-items: center;
   gap: 3px;
   font-weight: 900;
-  font-size: 20px;
+  font-size: 25px;
   color: #7a5a1c;
   text-shadow: 0 2px 0 #fff3d9, 0 0 8px rgba(255, 243, 217, 0.9);
   transform: translate(-50%, -50%);
@@ -614,8 +620,8 @@ svg {
   color: #9a5246;
 }
 .pop .ico {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
 }
 .fly {
   position: absolute;
