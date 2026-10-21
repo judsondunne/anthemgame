@@ -16,3 +16,10 @@
 - Wolves now visit a chicken-only starter farm after 40 seconds of night. Sheltered birds remain protected. A visible wolf sighting button in God view makes a visit clear and focuses the actual animal. Pack members spread among nearby exposed animals rather than piling onto one target.
 - Hens recover from legacy positions inside solid props. Coop entry state resets in daytime; local routes lead around the coop and pots, so birds can leave and return across multiple days. These routes never bypass fences or colliders.
 - Distant trees retain the same downloaded source geometry, UVs and silhouette. Bark and foliage render in one draw using separate samplers, rather than swapping to crude old models. Grass now uses curved tapered tufts. New source architecture has physical roof tiles/plank edges/timbers/foundations; the garden's layout and muted palette remain.
+
+## Quality update (PLAN3)
+- The skiing references guide density, small scenic details, warm/cool light and readable close views; the farm keeps its green cozy palette.
+- Use the closest cohesive downloaded modular cottage/interior assets when a turnkey walkable Victorian cottage is unavailable; no new object mesh may be modeled in code. Record exact sources and visual compromises in ASSETS.md.
+- Penned livestock can drink at the brook only when their closed pen includes accessible water. A trough remains the supported water source for ordinary pens; animals never cross closed fences to seek water.
+- Predator absence must be tested as actual visible arrivals and first-night pack size, not just an allocated offscreen record. Preserve offline safety and fully protected animals.
+- The existing static location keys and Blob document path remain stable; the migration updates the save document in place. No credential or store changes are required by a schema bump.
