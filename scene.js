@@ -569,7 +569,7 @@ function lighting() {
     S = THREE.MathUtils.smoothstep;
   const night = h >= 12 ? S(h, 18.4, 21) : 1 - S(h, 4.6, 6.5);
   const dusk = Math.exp(-(((h - 18) / 1.7) ** 2)),
-    dawn = 0.8 * Math.exp(-(((h - 6.3) / 0.9) ** 2)),
+    dawn = 0.8 * Math.exp(-(((h - 6.1) / 0.6) ** 2)),
     gold = Math.max(dusk, dawn),
     morning = dawn > dusk;
   currentNight = night;
@@ -583,8 +583,10 @@ function lighting() {
   moon.position.set(-Math.cos(moonAngle) * 20 + pan, Math.max(4, moonHigh * 24), 10);
   moon.target.position.set(pan, 0, 0);
   hemi.intensity = 1.12 - night * 0.42;
-  hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.2).lerp(LIGHT.hemiNight, night);
-  hemi.groundColor.copy(LIGHT.groundDay).lerp(LIGHT.groundNight, night);
+  // Cool night tints arrive late in the dusk so twilight keeps its warmth.
+  const cool = S(night, 0.3, 0.8);
+  hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.2).lerp(LIGHT.hemiNight, cool);
+  hemi.groundColor.copy(LIGHT.groundDay).lerp(LIGHT.groundNight, cool);
   sun.intensity = (3.1 + gold * 0.65) * (1 - night);
   sun.color.copy(LIGHT.sunDay).lerp(morning ? LIGHT.sunDawn : LIGHT.sunDusk, S(gold, 0.12, 0.45));
   moon.intensity = night * (0.6 + 0.3 * moonHigh);
@@ -592,7 +594,7 @@ function lighting() {
   for (const l of windowLights) l.intensity = night * 2.2;
   farmLayer?.lightsAtNight(night);
   renderer.toneMappingExposure = 1.12 + night * 0.12;
-  mix.copy(LIGHT.fogDay).lerp(morning ? LIGHT.fogDawn : LIGHT.fogDusk, S(gold, 0.2, 0.6)).lerp(LIGHT.fogNight, S(night, 0.25, 0.75));
+  mix.copy(LIGHT.fogDay).lerp(morning ? LIGHT.fogDawn : LIGHT.fogDusk, S(gold, 0.2, 0.6)).lerp(LIGHT.fogNight, cool);
   scene.fog.color.copy(mix);
   skyMat.uniforms.uHour.value = h;
   skyMat.uniforms.uNight.value = night;

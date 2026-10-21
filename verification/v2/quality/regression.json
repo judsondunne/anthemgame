@@ -1,0 +1,147 @@
+[
+  {
+    "name": "morning",
+    "hour": 7,
+    "whole": {
+      "meanAbsDiff": 5.89,
+      "lumBefore": 146.4,
+      "lumNow": 148.5
+    },
+    "house": {
+      "meanAbsDiff": 3.39,
+      "lumBefore": 142.9,
+      "lumNow": 144.5
+    },
+    "pond": {
+      "meanAbsDiff": 3.43,
+      "lumBefore": 165.6,
+      "lumNow": 166.8
+    },
+    "trees": {
+      "meanAbsDiff": 6.73,
+      "lumBefore": 143.6,
+      "lumNow": 149.3
+    },
+    "lawn": {
+      "meanAbsDiff": 6.07,
+      "lumBefore": 146.5,
+      "lumNow": 147.6
+    }
+  },
+  {
+    "name": "noon",
+    "hour": 12,
+    "whole": {
+      "meanAbsDiff": 5.93,
+      "lumBefore": 179.4,
+      "lumNow": 181.3
+    },
+    "house": {
+      "meanAbsDiff": 2,
+      "lumBefore": 166,
+      "lumNow": 164.8
+    },
+    "pond": {
+      "meanAbsDiff": 3.14,
+      "lumBefore": 188.8,
+      "lumNow": 189.1
+    },
+    "trees": {
+      "meanAbsDiff": 3.77,
+      "lumBefore": 166.4,
+      "lumNow": 167.8
+    },
+    "lawn": {
+      "meanAbsDiff": 4.53,
+      "lumBefore": 183.9,
+      "lumNow": 185.1
+    }
+  },
+  {
+    "name": "sunset",
+    "hour": 18,
+    "whole": {
+      "meanAbsDiff": 5.76,
+      "lumBefore": 154.2,
+      "lumNow": 155.4
+    },
+    "house": {
+      "meanAbsDiff": 3.59,
+      "lumBefore": 146.1,
+      "lumNow": 142.7
+    },
+    "pond": {
+      "meanAbsDiff": 2.72,
+      "lumBefore": 167.4,
+      "lumNow": 166.8
+    },
+    "trees": {
+      "meanAbsDiff": 3.45,
+      "lumBefore": 154.2,
+      "lumNow": 154.3
+    },
+    "lawn": {
+      "meanAbsDiff": 4.39,
+      "lumBefore": 155.9,
+      "lumNow": 156.8
+    }
+  },
+  {
+    "name": "dusk",
+    "hour": 19.5,
+    "whole": {
+      "meanAbsDiff": 5.13,
+      "lumBefore": 134.8,
+      "lumNow": 134.3
+    },
+    "house": {
+      "meanAbsDiff": 4.16,
+      "lumBefore": 137.2,
+      "lumNow": 134.3
+    },
+    "pond": {
+      "meanAbsDiff": 3.88,
+      "lumBefore": 153.4,
+      "lumNow": 152.9
+    },
+    "trees": {
+      "meanAbsDiff": 3.66,
+      "lumBefore": 137.3,
+      "lumNow": 135.2
+    },
+    "lawn": {
+      "meanAbsDiff": 3.95,
+      "lumBefore": 131.3,
+      "lumNow": 129.4
+    }
+  },
+  {
+    "name": "night",
+    "hour": 23,
+    "whole": {
+      "meanAbsDiff": 5.02,
+      "lumBefore": 79.6,
+      "lumNow": 79.2
+    },
+    "house": {
+      "meanAbsDiff": 3.62,
+      "lumBefore": 83.6,
+      "lumNow": 81.4
+    },
+    "pond": {
+      "meanAbsDiff": 3.75,
+      "lumBefore": 110.9,
+      "lumNow": 110
+    },
+    "trees": {
+      "meanAbsDiff": 3.34,
+      "lumBefore": 68.6,
+      "lumNow": 66.8
+    },
+    "lawn": {
+      "meanAbsDiff": 3.36,
+      "lumBefore": 79.9,
+      "lumNow": 78.3
+    }
+  }
+]

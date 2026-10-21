@@ -151,6 +151,12 @@ async function regression(browser) {
 
 (async () => {
   const browser = await L.launch();
+  if (process.env.ONLY === "regression") {
+    await regression(browser);
+    await browser.close();
+    fs.writeFileSync(path.join(DIR, "regression.json"), JSON.stringify(report.regression, null, 2));
+    return console.log("regression only: done");
+  }
   try {
     await textChecks(browser);
     const desk = await perf(browser, "desktop-1440x900", { width: 1440, height: 900 }, false);
