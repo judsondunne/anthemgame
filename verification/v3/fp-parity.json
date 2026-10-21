@@ -30,7 +30,7 @@
       "g": 0,
       "w": 160
     },
-    "n": 1
+    "n": 2
   },
   "replant": true,
   "eggAim": {
@@ -71,7 +71,7 @@
   },
   "fed": 0,
   "animalWater": 0,
-  "pet": 1.9165999999999999,
+  "pet": 1.9166999999999996,
   "fenceAim": {
     "aimed": {
       "kind": "ground"
@@ -121,7 +121,7 @@
   "gatePass": {
     "mode": "fp",
     "x": 620,
-    "y": 662.7169852342802,
+    "y": 662.726631568254,
     "yaw": 0,
     "pitch": 0
   },
@@ -147,6 +147,7 @@
     "beds": 2,
     "placing": null
   },
+  "coopBuilding": true,
   "shopOpen": true,
   "market": {
     "money": 100001,
@@ -154,8 +155,9 @@
   },
   "sell": {
     "money": 100007,
-    "tulip": 0
+    "tulip": 1
   },
+  "soldHeldStack": true,
   "inventoryShortcut": true,
   "flashlight": {
     "flashlightOn": true,
@@ -169,14 +171,14 @@
   "deselect": "hand",
   "pointerLoss": {
     "vx": 0,
-    "vz": -0.0006644408116777053
+    "vz": -0.0006636439609097724
   },
   "hidden": {
     "mode": "fp",
     "position": [
       -1.6,
-      1.66499884102811,
-      1.000396813838545
+      1.6649988389514103,
+      1.0004014986938892
     ],
     "focus": [
       0,
@@ -201,7 +203,7 @@
     "player": {
       "mode": "fp",
       "x": 620,
-      "y": 680.3150549648044,
+      "y": 680.3151969301178,
       "yaw": 0,
       "pitch": 0
     },

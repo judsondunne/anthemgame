@@ -61,3 +61,9 @@ Commands: run Vite on port 5175, then `node verification/v3/capture-art.cjs`,
 `node verification/v3/chicken-poses.cjs`, `node verification/v3/world-performance.cjs`.
 The first chicken/world screenshots also completed under software SwiftShader;
 final pose and performance captures use Metal. Both console logs are clean.
+
+## Final reference-driven asset pass
+
+The later direct request made asset fidelity the main priority. The first forest metrics above describe an earlier simpler asset set, not the delivered full game. The final game now uses 21 additional downloaded textured KayKit/Quaternius foliage, rock and ground-cover assets, with real alpha-cutout boughs, preserved gradient atlases, mixed silhouettes, wind and distance LOD. These are in `forest-upgrade.json`, `firs-upgrade.json` and `botany-upgrade.json`. `REPORT.md` and `full-farm/performance.json` supersede the earlier forest-only measurements.
+
+Final comparisons inspected the original `verification/production.png` and v2 `pass1/17-full-farm-golden-hour.png` / `02-toolbar-items.png` against the new farm, brook, interior and backpack captures. The new conifers have layered branches rather than polygon stacks; leafy trees have visible crowns and branches. The property still reads as the same muted green garden. The cozy coop has a warm open interior and sleeping birds. The sun/moon are small, realistic-scale shader discs; clouds are shaded procedural layers, not photographic assets. The brook foam is readable but remains stylized and the bear gait remains an animation compromise. No claim of exact proprietary reference parity is made.

@@ -1,0 +1,329 @@
+{
+  "base": "http://127.0.0.1:8096",
+  "scope": "Frozen production full farm with10beds,2coops,2barns,2stables,30animals; no rebuild during run.",
+  "measurements": [
+    {
+      "label": "desktop1440x900,high",
+      "windowMs": 8000,
+      "averageFrameMs": 16.665696465696467,
+      "p95FrameMs": 16.700000000000728,
+      "cpuRenderMs": 10.911642405694339,
+      "samples": 481,
+      "quality": "high",
+      "fallback": false,
+      "grassCount": 28000,
+      "dpr": 1,
+      "drawCalls": 3119,
+      "mergedMeshCount": 379,
+      "triangles": 7205830,
+      "lantern": 0,
+      "animals": 30,
+      "beds": 10,
+      "buildings": 6,
+      "world": {
+        "trees": 1141,
+        "chunks": 202
+      },
+      "mode": "god",
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Pro, Unspecified Version)",
+      "camera": {
+        "mode": "god",
+        "position": [
+          10.487435838290125,
+          53.24149543132057,
+          55.036145238065636
+        ],
+        "focus": [
+          0,
+          -0.03499999999999999,
+          3.299999999999999
+        ],
+        "focusTarget": [
+          0,
+          -0.035,
+          3.3
+        ],
+        "yaw": 0.2,
+        "pitch": 0.79,
+        "distance": 74.99999999999997,
+        "targetDistance": 75,
+        "targetYaw": 0.2,
+        "targetPitch": 0.79,
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "player": {
+          "mode": "god",
+          "x": 650,
+          "y": 700,
+          "yaw": 0,
+          "pitch": 0
+        },
+        "grounded": true,
+        "locked": false
+      },
+      "fps": 60.00349292682318
+    },
+    {
+      "label": "desktop1440x900,low",
+      "windowMs": 5000,
+      "averageFrameMs": 16.665999999999997,
+      "p95FrameMs": 16.700000000000728,
+      "cpuRenderMs": 5.8476666784286495,
+      "samples": 300,
+      "quality": "low",
+      "fallback": false,
+      "grassCount": 8500,
+      "dpr": 1,
+      "drawCalls": 1542,
+      "mergedMeshCount": 379,
+      "triangles": 1734712,
+      "lantern": 0,
+      "animals": 30,
+      "beds": 10,
+      "buildings": 6,
+      "world": {
+        "trees": 1141,
+        "chunks": 202
+      },
+      "mode": "god",
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Pro, Unspecified Version)",
+      "camera": {
+        "mode": "god",
+        "position": [
+          10.487435838290127,
+          53.24149543132058,
+          55.03614523806565
+        ],
+        "focus": [
+          0,
+          -0.034999999999999996,
+          3.2999999999999994
+        ],
+        "focusTarget": [
+          0,
+          -0.035,
+          3.3
+        ],
+        "yaw": 0.2,
+        "pitch": 0.79,
+        "distance": 74.99999999999999,
+        "targetDistance": 75,
+        "targetYaw": 0.2,
+        "targetPitch": 0.79,
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "player": {
+          "mode": "god",
+          "x": 650,
+          "y": 700,
+          "yaw": 0,
+          "pitch": 0
+        },
+        "grounded": true,
+        "locked": false
+      },
+      "fps": 60.00240009600385
+    },
+    {
+      "label": "mobile390x844,DPR2requested(qualitycaps1),4xCPU,low",
+      "windowMs": 10000,
+      "averageFrameMs": 31.898726114649676,
+      "p95FrameMs": 50,
+      "cpuRenderMs": 29.572292991504547,
+      "samples": 314,
+      "quality": "low",
+      "fallback": false,
+      "grassCount": 8500,
+      "dpr": 1,
+      "drawCalls": 1489,
+      "mergedMeshCount": 379,
+      "triangles": 1060153,
+      "lantern": 0,
+      "animals": 30,
+      "beds": 10,
+      "buildings": 6,
+      "world": {
+        "trees": 1141,
+        "chunks": 202
+      },
+      "mode": "god",
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Pro, Unspecified Version)",
+      "camera": {
+        "mode": "god",
+        "position": [
+          20.695206720892514,
+          105.09728431780594,
+          105.39265993644955
+        ],
+        "focus": [
+          0,
+          -0.034999999999999996,
+          3.2999999999999994
+        ],
+        "focusTarget": [
+          0,
+          -0.035,
+          3.3
+        ],
+        "yaw": 0.2,
+        "pitch": 0.79,
+        "distance": 147.99999999999997,
+        "targetDistance": 148,
+        "targetYaw": 0.2,
+        "targetPitch": 0.79,
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "player": {
+          "mode": "god",
+          "x": 650,
+          "y": 700,
+          "yaw": 0,
+          "pitch": 0
+        },
+        "grounded": true,
+        "locked": false
+      },
+      "fps": 31.349214272877944
+    },
+    {
+      "label": "mobile390x844,DPR2,4xCPU,high-or-automaticfallback",
+      "windowMs": 12000,
+      "averageFrameMs": 34.332,
+      "p95FrameMs": 50,
+      "cpuRenderMs": 31.803142862319945,
+      "samples": 350,
+      "quality": "low",
+      "fallback": true,
+      "grassCount": 8500,
+      "dpr": 1,
+      "drawCalls": 1489,
+      "mergedMeshCount": 379,
+      "triangles": 1060153,
+      "lantern": 0,
+      "animals": 30,
+      "beds": 10,
+      "buildings": 6,
+      "world": {
+        "trees": 1141,
+        "chunks": 202
+      },
+      "mode": "god",
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Pro, Unspecified Version)",
+      "camera": {
+        "mode": "god",
+        "position": [
+          20.695206720892514,
+          105.09728431780594,
+          105.39265993644955
+        ],
+        "focus": [
+          0,
+          -0.034999999999999996,
+          3.2999999999999994
+        ],
+        "focusTarget": [
+          0,
+          -0.035,
+          3.3
+        ],
+        "yaw": 0.2,
+        "pitch": 0.79,
+        "distance": 147.99999999999997,
+        "targetDistance": 148,
+        "targetYaw": 0.2,
+        "targetPitch": 0.79,
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "player": {
+          "mode": "god",
+          "x": 650,
+          "y": 700,
+          "yaw": 0,
+          "pitch": 0
+        },
+        "grounded": true,
+        "locked": false
+      },
+      "fps": 29.127344751252476
+    }
+  ],
+  "screens": [
+    "desktop-high-sunset",
+    "desktop-low-sunset",
+    "desktop-garden-sunset",
+    "brook-rapids-close",
+    "brook-wide",
+    "forest-interior-fp",
+    "fp-farm-morning",
+    "mobile-low-sunset",
+    "mobile-autoquality-sunset",
+    "mobile-automatic-fallback"
+  ],
+  "logs": [
+    {
+      "label": "desktop",
+      "errors": [],
+      "warnings": [],
+      "failed": []
+    },
+    {
+      "label": "mobile",
+      "errors": [],
+      "warnings": [],
+      "failed": []
+    }
+  ],
+  "fixture": {
+    "beds": 10,
+    "buildings": {
+      "coop": 2,
+      "barn": 2,
+      "stable": 2
+    },
+    "animals": 30,
+    "bySpecies": {
+      "chicken": 14,
+      "cow": 8,
+      "horse": 8
+    }
+  },
+  "syntheticAutomaticFallback": {
+    "passed": true,
+    "method": "Separate sustained45msCPUwork every30ms; excluded from performance measurements",
+    "stats": {
+      "averageFrameMs": 34.331062670299715,
+      "p95FrameMs": 50,
+      "cpuRenderMs": 31.545776571175058,
+      "samples": 367,
+      "quality": "low",
+      "fallback": true,
+      "grassCount": 8500,
+      "dpr": 1,
+      "drawCalls": 1489,
+      "mergedMeshCount": 379,
+      "triangles": 1060153,
+      "lantern": 0,
+      "animals": 30,
+      "beds": 10,
+      "buildings": 6,
+      "world": {
+        "trees": 1141,
+        "chunks": 202
+      },
+      "mode": "god",
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+    }
+  }
+}

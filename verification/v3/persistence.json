@@ -6,7 +6,7 @@
     {
       "name": "reload restores identical state",
       "timeDelta": 0.08,
-      "gap": 0.64,
+      "gap": 1.06,
       "animals": 6,
       "slots": 74,
       "selectedSlot": 9,
@@ -80,17 +80,17 @@
       "local": "unknown",
       "leader": true,
       "rev": 4,
-      "caughtUp": 3.087
+      "caughtUp": 4.256
     }
+  ],
+  "testedBuild": {
+    "indexModifiedAt": "2026-10-21T18:54:02.248Z",
+    "entry": "/assets/assets-B-wMYl6o.js"
+  },
+  "fixtureNotes": [
+    "The live first-person placement ghost follows camera aim. The fixture settles the0.7-second camera flight for0.95 seconds before exact structural comparison."
   ],
   "errors": [],
   "warnings": [],
-  "failed": [],
-  "testedBuild": {
-    "entry": "/assets/assets-Bqf1idMS.js",
-    "indexModifiedAtUnix": 1792604582.9366264
-  },
-  "fixtureNotes": [
-    "The first-person placement ghost follows camera aim. Settling the 0.7-second camera flight for 0.95 seconds preserved the exact structural comparison."
-  ]
+  "failed": []
 }

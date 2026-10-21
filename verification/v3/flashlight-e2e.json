@@ -1,0 +1,50 @@
+{
+  "godExposure": 0,
+  "afterAiming": {
+    "p": {
+      "id": 8,
+      "kind": "wolf",
+      "x": 610,
+      "y": 850,
+      "state": "encounter",
+      "target": null,
+      "exposure": 1.516600000000001,
+      "born": 368.57142857142856,
+      "pack": "night-0",
+      "fleeFor": 0,
+      "encounter": true,
+      "litAt": 368.57142857142856
+    },
+    "fx": {
+      "flashlightOn": true,
+      "encounter": {
+        "id": 8,
+        "elapsed": 0,
+        "suspense": true,
+        "phase": "flicker",
+        "retreated": false
+      },
+      "cooldown": 32,
+      "eyeCount": 2,
+      "lightPower": 48,
+      "fences": 0,
+      "predators": 1
+    }
+  },
+  "after": {
+    "flashlightOn": true,
+    "encounter": {
+      "id": 8,
+      "elapsed": 2.566599999999997,
+      "suspense": true,
+      "phase": "lunge",
+      "retreated": true
+    },
+    "cooldown": 29.433399999999963,
+    "eyeCount": 2,
+    "lightPower": 2.856,
+    "fences": 0,
+    "predators": 1
+  },
+  "errors": []
+}

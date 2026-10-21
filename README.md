@@ -1,13 +1,13 @@
 # Chicken Garden — a cozy farm
 
-A Three.js farm made entirely from downloaded CC0 models, with an icon-only interface (no words anywhere), a 10-minute day/night cycle, crops, chickens, cows and horses, a market, and a save that survives reloads and redeploys.
+A Three.js farm made entirely from downloaded CC0 models, with an icon-led interface and short optional tutorials, a 10-minute day/night cycle, crops, chickens, cows and horses, a market, and a save that survives reloads and redeploys.
 
 ## Run it
 
 ```bash
 npm install
 npm run dev        # Vite dev server; /api/state is served from a local file mock
-npm test           # 51 node:test unit/sim/server/balance tests
+npm test           # unit/sim/server/balance tests
 npm run simulate   # headless balance strategies, money over 150 game minutes
 npm run build      # production build into dist/
 npm run serve      # dist/ + /api/state on http://127.0.0.1:8095 (file mock of Vercel Blob)
@@ -19,19 +19,21 @@ Verification (Playwright, headless Chromium with WebGL; `npx playwright install 
 npm run build && npm run verify
 ```
 
-`verification/v2/run-all.cjs` runs the unit tests, the persistence gate (which starts and restarts its own server on port 8095), then starts `scripts/serve.js` with a temporary Blob mock and runs the playthrough, interface edge cases, screenshots and quality/performance gates. Individual gates can be run with `FARM_URL=http://127.0.0.1:8095 node verification/v2/<gate>.cjs` against a running `SAVE_KEY=test-key npm run serve`.
+`verification/v3/run-all.cjs` runs unit tests, builds the game, verifies persistence against a file-backed Blob mock, then runs sequential camera, first-person, gameplay, tutorial/mobile, software-renderer and full-farm performance checks. GPU suites use Metal on macOS; the software smoke uses SwiftShader. Evidence is saved under `verification/v3/`. Native headless pointer lock is emulated and recorded explicitly.
 
-Results and the screenshot review are in `verification/v2/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
+Results and the screenshot review are in `verification/v3/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
 
-## How to play (no text in the game)
+## How to play
 
-- **Hotbar** (bottom): hand, watering can, fish food, then whatever you hold — seed packets, feed sacks, hay, building kits, harvested goods — each with a count. Tap a slot to hold it; on desktop the cursor shows the held item. Number keys 1–9 pick slots.
+- **Hotbar** (bottom): hand, watering can, fish food, then whatever you hold — seed packets, feed sacks, hay, building kits, harvested goods — each with a count. Tap a slot to hold it; on desktop the cursor shows the held item. Number keys 1–0 pick slots. I/Tab opens a 64-slot backpack; drag to move, right-drag or long press splits, Shift-click quick moves.
 - **Crops**: hold seeds and tap a bed to plant; tap a bed with the can to water it (dry crops simply pause); tap a ripe plant (sparkles, bubble) with the hand to harvest. Six crops, from daisy (fast, cheap) to lavender (slow, valuable); wheat becomes hay.
-- **Animals**: request bubbles show food and water; tap the bubble, or tap the animal (or its coop/barn/stable, or a trough) holding feed, hay or the can. Bubbles turn warm red and pulse when a need has gone unmet for a game day; a sad animal droops; after two game days of an unmet need it dies, lies still, and half a day later becomes bones you can tap away. Animals never starve while you are away.
+- **Animals**: request bubbles show food and water; tap the bubble, or tap the animal (or its coop/barn/stable, or a trough) holding feed, hay or the can. Bubbles turn amber and then red as neglect approaches the death threshold; a sad animal droops; after two game days of an unmet need it dies, lies still, and half a day later becomes bones you can tap away. Animals never starve while you are away.
 - **Eggs and milk** appear in the world: tap them, or tap their coop or barn with the hand to gather everything around it.
 - **Market**: the stall button (or the stall beside the cottage). Basket tab buys seeds, feed, animals (♀/♂) and buildings; coins tab sells goods and adult animals (tap = one, the coin stack = all). Cows unlock with a barn, horses with a stable (padlock + building icon until then).
 - **Building**: buying a coop, barn, stable or bed enters placement mode: a ghost over the build grid, green when it fits, red when it doesn't. Drag or tap to move it, tap it again or press the check to confirm; the cross keeps the kit in the hotbar for later. Barns go in the west pasture, stables in the east meadow, beds and coops in the garden.
-- **Sound**: the speaker toggle; M mutes. R streams the optional album, L plays local audio files.
+- **Camera**: drag to orbit, right-drag to pan, wheel or pinch to zoom; touch drags pan and two fingers orbit/pinch. The eye button switches to first person. WASD moves, Shift sprints, Space jumps, E interacts, F toggles the torch, Escape releases the mouse.
+- **Night**: tap the coop's dusk moon button to bring chickens inside; watch them settle on their roosts. Outdoor animals can be attacked. Build a closed fence loop with a closed gate to protect livestock. First-person flashlight aim scares wolves; half of pack encounters flicker, pause two seconds and briefly jump toward the screen. Bears require fences.
+- **Sound**: the speaker toggle; M opens the market, the speaker button mutes. R streams the optional album, L plays local audio files.
 
 ## Test parameters (no UI)
 
@@ -43,13 +45,14 @@ Results and the screenshot review are in `verification/v2/REPORT.md`. Balance re
 | `?nosync=1` | skip the server copy (localStorage only) |
 | `?seed=N` | seed for scenery layout and a fresh farm |
 | `?k=SECRET` | one-time: stores the save key in localStorage, then removes it from the address bar |
+| `?mode=fp`, `?predator=wolf`, `?fences=demo`, `?money=N`, `?give=item:count` | reproducible camera, encounter and inventory fixtures |
 | `?quality=low`, `?close=house\|pond\|chickens\|x,y` | renderer quality / close-up framing for captures |
 
 `window.Garden` exposes read/advance hooks for the verification scripts (state, advance, setHour, anchor positions, stats). It renders nothing.
 
 ## Saving
 
-- One JSON save document (`schemaVersion` 2, with migrations from the pre-economy XP record and the v1 draft). Autosaved to localStorage every 2 s and on hide/blur/pagehide; a backup copy of the last good save and a copy of any unreadable save are kept.
+- One JSON save document (`schemaVersion` 3, with migrations from the pre-economy XP record and the v1 draft). Autosaved to localStorage every 2 s and on hide/blur/pagehide; a backup copy of the last good save and a copy of any unreadable save are kept.
 - `api/state` (Vercel serverless function) stores the same document as one private Vercel Blob, `farm/save.json` (fixed pathname, no random suffix, overwrite allowed, uncached reads). Every write carries the revision it was based on; the route compares-and-swaps with the blob's ETag, so an older tab or device can never overwrite a newer save. On a conflict the newest document wins and the other is kept in localStorage (`farm-save-conflict`).
 - Writes need the `x-save-key` header to equal the `SAVE_KEY` environment variable. Reads are open. The client sends the key it captured from `?k=`.
 - The client loads the newest of the server copy and localStorage, pushes at most every 5 s and on hide (keepalive), and never shows an error. Without Blob credentials the route answers `{"status":"unavailable"}` with HTTP 200 and the game quietly runs on localStorage alone.
