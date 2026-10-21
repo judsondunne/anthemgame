@@ -16,14 +16,6 @@
     "clips": []
   },
   {
-    "name": "tree_small",
-    "path": "/assets/models/nature/tree_small.glb",
-    "source": "https://kenney.nl/assets/nature-kit",
-    "license": "CC0-1.0",
-    "triangles": 62,
-    "clips": []
-  },
-  {
     "name": "plant_bush",
     "path": "/assets/models/nature/plant_bush.glb",
     "source": "https://kenney.nl/assets/nature-kit",
@@ -208,30 +200,6 @@
     "clips": []
   },
   {
-    "name": "wall-corner",
-    "path": "/assets/models/town/wall-corner.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 52,
-    "clips": []
-  },
-  {
-    "name": "wall-half",
-    "path": "/assets/models/town/wall-half.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 32,
-    "clips": []
-  },
-  {
-    "name": "roof",
-    "path": "/assets/models/town/roof.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 64,
-    "clips": []
-  },
-  {
     "name": "roof-gable",
     "path": "/assets/models/town/roof-gable.glb",
     "source": "https://kenney.nl/assets/fantasy-town-kit",
@@ -248,38 +216,6 @@
     "clips": []
   },
   {
-    "name": "roof-gable-end",
-    "path": "/assets/models/town/roof-gable-end.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 50,
-    "clips": []
-  },
-  {
-    "name": "roof-high-gable-detail",
-    "path": "/assets/models/town/roof-high-gable-detail.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 140,
-    "clips": []
-  },
-  {
-    "name": "roof-high-window",
-    "path": "/assets/models/town/roof-high-window.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 258,
-    "clips": []
-  },
-  {
-    "name": "roof-window",
-    "path": "/assets/models/town/roof-window.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 176,
-    "clips": []
-  },
-  {
     "name": "chimney",
     "path": "/assets/models/town/chimney.glb",
     "source": "https://kenney.nl/assets/fantasy-town-kit",
@@ -293,14 +229,6 @@
     "source": "https://kenney.nl/assets/fantasy-town-kit",
     "license": "CC0-1.0",
     "triangles": 158,
-    "clips": []
-  },
-  {
-    "name": "overhang",
-    "path": "/assets/models/town/overhang.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 68,
     "clips": []
   },
   {
@@ -341,14 +269,6 @@
     "source": "https://kenney.nl/assets/fantasy-town-kit",
     "license": "CC0-1.0",
     "triangles": 80,
-    "clips": []
-  },
-  {
-    "name": "stall-bench",
-    "path": "/assets/models/town/stall-bench.glb",
-    "source": "https://kenney.nl/assets/fantasy-town-kit",
-    "license": "CC0-1.0",
-    "triangles": 180,
     "clips": []
   },
   {

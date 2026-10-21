@@ -1,0 +1,24 @@
+{
+  "errors": [],
+  "warnings": [],
+  "failed": [],
+  "ready": true,
+  "needs": 3,
+  "text": "",
+  "modelCount": 43,
+  "stats": {
+    "averageFrameMs": 18.389655172413796,
+    "p95FrameMs": 16.799999999999955,
+    "cpuRenderMs": 3.335897429376586,
+    "samples": 116,
+    "quality": "high",
+    "fallback": false,
+    "grassCount": 28000,
+    "dpr": 1,
+    "drawCalls": 332,
+    "mergedMeshCount": 770,
+    "triangles": 266529,
+    "lantern": 0,
+    "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+  }
+}

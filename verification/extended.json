@@ -1,0 +1,22 @@
+{
+  "births": {
+    "chicks": 1,
+    "cows": 4,
+    "horses": 4
+  },
+  "contextualTrough": true,
+  "sleep": {
+    "sleeping": 7,
+    "sheltered": 8
+  },
+  "morning": {
+    "awake": 7,
+    "unsheltered": 8
+  },
+  "resize": {
+    "w": 768,
+    "h": 1024
+  },
+  "renderedTextNodes": 0,
+  "errors": []
+}

@@ -37,3 +37,9 @@ The original canvas renderer remains untouched until the Three.js replacement is
 | audio | `AudioGarden`, `YouTubeGarden`, local playlist, honks, chimes | Preserve gesture-start audio and keyboard audio controls, no visible text |
 
 Final asset mapping and counts are tracked in ASSETS.md; final coverage is audited in verification/REPORT.md.
+
+## Final mapping audit
+
+Gameplay/audio sources now live under `public/game/` so the unchanged classic-script ordering also ships in Vite's production build. `scene.js` handles all rendering and picking; `assets.js` handles downloaded models/materials/animation cloning. Old canvas art, renderer, sprite generation, geometry builders and UI stylesheet were removed only after the new entry point was rendered and verified. The complete original is recoverable at `ba062d3`.
+
+All rows above map as follows: buildings → Town wall/door/window/gable/chimney/porch modules; trees/bushes/flowers/crops/lilies/fence/rocks/entry path → Nature GLBs; chicken → Quaternius Chicken; chicks/cows/fish/bees/flock silhouettes → Cube Pets; horses → Quaternius Horse; eggs/troughs → Food egg/cereal bowl. Ground/grass/pond/sky/clouds/caustics use only the permitted surfaces/shaders. Smoke, heart/water/grain effects, ripples, butterflies, petals, moon dreams and fireflies use permitted particles/shaders. Actual lights provide sun/moon/porch/window illumination. Needs use three icon-only projected buttons with rings, shadows and bobbing. Progress remains saved without visible text; navigation uses swipe/wheel/arrows, care uses contextual picking, sound uses gestures/keyboard/local file input.

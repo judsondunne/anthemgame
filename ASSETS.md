@@ -6,7 +6,6 @@ All files are authentic downloaded models. Kenney is the primary family. Quatern
 |---|---|---|---|---|
 | tree_oak — main garden + distant forest trees | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/tree_oak.glb | 196 |
 | tree_detailed — pasture trees + distant forest | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/tree_detailed.glb | 402 |
-| tree_small — reserve tree variant, contact sheet | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/tree_small.glb | 62 |
 | plant_bush — side garden borders | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/plant_bush.glb | 32 |
 | plant_bushLarge — scenery bushes | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/plant_bushLarge.glb | 60 |
 | flower_purpleA — kind 0 growing flowers + foreground | https://kenney.nl/assets/nature-kit | CC0-1.0 | public/assets/models/nature/flower_purpleA.glb | 76 |
@@ -30,24 +29,15 @@ All files are authentic downloaded models. Kenney is the primary family. Quatern
 | wall-window-glass — building side windows + dusk glass emission | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/wall-window-glass.glb | 178 |
 | wall-window-shutters — cottage/coop/barn front windows | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/wall-window-shutters.glb | 286 |
 | wall-window-round — cottage gable round window | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/wall-window-round.glb | 278 |
-| wall-corner — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/wall-corner.glb | 52 |
-| wall-half — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/wall-half.glb | 32 |
-| roof — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof.glb | 64 |
 | roof-gable — cottage/coop porch canopies | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-gable.glb | 72 |
 | roof-gable-detail — cottage/coop/barn main roofs | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-gable-detail.glb | 128 |
-| roof-gable-end — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-gable-end.glb | 50 |
-| roof-high-gable-detail — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-high-gable-detail.glb | 140 |
-| roof-high-window — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-high-window.glb | 258 |
-| roof-window — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/roof-window.glb | 176 |
 | chimney — all building chimneys | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/chimney.glb | 32 |
 | lantern — porch lantern models | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/lantern.glb | 158 |
-| overhang — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/overhang.glb | 68 |
 | pillar-wood — porch support posts | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/pillar-wood.glb | 44 |
 | planks — porch floorboards | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/planks.glb | 96 |
 | stairs-wood — porch entry steps | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/stairs-wood.glb | 432 |
 | balcony-wall-fence — porch railings | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/balcony-wall-fence.glb | 102 |
 | wall-detail-cross — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/wall-detail-cross.glb | 80 |
-| stall-bench — architectural kit reserve, previewed in contact sheet | https://kenney.nl/assets/fantasy-town-kit | CC0-1.0 | public/assets/models/town/stall-bench.glb | 180 |
 | animal-chick — baby chicks | https://kenney.nl/assets/cube-pets | CC0-1.0 | public/assets/models/pets/animal-chick.glb | 490 |
 | animal-cow — cows and calves | https://kenney.nl/assets/cube-pets | CC0-1.0 | public/assets/models/pets/animal-cow.glb | 578 |
 | animal-fish — five pond fish | https://kenney.nl/assets/cube-pets | CC0-1.0 | public/assets/models/pets/animal-fish.glb | 422 |
@@ -68,4 +58,4 @@ Material and scale normalization is applied at load time. Town modules form the 
 | public/assets/models/pets/Textures/colormap.png | https://kenney.nl/assets/cube-pets | CC0-1.0 | Warm colors softened to shared palette |
 | public/assets/models/food/Textures/colormap.png | https://kenney.nl/assets/food-kit | CC0-1.0 | Warm colors softened to shared palette |
 
-Triangles count glTF indexed primitives once per source mesh (before scene instancing). External textures were downloaded from the same original pack archive. No topology was generated or replaced. The model loader uses SkeletonUtils clones, shared materials and original animation clips. Some architectural modules are retained as documented kit reserves and visible in the contact sheet rather than placed in the garden.
+Triangles count glTF indexed primitives once per source mesh (before scene instancing). External textures were downloaded from the same original pack archive. No topology was generated or replaced. The model loader uses SkeletonUtils clones, shared materials and original animation clips. Unused architectural reserves were removed from the shipped assets after visual verification.

@@ -1,13 +1,13 @@
 {
-  "models": 53,
-  "totalAssetBytes": 1525096,
-  "sourceMeshTriangles": 12039,
+  "models": 43,
+  "totalAssetBytes": 1418607,
+  "sourceMeshTriangles": 10957,
   "geometryConstructors": [
-    "new THREE.PlaneGeometry(230,200),groundMat)",
-    "new THREE.PlaneGeometry(6.1,4.8),new THREE.MeshStandardMaterial({color:'#548c80',roughness:1}))",
-    "new THREE.PlaneGeometry(6.24,4.92),waterMat)",
-    "new THREE.PlaneGeometry(.035,.17,1,2)",
-    "new THREE.SphereGeometry(110,32,16),skyMat)",
+    "new THREE.PlaneGeometry(230, 200), groundMat)",
+    "new THREE.PlaneGeometry(6.1, 4.8),\n  new THREE.MeshStandardMaterial({ color: \"#548c80\", roughness: 1 }),\n)",
+    "new THREE.PlaneGeometry(6.24, 4.92), waterMat)",
+    "new THREE.PlaneGeometry(0.035, 0.17, 1, 2)",
+    "new THREE.SphereGeometry(110, 32, 16), skyMat)",
     "new THREE.BufferGeometry()"
   ],
   "licenses": "All CC0-1.0; every GLB has source, path and triangle ledger entry",

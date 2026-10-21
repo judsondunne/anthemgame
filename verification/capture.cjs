@@ -1,5 +1,65 @@
-const{chromium}=require('playwright');const fs=require('fs');
-(async()=>{const b=await chromium.launch({channel:'chrome',headless:true,args:['--enable-webgl','--enable-unsafe-swiftshader']});const folder=process.argv[2]||'verification/pass1';fs.mkdirSync(folder,{recursive:true});const diagnostics=[];
-for(const[name,query,vp]of [['morning','time=7'],['noon','time=12'],['sunset','time=18'],['dusk','time=19.5'],['night','time=23'],['needs','time=12&needs=1'],['chickens','time=12&close=chickens'],['pond','time=12&close=pond'],['house','time=12&close=house'],['mobile','time=18',{width:390,height:844}],['desktop','time=12']]){
- const p=await b.newPage({viewport:vp||{width:1440,height:900},deviceScaleFactor:1});const errors=[],warnings=[],failed=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());if(m.type()==='warning')warnings.push(m.text())});p.on('requestfailed',r=>failed.push(r.url()+': '+r.failure()?.errorText));p.on('response',r=>{if(r.status()>=400)failed.push(r.status()+': '+r.url())});await p.goto('http://localhost:8082/three.html?seed=42&'+query);await p.waitForFunction(()=>window.Garden?.ready,null,{timeout:60000});await p.waitForTimeout(1800);await p.screenshot({path:folder+'/'+name+'.png'});diagnostics.push({name,errors,warnings,failed,text:await p.locator('body').innerText(),stats:await p.evaluate(()=>Garden.stats())});console.log(name,JSON.stringify(diagnostics.at(-1)));await p.close();
-}fs.writeFileSync(folder+'/diagnostics.json',JSON.stringify(diagnostics,null,2));await b.close()})();
+const { chromium } = require("playwright");
+const fs = require("fs");
+(async () => {
+  const b = await chromium.launch({
+    channel: "chrome",
+    headless: true,
+    args: ["--enable-webgl", "--enable-unsafe-swiftshader"],
+  });
+  const folder = process.argv[2] || "verification/pass1";
+  fs.mkdirSync(folder, { recursive: true });
+  const diagnostics = [];
+  for (const [name, query, vp] of [
+    ["morning", "time=7"],
+    ["noon", "time=12"],
+    ["sunset", "time=18"],
+    ["dusk", "time=19.5"],
+    ["night", "time=23"],
+    ["needs", "time=12&needs=1"],
+    ["chickens", "time=12&close=chickens"],
+    ["pond", "time=12&close=pond"],
+    ["house", "time=12&close=house"],
+    ["mobile", "time=18", { width: 390, height: 844 }],
+    ["desktop", "time=12"],
+  ]) {
+    const p = await b.newPage({
+      viewport: vp || { width: 1440, height: 900 },
+      deviceScaleFactor: 1,
+    });
+    const errors = [],
+      warnings = [],
+      failed = [];
+    p.on("pageerror", (e) => errors.push(e.message));
+    p.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+      if (m.type() === "warning") warnings.push(m.text());
+    });
+    p.on("requestfailed", (r) =>
+      failed.push(r.url() + ": " + r.failure()?.errorText),
+    );
+    p.on("response", (r) => {
+      if (r.status() >= 400) failed.push(r.status() + ": " + r.url());
+    });
+    await p.goto("http://localhost:8082/index.html?seed=42&" + query);
+    await p.waitForFunction(() => window.Garden?.ready, null, {
+      timeout: 60000,
+    });
+    await p.waitForTimeout(1800);
+    await p.screenshot({ path: folder + "/" + name + ".png" });
+    diagnostics.push({
+      name,
+      errors,
+      warnings,
+      failed,
+      text: await p.locator("body").innerText(),
+      stats: await p.evaluate(() => Garden.stats()),
+    });
+    console.log(name, JSON.stringify(diagnostics.at(-1)));
+    await p.close();
+  }
+  fs.writeFileSync(
+    folder + "/diagnostics.json",
+    JSON.stringify(diagnostics, null, 2),
+  );
+  await b.close();
+})();

@@ -1,8 +1,95 @@
-const{chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('fs');
-(async()=>{const b=await chromium.launch({channel:'chrome',headless:true,args:['--enable-webgl','--enable-unsafe-swiftshader']});const p=await b.newPage({viewport:{width:1440,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('http://localhost:8082/three.html?time=12&seed=42');await p.waitForFunction(()=>window.Garden?.ready);await p.waitForTimeout(1700);
-const results={};results.births=await p.evaluate(()=>{const f=Garden.Farm;for(let i=0;i<3;i++)f.birth();return{chicks:f.chicks.length,cows:f.animals.filter(a=>a.kind==='cow').length,horses:f.animals.filter(a=>a.kind==='horse').length}});assert.deepEqual(results.births,{chicks:1,cows:4,horses:4});
-await p.evaluate(()=>Garden.Farm.targetPan=-1230);await p.waitForTimeout(1500);await p.screenshot({path:'verification/cows.png'});const feeder=await p.evaluate(()=>Garden.screen(-215,795));const feedBefore=await p.evaluate(()=>Garden.Farm.pastures[0].feed);await p.mouse.click(feeder.x,feeder.y);await p.waitForTimeout(100);assert((await p.evaluate(()=>Garden.Farm.pastures[0].feed))>feedBefore);results.contextualTrough=true;
-await p.evaluate(()=>Garden.Farm.targetPan=1230);await p.waitForTimeout(1600);await p.screenshot({path:'verification/horses.png'});
-results.sleep=await p.evaluate(()=>{Garden.setHour(23);for(let i=0;i<2200;i++){GameState.update(.05);Garden.Farm.update(.05);}return{sleeping:Garden.world.chickens.filter(a=>a.sleeping).length,sheltered:Garden.Farm.animals.filter(a=>a.sheltered).length}});assert.equal(results.sleep.sleeping,7);assert.equal(results.sleep.sheltered,8);await p.evaluate(()=>Garden.Farm.targetPan=0);await p.waitForTimeout(1300);await p.screenshot({path:'verification/sleeping.png'});
-results.morning=await p.evaluate(()=>{Garden.setHour(9);for(let i=0;i<400;i++){GameState.update(.05);Garden.Farm.update(.05);}return{awake:Garden.world.chickens.filter(a=>!a.sleeping).length,unsheltered:Garden.Farm.animals.filter(a=>!a.sheltered).length}});assert.equal(results.morning.awake,7);assert.equal(results.morning.unsheltered,8);
-await p.setViewportSize({width:768,height:1024});await p.waitForTimeout(200);results.resize=await p.evaluate(()=>({w:document.querySelector('canvas').width,h:document.querySelector('canvas').height}));assert.deepEqual(results.resize,{w:768,h:1024});assert.equal(await p.locator('body').innerText(),'');results.renderedTextNodes=await p.evaluate(()=>{const w=document.createTreeWalker(document.querySelector('#needs'),NodeFilter.SHOW_TEXT);let n,count=0;while(n=w.nextNode())if(n.textContent.trim())count++;return count;});assert.equal(results.renderedTextNodes,0);results.errors=errors;assert.deepEqual(errors,[]);fs.writeFileSync('verification/extended.json',JSON.stringify(results,null,2));console.log(results);await b.close()})();
+const { chromium } = require("playwright"),
+  assert = require("node:assert/strict"),
+  fs = require("fs");
+(async () => {
+  const b = await chromium.launch({
+    channel: "chrome",
+    headless: true,
+    args: ["--enable-webgl", "--enable-unsafe-swiftshader"],
+  });
+  const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+  const errors = [];
+  p.on("pageerror", (e) => errors.push(e.message));
+  await p.goto("http://localhost:8082/index.html?time=12&seed=42");
+  await p.waitForFunction(() => window.Garden?.ready);
+  await p.waitForTimeout(1700);
+  const results = {};
+  results.births = await p.evaluate(() => {
+    const f = Garden.Farm;
+    for (let i = 0; i < 3; i++) f.birth();
+    return {
+      chicks: f.chicks.length,
+      cows: f.animals.filter((a) => a.kind === "cow").length,
+      horses: f.animals.filter((a) => a.kind === "horse").length,
+    };
+  });
+  assert.deepEqual(results.births, { chicks: 1, cows: 4, horses: 4 });
+  await p.evaluate(() => (Garden.Farm.targetPan = -1230));
+  await p.waitForTimeout(1500);
+  await p.screenshot({ path: "verification/cows.png" });
+  const feeder = await p.evaluate(() => Garden.screen(-215, 795));
+  const feedBefore = await p.evaluate(() => Garden.Farm.pastures[0].feed);
+  await p.mouse.click(feeder.x, feeder.y);
+  await p.waitForTimeout(100);
+  assert((await p.evaluate(() => Garden.Farm.pastures[0].feed)) > feedBefore);
+  results.contextualTrough = true;
+  await p.evaluate(() => (Garden.Farm.targetPan = 1230));
+  await p.waitForTimeout(1600);
+  await p.screenshot({ path: "verification/horses.png" });
+  results.sleep = await p.evaluate(() => {
+    Garden.setHour(23);
+    for (let i = 0; i < 2200; i++) {
+      GameState.update(0.05);
+      Garden.Farm.update(0.05);
+    }
+    return {
+      sleeping: Garden.world.chickens.filter((a) => a.sleeping).length,
+      sheltered: Garden.Farm.animals.filter((a) => a.sheltered).length,
+    };
+  });
+  assert.equal(results.sleep.sleeping, 7);
+  assert.equal(results.sleep.sheltered, 8);
+  await p.evaluate(() => (Garden.Farm.targetPan = 0));
+  await p.waitForTimeout(1300);
+  await p.screenshot({ path: "verification/sleeping.png" });
+  results.morning = await p.evaluate(() => {
+    Garden.setHour(9);
+    for (let i = 0; i < 400; i++) {
+      GameState.update(0.05);
+      Garden.Farm.update(0.05);
+    }
+    return {
+      awake: Garden.world.chickens.filter((a) => !a.sleeping).length,
+      unsheltered: Garden.Farm.animals.filter((a) => !a.sheltered).length,
+    };
+  });
+  assert.equal(results.morning.awake, 7);
+  assert.equal(results.morning.unsheltered, 8);
+  await p.setViewportSize({ width: 768, height: 1024 });
+  await p.waitForTimeout(200);
+  results.resize = await p.evaluate(() => ({
+    w: document.querySelector("canvas").width,
+    h: document.querySelector("canvas").height,
+  }));
+  assert.deepEqual(results.resize, { w: 768, h: 1024 });
+  assert.equal(await p.locator("body").innerText(), "");
+  results.renderedTextNodes = await p.evaluate(() => {
+    const w = document.createTreeWalker(
+      document.querySelector("#needs"),
+      NodeFilter.SHOW_TEXT,
+    );
+    let n,
+      count = 0;
+    while ((n = w.nextNode())) if (n.textContent.trim()) count++;
+    return count;
+  });
+  assert.equal(results.renderedTextNodes, 0);
+  results.errors = errors;
+  assert.deepEqual(errors, []);
+  fs.writeFileSync(
+    "verification/extended.json",
+    JSON.stringify(results, null, 2),
+  );
+  console.log(results);
+  await b.close();
+})();
