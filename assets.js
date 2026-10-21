@@ -1,0 +1,30 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone } from 'three/addons/utils/SkeletonUtils.js';
+export const palette = {grass:'#94ad70', leaf:'#78985b', leafLight:'#a2b879', bark:'#816752', cream:'#f4e6c7', blush:'#d39b8f', gold:'#e3bf73', stone:'#b5b6a0', roof:'#738d88', water:'#659e9a', night:'#354c72'};
+export const windTime={value:0};
+export const manifest=await fetch('/assets/manifest.json').then(r=>r.json());
+const loader=new GLTFLoader(), cache=new Map(), materials=new Map();
+function material(original,key,sway){
+ const id=key+'|'+original.uuid+'|'+sway;
+ if(materials.has(id))return materials.get(id);
+ const m=original.clone();m.roughness=.87;m.metalness=0;
+ const colors={leafsGreen:palette.leaf,grass:palette.leafLight,leafsDark:'#537e67',woodBark:palette.bark,woodBarkDark:'#6e594a',woodInner:'#d2b28a',wood:'#c3ab86',woodDark:'#aa8c6d',stone:palette.stone,dirt:'#aa8a68',dirtDark:'#876e52',colorPurple:'#b39fcb',colorRed:palette.blush,colorYellow:palette.gold,Chicken_Main:palette.cream,Chicken_Red:'#cf8273',Beak:palette.gold};
+ if(colors[m.name])m.color.set(colors[m.name]);
+ if(m.map){m.map.colorSpace=THREE.SRGBColorSpace;m.color.set('#eee5d3');}
+ if(sway){m.onBeforeCompile=s=>{s.uniforms.uWindTime=windTime;s.vertexShader='uniform float uWindTime;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(uWindTime*1.2+position.x*2.3+position.z*3.1)*0.023*max(0.,position.y);');};m.customProgramCacheKey=()=> 'foliage-wind-v1';}
+ materials.set(id,m);return m;
+}
+export async function loadAssets(){await Promise.all(manifest.map(async a=>{const gltf=await loader.loadAsync(a.path);gltf.scene.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(gltf.scene), size=bounds.getSize(new THREE.Vector3());cache.set(a.name,{...a,gltf,bounds,size});}));}
+export function assetInfo(name){return cache.get(name);}
+export function model(name,{height,width,sway=false,raw=false,tint}={}){
+ const a=cache.get(name);if(!a)throw Error('Missing asset '+name);
+ const root=new THREE.Group(),object=clone(a.gltf.scene);root.add(object);
+ object.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;const map=m=>material(m,name,sway);o.material=Array.isArray(o.material)?o.material.map(map):map(o.material);if(tint){o.material=o.material.clone();o.material.color.multiply(new THREE.Color(tint));} }});
+ const scale=height?height/a.size.y:width?width/a.size.x:1;
+ if(!raw){object.position.set(-(a.bounds.min.x+a.bounds.max.x)*.5,-a.bounds.min.y,-(a.bounds.min.z+a.bounds.max.z)*.5);root.scale.setScalar(scale);}
+ root.userData.asset=name;root.userData.baseScale=root.scale.x;
+ if(a.gltf.animations.length){const mixer=new THREE.AnimationMixer(object),actions={};for(const clip of a.gltf.animations){const n=clip.name.split('|').pop().toLowerCase();actions[n]=mixer.clipAction(clip);}root.userData.mixer=mixer;root.userData.actions=actions;play(root,'idle');}
+ return root;
+}
+export function play(root,action){const d=root.userData, a=d.actions;if(!a)return;const key=Object.keys(a).find(k=>k===action)||Object.keys(a).find(k=>k.includes(action))||'idle';if(d.action===key)return;if(d.action)a[d.action]?.fadeOut(.25);a[key]?.reset().fadeIn(.25).play();d.action=key;}

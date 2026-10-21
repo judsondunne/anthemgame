@@ -1,0 +1,484 @@
+[
+  {
+    "name": "tree_oak",
+    "path": "/assets/models/nature/tree_oak.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 196,
+    "clips": []
+  },
+  {
+    "name": "tree_detailed",
+    "path": "/assets/models/nature/tree_detailed.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 402,
+    "clips": []
+  },
+  {
+    "name": "tree_small",
+    "path": "/assets/models/nature/tree_small.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 62,
+    "clips": []
+  },
+  {
+    "name": "plant_bush",
+    "path": "/assets/models/nature/plant_bush.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 32,
+    "clips": []
+  },
+  {
+    "name": "plant_bushLarge",
+    "path": "/assets/models/nature/plant_bushLarge.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 60,
+    "clips": []
+  },
+  {
+    "name": "flower_purpleA",
+    "path": "/assets/models/nature/flower_purpleA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 76,
+    "clips": []
+  },
+  {
+    "name": "flower_redA",
+    "path": "/assets/models/nature/flower_redA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 76,
+    "clips": []
+  },
+  {
+    "name": "flower_yellowA",
+    "path": "/assets/models/nature/flower_yellowA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 76,
+    "clips": []
+  },
+  {
+    "name": "flower_purpleB",
+    "path": "/assets/models/nature/flower_purpleB.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 98,
+    "clips": []
+  },
+  {
+    "name": "crops_leafsStageB",
+    "path": "/assets/models/nature/crops_leafsStageB.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 84,
+    "clips": []
+  },
+  {
+    "name": "crops_wheatStageB",
+    "path": "/assets/models/nature/crops_wheatStageB.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 360,
+    "clips": []
+  },
+  {
+    "name": "lily_large",
+    "path": "/assets/models/nature/lily_large.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 86,
+    "clips": []
+  },
+  {
+    "name": "lily_small",
+    "path": "/assets/models/nature/lily_small.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 52,
+    "clips": []
+  },
+  {
+    "name": "stone_largeA",
+    "path": "/assets/models/nature/stone_largeA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 80,
+    "clips": []
+  },
+  {
+    "name": "stone_largeB",
+    "path": "/assets/models/nature/stone_largeB.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 85,
+    "clips": []
+  },
+  {
+    "name": "stone_smallFlatA",
+    "path": "/assets/models/nature/stone_smallFlatA.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 20,
+    "clips": []
+  },
+  {
+    "name": "stone_smallFlatB",
+    "path": "/assets/models/nature/stone_smallFlatB.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 16,
+    "clips": []
+  },
+  {
+    "name": "fence_simple",
+    "path": "/assets/models/nature/fence_simple.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 64,
+    "clips": []
+  },
+  {
+    "name": "pot_small",
+    "path": "/assets/models/nature/pot_small.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 72,
+    "clips": []
+  },
+  {
+    "name": "crops_dirtDoubleRow",
+    "path": "/assets/models/nature/crops_dirtDoubleRow.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 88,
+    "clips": []
+  },
+  {
+    "name": "log",
+    "path": "/assets/models/nature/log.glb",
+    "source": "https://kenney.nl/assets/nature-kit",
+    "license": "CC0-1.0",
+    "triangles": 200,
+    "clips": []
+  },
+  {
+    "name": "wall",
+    "path": "/assets/models/town/wall.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 32,
+    "clips": []
+  },
+  {
+    "name": "wall-door",
+    "path": "/assets/models/town/wall-door.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 376,
+    "clips": []
+  },
+  {
+    "name": "wall-window-glass",
+    "path": "/assets/models/town/wall-window-glass.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 178,
+    "clips": []
+  },
+  {
+    "name": "wall-window-shutters",
+    "path": "/assets/models/town/wall-window-shutters.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 286,
+    "clips": []
+  },
+  {
+    "name": "wall-window-round",
+    "path": "/assets/models/town/wall-window-round.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 278,
+    "clips": []
+  },
+  {
+    "name": "wall-corner",
+    "path": "/assets/models/town/wall-corner.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 52,
+    "clips": []
+  },
+  {
+    "name": "wall-half",
+    "path": "/assets/models/town/wall-half.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 32,
+    "clips": []
+  },
+  {
+    "name": "roof",
+    "path": "/assets/models/town/roof.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 64,
+    "clips": []
+  },
+  {
+    "name": "roof-gable",
+    "path": "/assets/models/town/roof-gable.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 72,
+    "clips": []
+  },
+  {
+    "name": "roof-gable-detail",
+    "path": "/assets/models/town/roof-gable-detail.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 128,
+    "clips": []
+  },
+  {
+    "name": "roof-gable-end",
+    "path": "/assets/models/town/roof-gable-end.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 50,
+    "clips": []
+  },
+  {
+    "name": "roof-high-gable-detail",
+    "path": "/assets/models/town/roof-high-gable-detail.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 140,
+    "clips": []
+  },
+  {
+    "name": "roof-high-window",
+    "path": "/assets/models/town/roof-high-window.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 258,
+    "clips": []
+  },
+  {
+    "name": "roof-window",
+    "path": "/assets/models/town/roof-window.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 176,
+    "clips": []
+  },
+  {
+    "name": "chimney",
+    "path": "/assets/models/town/chimney.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 32,
+    "clips": []
+  },
+  {
+    "name": "lantern",
+    "path": "/assets/models/town/lantern.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 158,
+    "clips": []
+  },
+  {
+    "name": "overhang",
+    "path": "/assets/models/town/overhang.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 68,
+    "clips": []
+  },
+  {
+    "name": "pillar-wood",
+    "path": "/assets/models/town/pillar-wood.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 44,
+    "clips": []
+  },
+  {
+    "name": "planks",
+    "path": "/assets/models/town/planks.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 96,
+    "clips": []
+  },
+  {
+    "name": "stairs-wood",
+    "path": "/assets/models/town/stairs-wood.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 432,
+    "clips": []
+  },
+  {
+    "name": "balcony-wall-fence",
+    "path": "/assets/models/town/balcony-wall-fence.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 102,
+    "clips": []
+  },
+  {
+    "name": "wall-detail-cross",
+    "path": "/assets/models/town/wall-detail-cross.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 80,
+    "clips": []
+  },
+  {
+    "name": "stall-bench",
+    "path": "/assets/models/town/stall-bench.glb",
+    "source": "https://kenney.nl/assets/fantasy-town-kit",
+    "license": "CC0-1.0",
+    "triangles": 180,
+    "clips": []
+  },
+  {
+    "name": "animal-chick",
+    "path": "/assets/models/pets/animal-chick.glb",
+    "source": "https://kenney.nl/assets/cube-pets",
+    "license": "CC0-1.0",
+    "triangles": 490,
+    "clips": [
+      "static",
+      "idle",
+      "walk",
+      "run",
+      "eat",
+      "dance",
+      "gesture-positive",
+      "gesture-negative"
+    ]
+  },
+  {
+    "name": "animal-cow",
+    "path": "/assets/models/pets/animal-cow.glb",
+    "source": "https://kenney.nl/assets/cube-pets",
+    "license": "CC0-1.0",
+    "triangles": 578,
+    "clips": [
+      "static",
+      "idle",
+      "walk",
+      "run",
+      "eat",
+      "dance",
+      "gesture-positive",
+      "gesture-negative"
+    ]
+  },
+  {
+    "name": "animal-fish",
+    "path": "/assets/models/pets/animal-fish.glb",
+    "source": "https://kenney.nl/assets/cube-pets",
+    "license": "CC0-1.0",
+    "triangles": 422,
+    "clips": [
+      "static",
+      "idle",
+      "walk",
+      "run",
+      "eat",
+      "dance",
+      "gesture-positive",
+      "gesture-negative"
+    ]
+  },
+  {
+    "name": "animal-bee",
+    "path": "/assets/models/pets/animal-bee.glb",
+    "source": "https://kenney.nl/assets/cube-pets",
+    "license": "CC0-1.0",
+    "triangles": 742,
+    "clips": [
+      "static",
+      "idle",
+      "walk",
+      "run",
+      "eat",
+      "dance",
+      "gesture-positive",
+      "gesture-negative"
+    ]
+  },
+  {
+    "name": "animal-parrot",
+    "path": "/assets/models/pets/animal-parrot.glb",
+    "source": "https://kenney.nl/assets/cube-pets",
+    "license": "CC0-1.0",
+    "triangles": 530,
+    "clips": [
+      "static",
+      "idle",
+      "walk",
+      "run",
+      "eat",
+      "dance",
+      "gesture-positive",
+      "gesture-negative"
+    ]
+  },
+  {
+    "name": "egg",
+    "path": "/assets/models/food/egg.glb",
+    "source": "https://kenney.nl/assets/food-kit",
+    "license": "CC0-1.0",
+    "triangles": 44,
+    "clips": []
+  },
+  {
+    "name": "bowl-cereal",
+    "path": "/assets/models/food/bowl-cereal.glb",
+    "source": "https://kenney.nl/assets/food-kit",
+    "license": "CC0-1.0",
+    "triangles": 120,
+    "clips": []
+  },
+  {
+    "name": "chicken",
+    "path": "/assets/models/animals/chicken.glb",
+    "source": "https://poly.pizza/m/ineV9pU5VL",
+    "license": "CC0-1.0",
+    "triangles": 2904,
+    "clips": [
+      "CharacterArmature|Bite_Front",
+      "CharacterArmature|Dance",
+      "CharacterArmature|Death",
+      "CharacterArmature|HitRecieve",
+      "CharacterArmature|Idle",
+      "CharacterArmature|Jump",
+      "CharacterArmature|No",
+      "CharacterArmature|Walk",
+      "CharacterArmature|Yes"
+    ]
+  },
+  {
+    "name": "horse",
+    "path": "/assets/models/animals/horse.glb",
+    "source": "https://poly.pizza/m/C39AUXUUes",
+    "license": "CC0-1.0",
+    "triangles": 610,
+    "clips": [
+      "Armature|Idle",
+      "Armature|Jump"
+    ]
+  }
+]
