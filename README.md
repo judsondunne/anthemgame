@@ -13,15 +13,13 @@ npm run build      # production build into dist/
 npm run serve      # dist/ + /api/state on http://127.0.0.1:8095 (file mock of Vercel Blob)
 ```
 
-Verification (Playwright, headless Chromium with WebGL; start `npm run serve` first, with `SAVE_KEY=test-key`):
+Verification (Playwright, headless Chromium with WebGL; `npx playwright install chromium` once):
 
 ```bash
-SAVE_KEY=test-key PORT=8095 node scripts/serve.js
-node verification/v2/persistence.cjs   # Gate 2
-node verification/v2/playthrough.cjs   # Gate 3
-FARM_URL=http://127.0.0.1:8095 node verification/v2/screens.cjs final   # Gate 4
-node verification/v2/quality.cjs       # Gate 5
+npm run build && npm run verify
 ```
+
+`verification/v2/run-all.cjs` runs the unit tests, the persistence gate (which starts and restarts its own server on port 8095), then starts `scripts/serve.js` with a temporary Blob mock and runs the playthrough, interface edge cases, screenshots and quality/performance gates. Individual gates can be run with `FARM_URL=http://127.0.0.1:8095 node verification/v2/<gate>.cjs` against a running `SAVE_KEY=test-key npm run serve`.
 
 Results and the screenshot review are in `verification/v2/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
 
