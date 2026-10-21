@@ -1,0 +1,15 @@
+{
+  "models": 53,
+  "totalAssetBytes": 1525096,
+  "sourceMeshTriangles": 12039,
+  "geometryConstructors": [
+    "new THREE.PlaneGeometry(230,200),groundMat)",
+    "new THREE.PlaneGeometry(6.1,4.8),new THREE.MeshStandardMaterial({color:'#548c80',roughness:1}))",
+    "new THREE.PlaneGeometry(6.24,4.92),waterMat)",
+    "new THREE.PlaneGeometry(.035,.17,1,2)",
+    "new THREE.SphereGeometry(110,32,16),skyMat)",
+    "new THREE.BufferGeometry()"
+  ],
+  "licenses": "All CC0-1.0; every GLB has source, path and triangle ledger entry",
+  "proceduralGeometry": "5 allowed surfaces only: ground, pond floor, water, instanced grass blade, sky dome. Particle BufferGeometry stores point positions only."
+}

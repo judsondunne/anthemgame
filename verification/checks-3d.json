@@ -1,0 +1,187 @@
+{
+  "runtime": [
+    {
+      "touch": false,
+      "errors": [],
+      "warnings": [],
+      "failed": []
+    },
+    {
+      "touch": true,
+      "errors": [],
+      "warnings": [],
+      "failed": []
+    }
+  ],
+  "interactions": [
+    {
+      "touch": false,
+      "label": "Affection",
+      "before": {
+        "needs": 3,
+        "growth": 0,
+        "kind": "heart"
+      },
+      "after": {
+        "needs": 2,
+        "pet": true,
+        "fish": false,
+        "growth": 1,
+        "audio": "running"
+      }
+    },
+    {
+      "touch": false,
+      "label": "Feed",
+      "before": {
+        "needs": 2,
+        "growth": 0,
+        "kind": "food"
+      },
+      "after": {
+        "needs": 1,
+        "pet": true,
+        "fish": true,
+        "growth": 1,
+        "audio": "running"
+      }
+    },
+    {
+      "touch": false,
+      "label": "Water",
+      "before": {
+        "needs": 1,
+        "growth": 1,
+        "kind": "water"
+      },
+      "after": {
+        "needs": 0,
+        "pet": true,
+        "fish": true,
+        "growth": 1.18,
+        "audio": "running"
+      }
+    },
+    {
+      "touch": true,
+      "label": "Affection",
+      "before": {
+        "needs": 3,
+        "growth": 0,
+        "kind": "heart"
+      },
+      "after": {
+        "needs": 2,
+        "pet": true,
+        "fish": false,
+        "growth": 1,
+        "audio": "running"
+      }
+    },
+    {
+      "touch": true,
+      "label": "Feed",
+      "before": {
+        "needs": 2,
+        "growth": 0,
+        "kind": "food"
+      },
+      "after": {
+        "needs": 1,
+        "pet": true,
+        "fish": true,
+        "growth": 1,
+        "audio": "running"
+      }
+    },
+    {
+      "touch": true,
+      "label": "Water",
+      "before": {
+        "needs": 1,
+        "growth": 1,
+        "kind": "water"
+      },
+      "after": {
+        "needs": 0,
+        "pet": true,
+        "fish": true,
+        "growth": 1.18,
+        "audio": "running"
+      }
+    }
+  ],
+  "performance": [
+    {
+      "touch": false,
+      "measuredSeconds": 10.5,
+      "averageFrameMs": 16.66592709984152,
+      "p95FrameMs": 16.700000000000728,
+      "cpuRenderMs": 2.3809999986489614,
+      "samples": 631,
+      "quality": "high",
+      "fallback": false,
+      "grassCount": 28000,
+      "dpr": 1,
+      "drawCalls": 324,
+      "mergedMeshCount": 776,
+      "triangles": 265797,
+      "lantern": 0,
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+    },
+    {
+      "touch": true,
+      "measuredSeconds": 10.5,
+      "averageFrameMs": 16.665873015873014,
+      "p95FrameMs": 16.799999999999272,
+      "cpuRenderMs": 2.490666670401891,
+      "samples": 630,
+      "quality": "high",
+      "fallback": false,
+      "grassCount": 28000,
+      "dpr": 2,
+      "drawCalls": 319,
+      "mergedMeshCount": 776,
+      "triangles": 264419,
+      "lantern": 0,
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+    }
+  ],
+  "checks": [
+    "mouse and touch: all three needs fulfilled; real model picking; gesture audio running",
+    "noon lantern off and 20:00 lantern on",
+    "DPR 1 and 2 canvas sizes correct",
+    "desktop and simulated mobile each measured for 10.5 seconds",
+    "automatic quality fallback triggered by actual CPU throttling"
+  ],
+  "fallback": {
+    "averageFrameMs": 25.39145673603505,
+    "p95FrameMs": 50,
+    "cpuRenderMs": 17.552999997138976,
+    "samples": 913,
+    "quality": "low",
+    "fallback": true,
+    "grassCount": 8500,
+    "dpr": 1,
+    "drawCalls": 381,
+    "mergedMeshCount": 776,
+    "triangles": 193780,
+    "lantern": 0,
+    "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+  },
+  "softwareWebGL": {
+    "averageFrameMs": 835.1555555555556,
+    "p95FrameMs": 5666.5,
+    "cpuRenderMs": 2.5599999904632567,
+    "samples": 9,
+    "quality": "low",
+    "fallback": false,
+    "grassCount": 8500,
+    "dpr": 1,
+    "drawCalls": 321,
+    "mergedMeshCount": 776,
+    "triangles": 189958,
+    "lantern": 0,
+    "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+  }
+}
