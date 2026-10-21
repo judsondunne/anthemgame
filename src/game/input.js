@@ -21,6 +21,9 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
     lastSweep = 0,
     sweptPlot = "";
 
+  const crosshairEl = document.querySelector("#crosshair") ?? document.createElement("div");
+  crosshairEl.id = "crosshair"; crosshairEl.hidden = true; crosshairEl.setAttribute("aria-hidden", "true");
+  if (!crosshairEl.isConnected) document.body.append(crosshairEl);
   const firstPerson = () => !!cameraControl?.isFirstPerson;
   const uiBlocked = () => shop.isOpen || !!hud.inventoryOpen;
   const centerEvent = () => ({ clientX: innerWidth / 2, clientY: innerHeight / 2, pointerType: "mouse" });
@@ -503,7 +506,7 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
       if (fenceMode()) fenceGhost(p);
     } else if (!fenceMode()) game.state.ui.fenceGhost = null;
     const crosshair = document.querySelector("#crosshair");
-    if (crosshair) { crosshair.dataset.target = aimed.kind; crosshair.dataset.tool = tool(); crosshair.classList.toggle("active", firstPerson() && !["ground", "distant"].includes(aimed.kind) && !uiBlocked()); }
+    if (crosshair) { crosshair.hidden = !firstPerson() || uiBlocked(); crosshair.dataset.target = aimed.kind; crosshair.dataset.tool = tool(); crosshair.classList.toggle("active", firstPerson() && !["ground", "distant"].includes(aimed.kind) && !uiBlocked()); }
   }
   return { startPlacement, confirm, cancel, pick, apply, ground, harvestAll, feedOne, waterOne, attachCamera, update, interact, reachable, deleteToggle, rotateFence, get aimed() { return aimed; } };
 }

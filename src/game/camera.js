@@ -130,8 +130,8 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
     const p = pointers.get(e.pointerId);
     if (mode === "fp") {
       if (blocked()) return;
-      if (document.pointerLockElement === canvas && e.pointerType !== "touch") { lookYaw -= (e.movementX || 0) * C.lookSpeed; lookPitch = clamp(lookPitch - (e.movementY || 0) * C.lookSpeed, -C.pitchLimit, C.pitchLimit); }
-      else if (p) { lookYaw -= (e.clientX - p.x) * C.lookSpeed * 1.5; lookPitch = clamp(lookPitch - (e.clientY - p.y) * C.lookSpeed * 1.5, -C.pitchLimit, C.pitchLimit); p.x = e.clientX; p.y = e.clientY; gestureConsumed ||= Math.hypot(e.clientX - p.sx, e.clientY - p.sy) > C.touchDragThreshold; }
+      if (e.pointerType !== "touch") return;
+      if (p) { lookYaw -= (e.clientX - p.x) * C.lookSpeed * 1.5; lookPitch = clamp(lookPitch - (e.clientY - p.y) * C.lookSpeed * 1.5, -C.pitchLimit, C.pitchLimit); p.x = e.clientX; p.y = e.clientY; gestureConsumed ||= Math.hypot(e.clientX - p.sx, e.clientY - p.sy) > C.touchDragThreshold; }
       return;
     }
     if (!p || blocked() || e.defaultPrevented) return;
@@ -152,6 +152,11 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
   listen(canvas, "pointerdown", pointerDown);
   listen(canvas, "pointermove", pointerMove);
   listen(canvas, "pointerup", pointerUp);
+  listen(document, "mousemove", (e) => {
+    if (mode !== "fp" || blocked() || document.pointerLockElement !== canvas) return;
+    lookYaw -= (e.movementX || 0) * C.lookSpeed;
+    lookPitch = clamp(lookPitch - (e.movementY || 0) * C.lookSpeed, -C.pitchLimit, C.pitchLimit);
+  });
   listen(canvas, "pointercancel", pointerUp);
   listen(canvas, "contextmenu", (e) => e.preventDefault());
   listen(canvas, "wheel", (e) => {
@@ -247,13 +252,19 @@ export function createCameraController({ camera, canvas, game, Farm, view, param
   }
   const close = params.get("close"), preset = params.get("cam");
   if (close === "house") focusAt(630, 440, 1, 14);
-  else if (close === "pond" || preset === "brook") focusAt(999, 626, 0.1, 10);
+  else if (close === "pond") focusAt(999, 626, 0.1, 10);
+  else if (preset === "brook") focusAt(3000, 650 + 400 / 1.65, 0.2, 11);
   else if (close === "chickens" || preset === "chickens") focusAt(620, 760, 0.2, 6);
   else if (/^-?\d+,-?\d+$/.test(close ?? "")) focusAt(...close.split(",").map(Number), 0.2, 8);
   if (preset === "close") { targetDistance = C.minDistance; focusTarget.set(-1.6, 0, 2.8); }
   if (preset === "wide") targetDistance = 130;
   if (preset === "forest") { focusTarget.set(43, 0, -28); targetDistance = 24; }
   distance = targetDistance; focus.copy(focusTarget);
+  if (game.on) listeners.push(game.on((event) => {
+    if (event.type !== "replace") return;
+    const replacement = { ...game.state.player };
+    setPlayer(replacement); setMode(replacement.mode ?? "god");
+  }));
   resize(); setMode(params.get("mode") ?? saved.mode ?? "god", { immediate: true });
   return {
     update, resize, setMode, toggle: () => setMode(mode === "fp" ? "god" : "fp"), focus: focusAt, setPlayer, jump, releasePointer, groundAt,

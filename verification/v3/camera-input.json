@@ -1,0 +1,342 @@
+{
+  "errors": [],
+  "initial": {
+    "mode": "god",
+    "position": [
+      4.964052963457327,
+      25.182792660853536,
+      23.98844207935108
+    ],
+    "focus": [
+      0,
+      -0.03474850997154298,
+      -0.5
+    ],
+    "focusTarget": [
+      0,
+      -0.035,
+      -0.5
+    ],
+    "yaw": 0.2,
+    "pitch": 0.79,
+    "distance": 35.5,
+    "targetDistance": 35.5,
+    "targetYaw": 0.2,
+    "targetPitch": 0.79,
+    "velocity": {
+      "x": 0,
+      "y": 0
+    },
+    "player": {
+      "mode": "god",
+      "x": 650,
+      "y": 700,
+      "yaw": 0,
+      "pitch": 0
+    },
+    "grounded": true,
+    "locked": false
+  },
+  "orbit": {
+    "mode": "god",
+    "position": [
+      -7.990638384934262,
+      32.44580580852839,
+      11.39104990426439
+    ],
+    "focus": [
+      0,
+      -0.034998220551756894,
+      -0.5
+    ],
+    "focusTarget": [
+      0,
+      -0.035,
+      -0.5
+    ],
+    "yaw": -0.5916773029840575,
+    "pitch": 1.1553895244541805,
+    "distance": 35.5,
+    "targetDistance": 35.5,
+    "targetYaw": -0.6972805395493378,
+    "targetPitch": 1.2041294797920024,
+    "velocity": {
+      "x": -0.5347654303854681,
+      "y": 0.24681481402406213
+    },
+    "player": {
+      "mode": "god",
+      "x": 650,
+      "y": 700,
+      "yaw": 0,
+      "pitch": 0
+    },
+    "grounded": true,
+    "locked": false
+  },
+  "wheel": {
+    "before": {
+      "history": 2,
+      "url": "http://127.0.0.1:5180/?local=1&timescale=0&quality=low"
+    },
+    "after": {
+      "history": 2,
+      "url": "http://127.0.0.1:5180/?local=1&timescale=0&quality=low"
+    },
+    "events": [
+      {
+        "prevented": true,
+        "deltaX": 110,
+        "deltaY": 0
+      },
+      {
+        "prevented": true,
+        "deltaY": -300,
+        "ctrlKey": true
+      },
+      {
+        "prevented": true,
+        "deltaY": 80
+      }
+    ]
+  },
+  "close": {
+    "mode": "god",
+    "position": [
+      8.336789781202498,
+      1.5736508286418598,
+      3.3969420830277253
+    ],
+    "focus": [
+      8.722731359709538,
+      -0.03499999999999552,
+      3.0054169891719886
+    ],
+    "focusTarget": [
+      8.722652928213577,
+      -0.035,
+      3.005364284177287
+    ],
+    "yaw": -0.7782166087952789,
+    "pitch": 1.241484588674744,
+    "distance": 1.7000000851851087,
+    "targetDistance": 1.7,
+    "targetYaw": -0.778217044989413,
+    "targetPitch": 1.2414847899951138,
+    "velocity": {
+      "x": -0.0000018044998858715723,
+      "y": 8.328461011714942e-7
+    },
+    "player": {
+      "mode": "god",
+      "x": 650,
+      "y": 700,
+      "yaw": 0,
+      "pitch": 0
+    },
+    "grounded": true,
+    "locked": false
+  },
+  "wide": {
+    "mode": "god",
+    "position": [
+      -24.87693523053222,
+      140.0122569137059,
+      37.09103474798605
+    ],
+    "focus": [
+      8.722674769832702,
+      -0.03499999999999999,
+      3.005378970957787
+    ],
+    "focusTarget": [
+      8.72267476968499,
+      -0.035,
+      3.005378970858525
+    ],
+    "yaw": -0.7782173181010589,
+    "pitch": 1.2414849160466412,
+    "distance": 147.99999963168995,
+    "targetDistance": 148,
+    "targetYaw": -0.77821731810188,
+    "targetPitch": 1.2414849160470203,
+    "velocity": {
+      "x": -3.3963252551450016e-12,
+      "y": 1.567534733143847e-12
+    },
+    "player": {
+      "mode": "god",
+      "x": 650,
+      "y": 700,
+      "yaw": 0,
+      "pitch": 0
+    },
+    "grounded": true,
+    "locked": false
+  },
+  "pointerLock": false,
+  "pointerLockLimitation": "Headless requestPointerLock rejects: The root document of this element is not valid for pointer lock.",
+  "mouseLook": {
+    "before": 0,
+    "after": -0.15508016174383685
+  },
+  "houseCollision": {
+    "mode": "fp",
+    "position": [
+      -1.2,
+      1.665,
+      -3.960387210203711
+    ],
+    "focus": [
+      8.722674769686986,
+      -0.03499999999999999,
+      3.005378970859869
+    ],
+    "focusTarget": [
+      -1.6,
+      0,
+      1.65
+    ],
+    "yaw": -0.778217318101869,
+    "pitch": 1.241484916047015,
+    "distance": 147.9999999150022,
+    "targetDistance": 20,
+    "targetYaw": -0.778217318102192,
+    "targetPitch": 1.2414849160471642,
+    "velocity": {
+      "x": 0,
+      "y": 0
+    },
+    "player": {
+      "mode": "fp",
+      "x": 640,
+      "y": 529.9882663574633,
+      "yaw": 0,
+      "pitch": 0
+    },
+    "grounded": true,
+    "locked": true
+  },
+  "jump": {
+    "y": 0.7534995799999991,
+    "grounded": false
+  },
+  "speed": {
+    "walk": 3.22322120681188,
+    "sprint": 5.38208566115039
+  },
+  "seed": {
+    "bed": 1,
+    "index": 4,
+    "point": {
+      "x": 506.0294452179937,
+      "y": 501.6030851031082,
+      "visible": true
+    },
+    "logical": {
+      "x": 360,
+      "y": 610.10101010101
+    },
+    "target": {
+      "kind": "bed",
+      "id": 1,
+      "index": 4
+    },
+    "before": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "after": [
+      null,
+      null,
+      null,
+      null,
+      "tulip",
+      null
+    ]
+  },
+  "emptySlot": {
+    "slot": 8,
+    "selected": "empty"
+  },
+  "touch": {
+    "before": {
+      "mode": "fp",
+      "position": [
+        -1,
+        1.665,
+        1.65
+      ],
+      "focus": [
+        0,
+        0,
+        -0.5
+      ],
+      "focusTarget": [
+        0,
+        0,
+        -0.5
+      ],
+      "yaw": 0.2,
+      "pitch": 0.79,
+      "distance": 35.5,
+      "targetDistance": 35.5,
+      "targetYaw": 0.2,
+      "targetPitch": 0.79,
+      "velocity": {
+        "x": 0,
+        "y": 0
+      },
+      "player": {
+        "mode": "fp",
+        "x": 650,
+        "y": 700,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "grounded": true,
+      "locked": false
+    },
+    "after": {
+      "mode": "fp",
+      "position": [
+        -1,
+        1.6501311222066886,
+        0.0020984883167858223
+      ],
+      "focus": [
+        0,
+        0,
+        -0.5
+      ],
+      "focusTarget": [
+        0,
+        0,
+        -0.5
+      ],
+      "yaw": 0.2,
+      "pitch": 0.79,
+      "distance": 35.5,
+      "targetDistance": 35.5,
+      "targetYaw": 0.2,
+      "targetPitch": 0.79,
+      "velocity": {
+        "x": 0,
+        "y": 0
+      },
+      "player": {
+        "mode": "fp",
+        "x": 650,
+        "y": 650.0635905550541,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "grounded": true,
+      "locked": false
+    }
+  }
+}
