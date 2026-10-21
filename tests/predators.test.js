@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { S, B, DAY, fresh } from './helpers.js';
-const night = s => { s.time = S.clock.nextTimeAtHour(s.time, 22); s.predatorSchedule.lastNight = S.clock.dayIndex(s.time); };
+const night = s => { s.time = S.clock.nextTimeAtHour(s.time, 22); s.predatorSchedule.lastNight = S.clock.dayIndex(s.time); s.player.mode = 'fp'; };
 function herd(s) { const a = S.spawnAnimal(s, 'cow', 'f'); a.x = -640; a.y = 690; return a; }
 function enclose(s) {
   for (let x = -20; x < -12; x++) for (const y of [26, 31]) s.fences.push({ id: s.nextId++, gx: x, gy: y, axis: 'h', gate: false, open: false });
@@ -31,6 +31,7 @@ test('closed pens block bears and wolves, open gates expose the herd', () => {
 test('flashlight requires first person at night and configured exposure; bears ignore it', () => {
   const s = fresh(); night(s); const wolf = S.forcePredator(s, 'wolf').predator, bear = S.forcePredator(s, 'bear').predator;
   assert.equal(S.illuminate(s, wolf.id, 20, 'god').reason, 'firstPerson'); assert.equal(wolf.exposure, 0);
+  s.player.mode = 'god'; assert.equal(S.illuminate(s, wolf.id, 20, 'fp').reason, 'firstPerson'); s.player.mode = 'fp';
   assert.equal(S.illuminate(s, wolf.id, B.predators.scareSeconds - 0.1).ready, false);
   assert.equal(S.illuminate(s, wolf.id, 0.1).ready, true);
   assert.equal(S.illuminate(s, bear.id, 20).reason, 'immune'); assert.equal(S.scarePredator(s, bear.id).reason, 'immune');
@@ -66,4 +67,13 @@ test('offline catch-up and reload remove danger without attacking or killing', (
   S.catchUp(s, 10000); assert.equal(a.health, 1); assert.equal(a.state, 'alive'); assert.equal(s.predators.length, 0);
   const empty = fresh(); herd(empty); empty.time = S.clock.nextTimeAtHour(0, 20); S.catchUp(empty, 200);
   assert.equal(empty.predators.length, 0); assert.ok(!empty.events.some(q => q.type === 'predatorSpawn'));
+});
+test('removing a nearby wall exposes the target without trapping or teleporting predators', () => {
+  const s = fresh(), a = herd(s); night(s); enclose(s);
+  const p = S.forcePredator(s, 'wolf', { x: -805, y: 690 }).predator;
+  S.stepPredators(s, 1); assert.equal(p.state, 'prowl'); assert.equal(p.target, null);
+  const wall = s.fences.find(f => f.gx === -20 && f.gy === 28 && f.axis === 'v');
+  S.removeFence(s, wall.id);
+  const x = p.x; S.stepPredators(s, 1);
+  assert.equal(p.target, a.id); assert.ok(p.x > x); assert.ok(Math.abs(p.x - x) <= B.predators.wolfSpeed);
 });

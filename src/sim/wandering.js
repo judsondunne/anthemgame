@@ -28,6 +28,13 @@ export function stepWandering(s, h, housing) {
     const period = Math.floor(s.time / W.decisionSeconds), u = hash32(s.seed, a.id, period) / 4294967296;
     const angle = u * Math.PI * 2;
     const out = a.sp !== 'chicken' && !pen && hash32(s.seed, a.id, dayIndex(s.time)) / 4294967296 < W.wanderChance;
+    a.wandering = out && !night;
+    const threat = a.injured && !pen && (s.predators || []).find(p => p.target === a.id && ['attack', 'approach'].includes(p.state) && Math.hypot(p.x - a.x, (p.y - a.y) * 1.65) < B.predators.alertRange / 2);
+    if (threat) {
+      const dx = a.x - threat.x || 1, dy = a.y - threat.y;
+      moveToward(s, a, { x: a.x + dx * 3, y: a.y + dy * 3 }, W.speed * B.predators.restSpeed, h, { avoidAnimals: true });
+      continue;
+    }
     let target;
     if (night || a.calledUntil > s.time) {
       target = home;
@@ -41,7 +48,6 @@ export function stepWandering(s, h, housing) {
       const radius = a.sp === 'chicken' ? W.chickenRadius : out ? W.wanderRadius : W.herdRadius;
       target = { x: home.x + Math.cos(angle) * radius, y: home.y + Math.sin(angle) * radius / 1.65 };
     }
-    a.wandering = out && !night;
     moveToward(s, a, target, W.speed * (a.injured ? B.predators.restSpeed : 1), h, { avoidAnimals: true });
   }
 }

@@ -43,6 +43,15 @@ test("events are transient and never saved", () => {
   s.events.push({ type: "coins", delta: 1 });
   assert.equal(JSON.parse(S.serialize(s)).events, undefined);
 });
+test('schema three persists first-person position, selected tool, layout and animal health', () => {
+  const s = fresh(); s.player = { mode: 'fp', x: -560, y: 650, yaw: 1.2, pitch: -0.4 };
+  S.moveSlot(s, 3, 8); S.selectSlot(s, 8);
+  s.animals[0].health = 45; s.animals[0].injured = true;
+  const back = S.loadText(S.serialize(s)); assert.ok(back.ok);
+  assert.deepEqual(back.state.player, s.player); assert.equal(back.state.selectedSlot, 8);
+  assert.deepEqual(back.state.slots, s.slots); assert.equal(back.state.ui.tool, 'flashlight');
+  assert.equal(back.state.animals[0].health, 45); assert.equal(back.state.animals[0].injured, true);
+});
 
 test("v0 legacy XP saves migrate into a fresh farm", () => {
   const r = S.loadText(JSON.stringify({ xp: 345 }));

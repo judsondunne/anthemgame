@@ -38,11 +38,11 @@ export const BALANCE = {
   fences: {
     price: 3, gatePrice: 12, refund: 0.5, max: 800,
     bounds: { gx0: -110, gx1: 150, gy0: -70, gy1: 140 },
-    maxFloodCells: 60000, nudge: 5,
+    maxFloodCells: 60000, nudge: 5, playerClearance: 14,
   },
   predators: {
     delayIntoNight: 75, maxWolves: 3, bearAfterHerd: 6, bearChance: 0.16,
-    wolfSpeed: 34, bearSpeed: 23, fleeSpeed: 100, spawnRadius: 1550,
+    wolfSpeed: 34, bearSpeed: 23, fleeSpeed: 100, spawnRadius: 2250,
     attackRange: 34, alertRange: 400, wolfDamage: 0.16, bearDamage: 0.32,
     scareSeconds: 1.5, exposureDecay: 1, encounterChance: 0.5,
     retreatSeconds: 12, maxHealth: 100, healPerSecond: 0.4,

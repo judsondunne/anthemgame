@@ -55,3 +55,40 @@ test('animal movement and legacy position updates cannot cross a closed fence', 
   for (let i = 0; i < 200; i++) S.moveToward(s, a, { x: -900, y: 690 }, 20, 1);
   assert.ok(S.isPenned(s, a));
 });
+
+test('placing a fence across the first-person player is refused without consuming stock', () => {
+  const s = fresh(); S.addInventory(s, 'fence', 1);
+  s.player = { mode: 'fp', x: -780, y: 26 * S.layout.CELL_Y, yaw: 0, pitch: 0 };
+  const n = s.inv.fence;
+  assert.equal(S.placeFence(s, -20, 26, 'h').reason, 'player');
+  assert.equal(s.inv.fence, n); assert.equal(s.fences.length, 0);
+});
+test('a purchased animal spawns in the pen enclosing its barn even with a tight door edge', () => {
+  const s = fresh(); s.money = 1e6;
+  s.buildings.push({ id: s.nextId++, type: 'barn', gx: -23, gy: 25 });
+  // The bottom fence is immediately below the building, so its approach point
+  // lies outside. The interior still has grazing room beside the barn.
+  box(s, { gx: -25, gy: 24, w: 10, h: 6 });
+  assert.equal(S.isPenned(s, S.homePoint(s, S.spawnAnimal(s, 'cow', 'f'))), false, 'door approach is deliberately outside');
+  assert.ok(S.isPenned(s, s.animals.at(-1)), 'center-based pen fallback keeps purchase inside');
+  const r = S.buy(s, 'animal_cow_f'); assert.ok(r.ok);
+  assert.ok(S.isPenned(s, s.animals.find(a => a.id === r.id)));
+});
+test('deep brook water blocks movement and fences while the crossing remains walkable', () => {
+  const s = fresh(), wz = 0, wx = 46;
+  assert.equal(S.deepWaterAt(700 + wx * 50, 650 + wz * 50 / 1.65), true);
+  const crossingZ = 8, crossingX = 46 + Math.sin(8 * .045) * 7 + Math.sin(8 * .115) * 1.9;
+  assert.equal(S.deepWaterAt(700 + crossingX * 50, 650 + crossingZ * 50 / 1.65), false);
+  assert.equal(S.checkFencePlacement(s, 75, 26, 'h').ok, false);
+});
+test('unfenced animals return at dusk and can be called home during the day', () => {
+  const s = fresh(), a = S.spawnAnimal(s, 'cow', 'f'), home = S.homePoint(s, a);
+  a.x = home.x + 400; a.y = home.y - 100;
+  s.time = S.clock.nextTimeAtHour(s.time, 20);
+  for (let i = 0; i < 100; i++) S.stepWandering(s, 1, S.housing(s));
+  assert.ok(Math.hypot(a.x - home.x, (a.y - home.y) * 1.65) < 35);
+  s.time = 0; a.x = home.x - 400; a.y = home.y - 90;
+  assert.ok(S.callAnimal(s, a.id).ok);
+  for (let i = 0; i < 100; i++) S.stepWandering(s, 1, S.housing(s));
+  assert.ok(Math.hypot(a.x - home.x, (a.y - home.y) * 1.65) < 35);
+});

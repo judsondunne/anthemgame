@@ -2,6 +2,7 @@
 import { BALANCE as B } from '../config/balance.js';
 import { CELL_X, CELL_Y, OBSTACLES, hitObstacle, placedFootprints, cellRect } from './layout.js';
 import { removeInventory } from './inventory.js';
+import { WORLD } from '../config/world.js';
 
 const fail = reason => ({ ok: false, reason });
 const cache = new WeakMap();
@@ -17,8 +18,16 @@ export function checkFencePlacement(s, gx, gy, axis, gate = false) {
   if ((s.fences || []).length >= B.fences.max) return fail('max');
   if ((s.fences || []).some(f => f.gx === gx && f.gy === gy && f.axis === axis)) return fail('occupied');
   const line = fenceLine({ gx, gy, axis }), footprints = placedFootprints(s);
+  if (s.player?.mode === 'fp') {
+    const player = s.player, clearance = B.fences.playerClearance;
+    if (axis === 'h' && player.x >= line.x1 - clearance && player.x <= line.x2 + clearance && Math.abs(player.y - line.y1) * 1.65 < clearance) return fail('player');
+    if (axis === 'v' && player.y >= line.y1 - clearance / 1.65 && player.y <= line.y2 + clearance / 1.65 && Math.abs(player.x - line.x1) < clearance) return fail('player');
+  }
   for (const t of [0.05, 0.5, 0.95]) {
     const x = line.x1 + (line.x2 - line.x1) * t, y = line.y1 + (line.y2 - line.y1) * t;
+    const wx = (x - 700) / 50, wz = (y - 650) * 1.65 / 50;
+    const streamX = WORLD.brook.x + Math.sin(wz * 0.045) * WORLD.brook.meander + Math.sin(wz * 0.115) * 1.9;
+    if (Math.abs(wx - streamX) < WORLD.brook.halfWidth + 0.30 * Math.sin(wz * 0.09 + 2)) return fail('blocked');
     if (OBSTACLES.some(o => o.kind !== 'path' && hitObstacle(o, x, y))) return fail('blocked');
     if (footprints.some(f => { const r = cellRect(f.gx, f.gy, f.w, f.h); return x > r.x0 + 0.1 && x < r.x1 - 0.1 && y > r.y0 + 0.1 && y < r.y1 - 0.1; })) return fail('blocked');
   }

@@ -1,78 +1,68 @@
-# Balance
+# Balance — living world update
 
-Every number lives in `src/config/balance.js`. `npm run simulate` (`scripts/simulate.js`) plays six scripted strategies against the pure simulation for 150 game minutes with a **30 taps/minute** budget (a relaxed player, not a macro): feeding a flock by scattering grain or a herd at a trough is one tap, watering is one tap per building or bed, harvesting a bed is one tap, buying is two taps plus one to place. `tests/balance.test.js` re-runs the same strategies on every `npm test` and fails if the properties below stop holding.
+Measured with `node scripts/simulate.js 150 --json`, seed 1247, on 21 October 2026. All prices, limits, and game timers live in `src/config/balance.js`. Tests repeat both the progression and night defense benchmarks.
 
-## The intended loop
+## Progression
 
-$1,000 → plant and sell crops, collect eggs → more beds and hens → coop → wheat for hay → barn → cows (milk) → stable → horses (foals) → a full farm.
+Six scripted strategies have a relaxed budget of 30 taps per game minute. One care tap can feed a group or water the animals at a building. The intended progression remains crops → hens → coop → wheat/hay → barn/cows → stable/horses. Inventory now has ten hotbar and 64 backpack slots, with 99 per consumable stack and one per permanent tool. Additional stacks no longer cause an artificial 99-item aggregate limit.
 
-| Milestone (balanced strategy) | Game minute |
+| Balanced milestone | Game minute |
 |---|---:|
-| Coop placed | 1 |
-| Barn placed | 27 |
+| Coop | 1 |
+| Barn | 27 |
 | First cow | 29 |
-| Stable placed | 58 |
+| Stable | 58 |
 | First horse | 68 |
-| All 10 beds, 2 coops, 2 barns, 2 stables | **115** |
+| All ten beds and six buildings | 111 |
 
-The first ten minutes: the starting cash buys two beds, three hens and a coop straight away, eggs and daisies pay out within a minute or two, and net worth is already climbing by minute 10.
+### Net worth
 
-## Net worth over time (money + goods + animals at sell value + half building cost)
+Money + goods + living animals at sale value + half the cost of placed buildings.
 
-| strategy | 0m | 5m | 10m | 15m | 20m | 30m | 45m | 60m | 75m | 90m | 105m | 120m | 135m | 150m |
+| Strategy | 0m | 5m | 10m | 15m | 20m | 30m | 45m | 60m | 75m | 90m | 105m | 120m | 135m | 150m |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | idle | 1,055 | 1,055 | 1,055 | 1,055 | 1,055 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 |
-| daisySpam | 1,055 | 274 | 104 | 356 | 79 | 603 | 742 | 737 | 1,700 | 2,629 | 3,565 | 4,485 | 5,435 | 6,371 |
-| bestCropOnly | 1,007 | 144 | 195 | 467 | 378 | 683 | 556 | 2,487 | 4,388 | 6,302 | 7,992 | 9,919 | 11,465 | 13,358 |
+| daisySpam | 1,055 | 274 | 104 | 356 | 79 | 603 | 743 | 739 | 1,705 | 2,697 | 3,681 | 4,659 | 5,637 | 6,601 |
+| bestCropOnly | 1,007 | 144 | 195 | 467 | 378 | 683 | 557 | 2,489 | 4,411 | 6,391 | 8,141 | 10,120 | 11,728 | 13,687 |
 | chickenFarm | 1,024 | 827 | 844 | 948 | 1,111 | 1,511 | 3,387 | 5,224 | 7,084 | 9,123 | 10,917 | 12,797 | 14,500 | 16,432 |
-| **balanced** | 1,007 | 423 | 793 | 918 | 1,106 | 1,711 | 3,279 | 5,280 | 8,422 | 10,005 | 12,709 | 15,565 | 20,991 | **26,392** |
-| horseRush | 1,007 | 1,008 | 1,107 | 1,197 | 1,287 | 1,389 | 1,682 | 1,921 | 2,266 | 2,530 | 1,616 | 1,832 | 2,126 | 2,362 |
+| balanced | 1,007 | 423 | 793 | 918 | 1,106 | 1,711 | 3,278 | 5,278 | 8,415 | 9,916 | 12,438 | 15,363 | 20,776 | 26,355 |
+| horseRush | 1,007 | 1,008 | 1,107 | 1,197 | 1,287 | 1,389 | 1,683 | 1,923 | 2,289 | 2,619 | 1,721 | 2,044 | 2,370 | 2,699 |
 
-## Money on hand over time
+| Strategy | Final money | Final worth | Deaths | Taps |
+|---|---:|---:|---:|---:|
+| idle | 1,000 | 1,000 | 2 | 0 |
+| daisySpam | 6,468 | 6,601 | 0 | 4499.5 |
+| bestCropOnly | 13,494 | 13,687 | 0 | 1821 |
+| chickenFarm | 15,557 | 16,432 | 0 | 4337 |
+| balanced | 12,703 | 26,355 | 0 | 4161.5 |
+| horseRush | 1,304 | 2,699 | 0 | 643.5 |
 
-| strategy | 0m | 5m | 10m | 15m | 20m | 30m | 45m | 60m | 75m | 90m | 105m | 120m | 135m | 150m |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| idle | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 | 1,000 |
-| daisySpam | 1,000 | 198 | 49 | 275 | 24 | 526 | 634 | 630 | 1,560 | 2,483 | 3,419 | 4,331 | 5,325 | 6,249 |
-| bestCropOnly | 952 | 52 | 94 | 314 | 305 | 604 | 466 | 2,302 | 4,258 | 6,114 | 7,840 | 9,748 | 11,322 | 13,158 |
-| chickenFarm | 939 | 293 | 29 | 57 | 134 | 609 | 2,316 | 4,265 | 6,146 | 8,230 | 10,042 | 11,902 | 13,618 | 15,557 |
-| balanced | 952 | 48 | 370 | 126 | 256 | 214 | 225 | 331 | 1,707 | 461 | 662 | 3,178 | 6,776 | 9,839 |
-| horseRush | 952 | 928 | 1,048 | 1,120 | 1,222 | 1,318 | 1,576 | 1,804 | 2,122 | 2,410 | 76 | 330 | 600 | 864 |
+The balanced farm completes at minute 111 with zero deaths and finishes above every single-resource strategy by at least 30%. Crop income remains limited by ten beds, growth times, escalating bed prices, and repeated planting/watering. Animal capacity remains limited by housing and the global cap of 30. Buying and immediately selling animals loses money. Ignoring care still loses both starter hens at minute 24.
 
-The balanced player keeps spending as it climbs (money stays low until the farm is complete at minute 115), then banks quickly: about $400/min after the build-out.
+## Night defenses
 
-| strategy | milestones | deaths | taps used |
-|---|---|---:|---:|
-| idle | first death at 24 min | 2 | 0 |
-| daisySpam | all beds at 50 | 0 | 4,500 |
-| bestCropOnly | all beds at 40 | 0 | 1,760 |
-| chickenFarm | coop at 0 | 0 | 4,337 |
-| balanced | coop 1, barn 27, cow 29, stable 58, horse 68, full farm 115 | 0 | 4,163 |
-| horseRush | stable at 93 | 0 | 597 |
+The defense benchmark starts with the same six adult female animals (four cows and two horses), seed 1247, and runs twelve full nights. Care clocks reset every 30 seconds, so the table isolates predator harm rather than starvation. The partial pen has one missing segment. The full pen encloses an eight-by-five-cell region with one closed gate. Active flashlight play models a first-person player aiming for 1.5 seconds at wolves within 550 logical units of the herd area; this is a headless response model rather than a measurement of human reaction or browser aim.
 
-## Why no strategy degenerates
+| Defense | Fence cost | Total damage | Lowest health | Deaths | Survivors | Wolf pack scares | Predator spawns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| noFences | 0 | 585 | 41 | 0 | 6 | 0 | 20 |
+| partialFence | 84 | 207 | 54 | 0 | 6 | 0 | 20 |
+| closedPen | 87 | 0 | 100 | 0 | 6 | 0 | 20 |
+| activeFlashlight | 0 | 266 | 53 | 0 | 6 | 6 | 20 |
 
-- **Land plateaus.** Crop margins are small per plot ($1.2–2.0/min) and beds are capped at 10 with escalating prices (100 × 1.32ⁿ), so crop income tops out around $120/min and grows linearly, never compounding. The cheapest crop is also the most labour-hungry (replant every 50 s), so daisy spam is the weakest farming plan (6.4k at 150 min).
-- **Each animal tier is capped by housing**, with a global cap of 30 animals; growth beyond the cap is impossible, and babies wait for room.
-- **No arbitrage.** Every animal sells for less than it costs; seeds and feed cannot be resold. Daily sell prices drift deterministically by at most ±10%.
-- **Later tiers earn more in total but pay back slower**, so the interesting decisions are about order, not a single best item. Steady-state $/min at full capacity: hens $4 (coop $6), cows $19 each, a breeding horse pair ~$98 in foals, a lavender bed ~$12. A full farm earns ~$530/min, roughly four times any single-resource plan.
-- **Rushing is punished**: saving straight for a stable with no income takes 93 minutes (horseRush).
-- **Neglect costs**: the idle farm loses both hens by minute 24.
+The closed pen prevents all damage for 87 coins. An incomplete loop provides no enclosure protection, even though physical segments can delay approach. Regular care avoids a wipeout in this twelve-night sample. The flashlight reduces exposure but cannot protect against bears; fences remain the dependable defense. Sustained attacks can kill an already injured or uncared-for animal, as a separate lifecycle test verifies.
 
-## Key numbers (excerpt of balance.js)
+### Rules and tuning
 
-| | value |
-|---|---|
-| day / night | 300 s / 300 s (one game day = 10 real minutes) |
-| start | $1,000; 1 bed with 2 daisies; 4 daisy + 3 wheat seeds; 6 chicken feed; hen + rooster |
-| crops (seed $ / grow s / yield / sell $) | daisy 1/50/1/2, wheat 1/90/2 hay, tulip 3/120/1/6, cabbage 5/180/1/10, sunflower 8/260/1/16, lavender 12/360/1/24 |
-| one watering | 160 s of growth |
-| beds | 6 plots; $100 × 1.32ⁿ; max 10 |
-| hens / roosters | $60 / $50 (sell $30 / $25); egg every 90 s, $6 |
-| cows / bulls | $300 / $250 (sell $220 / $180); milk every 240 s, $70 |
-| mares / stallions | $2,200 / $2,000 (sell $1,800 / $1,600) |
-| coop / barn / stable | $400 (+6 hens, eggs ×1.5, fertility ×1.5) / $900 (+4 cows) / $2,500 (+4 horses, fertility ×1.15) |
-| needs | hungry after 240–300 s, thirsty after 220–260 s; urgent after 1 day unmet, sad 1.5, dead 2, bones 0.5 later |
-| breeding / growing | a content pair: one baby per 2 game days ÷ fertility; juveniles mature in 3 game days |
-| offline catch-up | at most 600 game s; need clocks frozen |
-| anti-softlock | broke + nothing to plant/sell/collect → 3 daisy seeds every 45 s; hungry animals with no food and no money → 1 feed each |
+- Only cows and horses are predator targets; chickens stay near home and are never targeted.
+- The first encounter is one wolf after the farm owns a cow or horse. Later packs contain one to three wolves. Bears require at least six large animals and have a 16% eligible-night chance.
+- Spawns wait 75 seconds into the 300-second night. Wolves move at 34 logical units/s and deal 0.16 health/s; bears move at 23 and deal 0.32. All health starts at 100. Fed and watered animals heal at 0.4 health/s while out of an attack.
+- Wolves require 1.5 seconds of flashlight exposure in first person at night. God View cannot scare them. Bears are immune. One seeded 50% suspense draw is shared by a pack; the renderer owns the real-time flicker, two-second pause, and lunge.
+- Fences cost 3 per segment, gates cost 12, and deletion refunds 50% of the purchase value rounded to a coin. Solid segments and closed gates block animal/player/predator movement; open gates break enclosure protection.
+- Offline catch-up caps at 600 game seconds, freezes animal needs, causes no attacks or predator deaths, and despawns danger. Live predators and alerts are deliberately omitted from saves, while the completed-night schedule is preserved to avoid an immediate repeat on reload.
+- Permanent hand, watering can, fishing rod, and flashlight tools can move between slots but cannot be sold or discarded. Failed full-inventory purchases/harvests/collections are atomic, with crops and pickups left in the world.
+- Anti-softlock seed/feed gifts remain active; wolves never target the gift-producing starter chickens. Free permanent tools and daytime recovery keep a broke farm playable.
+
+## Validation
+
+`npm test` covers the progression thresholds, defense comparison, every seed across all ten beds and growth stages, fence placement/refund/gates/enclosures/corner collision, animal fence collision, inventory moves/merges/splits/full capacity/migration, targeting, first-person exposure timing, bear immunity, encounter determinism, damage/healing/death/bones, dawn cleanup, and offline/reload safety. Browser graphics and performance are verified separately by the main implementation report.

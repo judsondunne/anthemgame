@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runStrategies } from "../scripts/simulate.js";
+import { runStrategies, runPredatorStrategies } from "../scripts/simulate.js";
 
 const results = Object.fromEntries(runStrategies(150).map((r) => [r.name, r]));
 const worth = (name, min) => results[name].log.find((l) => l.min === min).worth;
@@ -30,4 +30,16 @@ test("balance: the first ten minutes build up the farm", () => {
   assert.ok(b.s.stats.spent > 0);
   assert.ok(worth("balanced", 15) > worth("balanced", 5), "assets grow early");
   assert.ok(results.idle.s.stats.deaths > 0, "ignoring animals has consequences");
+});
+
+test('balance: a modest closed pen prevents all damage and active flashlight play reduces exposure', () => {
+  const outcomes = Object.fromEntries(runPredatorStrategies(12).map(r => [r.name, r]));
+  assert.equal(outcomes.closedPen.damage, 0);
+  assert.equal(outcomes.closedPen.lowestHealth, 100);
+  assert.ok(outcomes.closedPen.fenceCost < 100, 'a modest pen is inexpensive');
+  assert.ok(outcomes.noFences.damage > 0);
+  assert.ok(outcomes.partialFence.damage > 0, 'a gap is not protective');
+  assert.ok(outcomes.activeFlashlight.damage < outcomes.noFences.damage);
+  assert.ok(outcomes.activeFlashlight.scares > 0);
+  for (const result of Object.values(outcomes)) assert.equal(result.deaths, 0, 'regular care avoids disaster over twelve nights');
 });

@@ -2,7 +2,7 @@
 // No DOM, Three.js or wall-clock access; randomness comes from state.rng.
 import { BALANCE as B, DAY_SECONDS as DAY } from "../config/balance.js";
 import { SPECIES, CROPS, GOODS, SEEDS, KITS, kitType, goodBaseValue, foodsFor } from "./catalog.js";
-import { BASE_COOP, STARTER_BED, ZONES, frontOf, openGround, plotPosition } from "./layout.js";
+import { BASE_COOP, STARTER_BED, ZONES, frontOf, openGround, plotPosition, footprintCenter, footprintOf, CELL_X, CELL_Y } from "./layout.js";
 import { nextRandom, hash32 } from "./rng.js";
 import { dayIndex, nextTimeAtHour } from "./clock.js";
 import { initializeInventory, addInventory, inventoryCapacity } from './inventory.js';
@@ -193,7 +193,20 @@ export function spawnAnimal(s, sp, sex, { age = 1, near = null, variant = null }
     injured: false,
   };
   s.animals.push(a);
-  const p = scatterNear(s, lawnOf(sp), near ?? homePoint(s, a), 60) ?? near ?? homePoint(s, a);
+  let home = near ?? homePoint(s, a);
+  if (!near && !penAt(s, home.x, home.y)) {
+    const building = homeBuilding(s, a);
+    if (building) {
+      const [w, h] = footprintOf(building.type), center = footprintCenter(building.gx, building.gy, w, h);
+      const pen = penAt(s, center.x, center.y);
+      if (pen) {
+        const points = pen.cells.map(c => ({ x: (c.gx + 0.5) * CELL_X, y: (c.gy + 0.5) * CELL_Y })).filter(p => openGround(s, lawnOf(sp), p.x, p.y));
+        points.sort((p, q) => Math.hypot(p.x - home.x, (p.y - home.y) * 1.65) - Math.hypot(q.x - home.x, (q.y - home.y) * 1.65));
+        home = points[0] ?? home;
+      }
+    }
+  }
+  const p = scatterNear(s, lawnOf(sp), home, 60) ?? home;
   a.x = p.x;
   a.y = p.y;
   return a;

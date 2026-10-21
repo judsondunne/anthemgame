@@ -50,7 +50,7 @@ export const scare = scarePredator;
 export function illuminate(s, id, seconds, mode = 'fp') {
   const p = s.predators.find(q => q.id === id);
   if (!p) return { ok: false, reason: 'unknown' };
-  if (mode !== 'fp') return { ok: false, reason: 'firstPerson' };
+  if (mode !== 'fp' || s.player?.mode !== 'fp') return { ok: false, reason: 'firstPerson' };
   if (p.kind === 'bear') return { ok: false, reason: 'immune' };
   if (!isNightAt(s.time)) return { ok: false, reason: 'daylight' };
   if (!(seconds > 0) || !Number.isFinite(seconds)) return { ok: false, reason: 'duration' };
@@ -92,7 +92,13 @@ export function stepPredators(s, h) {
     if (p.state === 'encounter') continue;
     if (p.litAt !== undefined && s.time - p.litAt > 1) p.exposure = Math.max(0, p.exposure - P.exposureDecay * h);
     const a = targetFor(s, p); p.target = a?.id ?? null;
-    if (!a) { p.state = 'prowl'; continue; }
+    if (!a) {
+      p.state = 'prowl';
+      const protectedAnimal = s.animals.filter(q => q.state === 'alive' && q.sp !== 'chicken').sort((a, b) => distance(p, a) - distance(p, b))[0];
+      p.prowlTarget = protectedAnimal?.id ?? null;
+      if (protectedAnimal) moveToward(s, p, protectedAnimal, (p.kind === 'wolf' ? P.wolfSpeed : P.bearSpeed) * 0.55, h);
+      continue;
+    }
     const d = distance(p, a);
     if (d < P.alertRange) alerts.push({ id: p.id, predator: p.id, kind: p.kind, animal: a.id, sp: a.sp, x: a.x, y: a.y, attacking: d <= P.attackRange });
     if (d > P.attackRange || fenceBlocked(s, p.x, p.y, a.x, a.y)) {

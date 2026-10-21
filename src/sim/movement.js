@@ -3,10 +3,19 @@
 import { BALANCE as B } from '../config/balance.js';
 import { OBSTACLES, hitObstacle, placedFootprints, cellRect, CELL_X, CELL_Y } from './layout.js';
 import { fenceBlocked } from './fences.js';
+import { WORLD } from '../config/world.js';
+
+export function deepWaterAt(x, y) {
+  const wx = (x - 700) / 50, wz = (y - 650) * 1.65 / 50;
+  const streamX = WORLD.brook.x + Math.sin(wz * 0.045) * WORLD.brook.meander + Math.sin(wz * 0.115) * 1.9;
+  const halfWidth = WORLD.brook.halfWidth + 0.30 * Math.sin(wz * 0.09 + 2);
+  return Math.abs(wz - WORLD.brook.crossingZ) > WORLD.brook.crossingHalfDepth && Math.abs(wx - streamX) < halfWidth;
+}
 
 export function groundBlocked(s, x, y) {
   const z = B.fences.bounds;
   if (x < z.gx0 * CELL_X || x > z.gx1 * CELL_X || y < z.gy0 * CELL_Y || y > z.gy1 * CELL_Y) return true;
+  if (deepWaterAt(x, y)) return true;
   if (OBSTACLES.some(o => o.kind !== 'path' && hitObstacle(o, x, y))) return true;
   return placedFootprints(s).some(f => {
     const r = cellRect(f.gx, f.gy, f.w, f.h);

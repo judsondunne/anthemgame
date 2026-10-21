@@ -244,13 +244,58 @@ export function runStrategies(minutes = MINUTES) {
   return out;
 }
 
+// A second deterministic benchmark isolates night defenses on the same herd.
+// Animals are cared for every 30 s so neglect cannot mask predator outcomes.
+export function runPredatorStrategies(nights = 12) {
+  return ['noFences', 'partialFence', 'closedPen', 'activeFlashlight'].map(name => {
+    const s = S.createState({ seed: 1247 }); s.animals = []; s.pickups = [];
+    if (name === 'activeFlashlight') s.player.mode = 'fp';
+    for (let i = 0; i < 6; i++) {
+      const a = S.spawnAnimal(s, i < 4 ? 'cow' : 'horse', 'f');
+      a.x = -620 + (i % 3) * 15; a.y = 680 + Math.floor(i / 3) * 15;
+    }
+    let fenceCost = 0;
+    if (['partialFence', 'closedPen'].includes(name)) {
+      S.addInventory(s, 'fence', 26); S.addInventory(s, 'gate', 1);
+      for (let x = -20; x < -12; x++) {
+        if (!(name === 'partialFence' && x === -18)) {
+          if (S.placeFence(s, x, 26, 'h').ok) fenceCost += B.fences.price;
+        }
+        if (S.placeFence(s, x, 31, 'h', x === -17).ok) fenceCost += x === -17 ? B.fences.gatePrice : B.fences.price;
+      }
+      for (let y = 26; y < 31; y++) for (const x of [-20, -12]) if (S.placeFence(s, x, y, 'v').ok) fenceCost += B.fences.price;
+    }
+    let damage = 0, lowestHealth = 100, scares = 0, alerts = 0, spawns = 0;
+    for (let t = 0; t < nights * S.DAY_SECONDS; t++) {
+      if (t % 30 === 0) for (const a of s.animals) if (a.state === 'alive') a.hunger = a.thirst = 0;
+      const before = new Map(s.animals.map(a => [a.id, a.health]));
+      S.tick(s, 1);
+      for (const a of s.animals) {
+        damage += Math.max(0, (before.get(a.id) ?? 100) - a.health);
+        lowestHealth = Math.min(lowestHealth, a.health);
+      }
+      if (name === 'activeFlashlight') for (const p of s.predators) {
+        if (p.kind !== 'wolf' || p.state === 'flee' || Math.hypot(p.x + 620, (p.y - 690) * 1.65) > 550) continue;
+        const r = S.illuminate(s, p.id, 1, 'fp');
+        if (r.ready && S.scarePredator(s, p.id).ok) scares++;
+      }
+      for (const e of S.drainEvents(s)) {
+        if (e.type === 'predatorAlert') alerts++;
+        if (e.type === 'predatorSpawn') spawns++;
+      }
+    }
+    return { name, nights, fenceCost, damage: Math.round(damage), lowestHealth: Math.round(lowestHealth), deaths: s.stats.deaths, survivors: S.alive(s).length, scares, alerts, spawns };
+  });
+}
+
 const direct = import.meta.url === `file://${process.argv[1]}`;
 const results = direct ? runStrategies() : [];
+const predatorResults = direct ? runPredatorStrategies() : [];
 
 if (!direct) {
   // imported by tests
 } else if (JSON_OUT) {
-  console.log(JSON.stringify(results.map((r) => ({ name: r.name, log: r.log, milestones: r.milestones, taps: r.taps, deaths: r.s.stats.deaths, final: { money: r.s.money, worth: r.netWorth() } })), null, 2));
+  console.log(JSON.stringify({ progression: results.map((r) => ({ name: r.name, log: r.log, milestones: r.milestones, taps: r.taps, deaths: r.s.stats.deaths, final: { money: r.s.money, worth: r.netWorth() } })), predators: predatorResults }, null, 2));
 } else {
   const mins = results[0].log.map((l) => l.min);
   const pad = (v, n = 9) => String(v).padStart(n);
@@ -262,4 +307,6 @@ if (!direct) {
   for (const r of results) console.log(r.name.padEnd(13) + r.log.map((l) => pad(l.worth, 8)).join(""));
   console.log(`\nMilestones (minute reached)\n`);
   for (const r of results) console.log(r.name.padEnd(13) + JSON.stringify(r.milestones) + `  deaths=${r.s.stats.deaths} taps=${Math.round(r.taps)} animals=${S.alive(r.s).length} beds=${r.s.beds.length}`);
+  console.log('\nNight defense benchmark (same six cared-for animals, 12 nights)');
+  for (const r of predatorResults) console.log(JSON.stringify(r));
 }
