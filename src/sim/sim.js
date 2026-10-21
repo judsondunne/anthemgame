@@ -5,6 +5,10 @@ import { SPECIES, CROPS, GOODS, SEEDS, KITS, kitType, goodBaseValue, foodsFor } 
 import { BASE_COOP, STARTER_BED, ZONES, frontOf, openGround, plotPosition } from "./layout.js";
 import { nextRandom, hash32 } from "./rng.js";
 import { dayIndex, nextTimeAtHour } from "./clock.js";
+import { initializeInventory, addInventory, inventoryCapacity } from './inventory.js';
+import { stepPredators } from './predators.js';
+import { stepWandering } from './wandering.js';
+import { penAt } from './fences.js';
 
 export const SCHEMA_VERSION = B.save.schemaVersion;
 
@@ -25,10 +29,16 @@ export function createState({ seed = B.start.seed } = {}) {
     time: 0,
     money: B.start.money,
     inv: {},
+    inventoryOverflow: [],
     beds: [],
     buildings: [],
     animals: [],
     pickups: [],
+    fences: [],
+    predators: [],
+    alerts: [],
+    predatorSchedule: { lastNight: -1, encounters: 0 },
+    player: { mode: 'god', x: 650, y: 700, yaw: 0, pitch: 0 },
     softlock: { clock: 0 },
     celebrated: { cow: false, horse: false },
     stats: { earned: 0, spent: 0, sold: 0, harvested: 0, births: 0, deaths: 0, legacyXp: 0 },
@@ -37,6 +47,7 @@ export function createState({ seed = B.start.seed } = {}) {
     events: [],
   };
   for (const [k, n] of Object.entries(B.start.inventory)) s.inv[k] = n;
+  initializeInventory(s);
   const bed = { id: newId(s), gx: STARTER_BED.gx, gy: STARTER_BED.gy, plots: Array.from({ length: B.beds.plots }, emptyPlot) };
   B.start.planted.forEach((crop, i) => (bed.plots[i] = { crop, g: 0, w: 0 }));
   s.beds.push(bed);
@@ -119,6 +130,8 @@ export function bedPrice(s) {
 }
 
 export function buyPrice(s, key) {
+  if (key === 'fence') return B.fences.price;
+  if (key === 'gate') return B.fences.gatePrice;
   if (SEEDS.includes(key)) return B.crops[key.slice(5)].seed;
   if (key in B.feed) return B.feed[key].price;
   if (key === "kit_bed") return bedPrice(s);
@@ -148,13 +161,14 @@ export function plotStage(p) {
 // Random open spot near a point, widening in rings when the area is crowded
 // (e.g. a coop placed hard against a bed).
 function scatterNear(s, lawn, near, spread) {
+  const enclosure = penAt(s, near.x, near.y);
   for (let ring = 1; ring <= 4; ring++)
     for (let i = 0; i < 16; i++) {
       const ang = nextRandom(s) * Math.PI * 2,
         r = spread * ring * (0.3 + 0.7 * nextRandom(s));
       const x = near.x + Math.cos(ang) * r,
         y = near.y + Math.sin(ang) * r * 0.6;
-      if (openGround(s, lawn, x, y) && !s.pickups.some((p) => Math.hypot(p.x - x, p.y - y) < 18)) return { x, y };
+      if (openGround(s, lawn, x, y) && (!enclosure || penAt(s, x, y)?.id === enclosure.id) && !s.pickups.some((p) => Math.hypot(p.x - x, p.y - y) < 18)) return { x, y };
     }
   return openGround(s, lawn, near.x, near.y) ? { x: near.x, y: near.y } : null;
 }
@@ -175,6 +189,8 @@ export function spawnAnimal(s, sp, sex, { age = 1, near = null, variant = null }
     deadFor: 0,
     x: 0,
     y: 0,
+    health: B.predators.maxHealth,
+    injured: false,
   };
   s.animals.push(a);
   const p = scatterNear(s, lawnOf(sp), near ?? homePoint(s, a), 60) ?? near ?? homePoint(s, a);
@@ -231,7 +247,10 @@ function softlockStep(s, h) {
     const k = foodsFor(a.sp)[0];
     gift[k] = (gift[k] ?? 0) + B.softlock.feedPerHungryAnimal;
   }
-  for (const [k, n] of Object.entries(gift)) s.inv[k] = Math.min(B.inventory.stackMax, count(s, k) + n);
+  for (const [k, n] of Object.entries(gift)) {
+    const add = Math.min(n, inventoryCapacity(s, k));
+    if (add > 0) addInventory(s, k, add);
+  }
   s.events.push({ type: "gift", items: gift });
 }
 
@@ -314,6 +333,10 @@ function stepOnce(s, h, offline) {
   }
 
   if (!offline) softlockStep(s, h);
+  if (!offline) {
+    stepWandering(s, h, hs);
+    stepPredators(s, h);
+  }
 }
 
 export function tick(s, dt, { offline = false } = {}) {
@@ -332,6 +355,10 @@ export function tick(s, dt, { offline = false } = {}) {
 export function catchUp(s, realSeconds) {
   const dt = Math.min(Math.max(0, Number.isFinite(realSeconds) ? realSeconds : 0), B.offline.capSeconds);
   tick(s, dt, { offline: true });
+  if (dt > 0) {
+    s.predators = []; s.alerts = [];
+    s.predatorSchedule.lastNight = dayIndex(s.time);
+  }
   return dt;
 }
 

@@ -14,6 +14,8 @@ export const ANIMAL_ITEMS = SPECIES.flatMap((sp) =>
 );
 
 export function itemKind(key) {
+  if (["fence", "gate"].includes(key)) return "fence";
+  if (["hand", "can", "fish", "flashlight"].includes(key)) return "tool";
   if (SEEDS.includes(key)) return "seed";
   if (FEEDS.includes(key)) return "feed";
   if (KITS.includes(key)) return "kit";
@@ -35,4 +37,4 @@ export function goodBaseValue(key) {
 // Which foods each species accepts, best first.
 export const foodsFor = (sp) => B.species[sp].food;
 
-export const BUY_ORDER = [...SEEDS, ...FEEDS, ...ANIMAL_ITEMS.map((a) => a.key), "kit_coop", "kit_barn", "kit_stable", "kit_bed"];
+export const BUY_ORDER = [...SEEDS, ...FEEDS, ...ANIMAL_ITEMS.map((a) => a.key), "kit_coop", "kit_barn", "kit_stable", "kit_bed", "fence", "gate"];

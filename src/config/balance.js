@@ -25,7 +25,7 @@ export const BALANCE = {
   },
 
   save: {
-    schemaVersion: 2,
+    schemaVersion: 3,
     localDebounceMs: 2000,
     serverDebounceMs: 5000,
     requestTimeoutMs: 4000,
@@ -33,7 +33,22 @@ export const BALANCE = {
     positionSyncSeconds: 1, // real seconds between agent position write-backs
   },
 
-  inventory: { stackMax: 99 },
+  inventory: { stackMax: 99, hotbarSlots: 10, backpackSlots: 64 },
+
+  fences: {
+    price: 3, gatePrice: 12, refund: 0.5, max: 800,
+    bounds: { gx0: -110, gx1: 150, gy0: -70, gy1: 140 },
+    maxFloodCells: 60000, nudge: 5,
+  },
+  predators: {
+    delayIntoNight: 75, maxWolves: 3, bearAfterHerd: 6, bearChance: 0.16,
+    wolfSpeed: 34, bearSpeed: 23, fleeSpeed: 100, spawnRadius: 1550,
+    attackRange: 34, alertRange: 400, wolfDamage: 0.16, bearDamage: 0.32,
+    scareSeconds: 1.5, exposureDecay: 1, encounterChance: 0.5,
+    retreatSeconds: 12, maxHealth: 100, healPerSecond: 0.4,
+    injuryThreshold: 60, restSpeed: 0.65,
+  },
+  wandering: { speed: 9, chickenRadius: 72, herdRadius: 165, wanderRadius: 650, wanderChance: 0.24, decisionSeconds: 24, returnRadius: 30 },
 
   start: {
     money: 1000,

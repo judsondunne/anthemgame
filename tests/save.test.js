@@ -76,7 +76,7 @@ test("v1 saves migrate to the current schema", () => {
   const r = S.loadText(JSON.stringify(v1));
   assert.ok(r.ok, r.reason);
   const s = r.state;
-  assert.equal(s.schemaVersion, 2);
+  assert.equal(s.schemaVersion, S.SCHEMA_VERSION);
   assert.equal(s.money, 777);
   assert.deepEqual(s.inv, { seed_tulip: 4, egg: 3 });
   assert.equal(s.animals[0].state, "alive");

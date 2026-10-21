@@ -49,7 +49,8 @@ test("rapid-tap spam can never overspend or exceed limits", () => {
   for (let i = 0; i < 500; i++) S.buy(s, "kit_bed");
   assert.equal(S.ownedOf(s, "bed"), B.beds.max);
   for (let i = 0; i < 500; i++) S.buy(s, "seed_daisy");
-  assert.equal(s.inv.seed_daisy, B.inventory.stackMax);
+  assert.equal(s.inv.seed_daisy, 504, 'purchases spill into additional capped slots');
+  assert.ok(s.slots.every(q => !q || q.n <= S.stackLimit(q.key)));
   assert.ok(s.money >= 0);
 });
 
@@ -145,19 +146,27 @@ test("placement rejects overlap, wrong zones and out-of-bounds cells", () => {
   assert.equal(S.place(s, "kit_bed", gardenCell.gx, gardenCell.gy).reason, "noKit");
 });
 
-test("inventory stacks are capped for buying, harvesting and collecting", () => {
+test("full inventory refuses buying, harvesting and collecting without losing world items", () => {
   const s = fresh(),
     bed = s.beds[0];
-  s.inv.seed_daisy = B.inventory.stackMax;
+  s.inv = {};
+  S.syncInventory(s);
+  const fill = key => {
+    s.inv = {};
+    S.syncInventory(s);
+    assert.ok(S.addInventory(s, key, S.inventoryCapacity(s, key)).ok);
+  };
+  fill('seed_daisy');
   assert.equal(S.buy(s, "seed_daisy").reason, "stack");
-  s.inv.feed_chicken = B.inventory.stackMax - B.feed.feed_chicken.units + 1;
+  fill('feed_chicken');
+  S.removeInventory(s, 'feed_chicken', B.feed.feed_chicken.units - 1);
   assert.equal(S.buy(s, "feed_chicken").reason, "stack");
-  s.inv.daisy = B.inventory.stackMax;
+  fill('daisy');
   S.waterBed(s, bed.id);
   S.tick(s, B.crops.daisy.grow);
   assert.equal(S.harvest(s, bed.id, 0).reason, "stack");
   assert.equal(bed.plots[0].crop, "daisy", "crop waits in the bed");
-  s.inv.egg = B.inventory.stackMax;
+  fill('egg');
   s.pickups.push({ id: S.newId(s), kind: "egg", x: 300, y: 860, t: 0 });
   assert.equal(S.collect(s, s.pickups[0].id).reason, "stack");
   assert.equal(s.pickups.length, 1, "egg stays in the world");

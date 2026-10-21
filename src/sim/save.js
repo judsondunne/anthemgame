@@ -2,19 +2,21 @@
 import { BALANCE as B } from "../config/balance.js";
 import { SPECIES, CROPS, KITS, BUILDING_TYPES, SEEDS, FEEDS, GOODS } from "./catalog.js";
 import { createState, SCHEMA_VERSION } from "./sim.js";
+import { initializeInventory, syncInventory, SLOT_COUNT } from './inventory.js';
+import { dayIndex } from './clock.js';
 
 export { SCHEMA_VERSION };
-const ITEM_KEYS = new Set([...SEEDS, ...FEEDS, ...GOODS, ...KITS]);
+const ITEM_KEYS = new Set([...SEEDS, ...FEEDS, ...GOODS, ...KITS, 'fence', 'gate']);
 const DAY = B.time.cycleSeconds;
 
 export function toDoc(s) {
-  const { events, ...doc } = s;
+  syncInventory(s);
+  const { events, predators, alerts, ...doc } = s;
   return JSON.parse(JSON.stringify(doc));
 }
 
 export function serialize(s) {
-  const { events, ...doc } = s;
-  return JSON.stringify(doc);
+  return JSON.stringify(toDoc(s));
 }
 
 // v0: the pre-economy garden only stored { xp } under 'garden-progress'.
@@ -50,7 +52,17 @@ function fromV1(doc) {
   };
 }
 
-const MIGRATIONS = { 0: fromV0, 1: fromV1 };
+function fromV2(doc) {
+  const next = { ...doc, schemaVersion: 3,
+    fences: doc.fences || [], predators: [], alerts: [],
+    player: doc.player || { mode: 'god', x: 650, y: 700, yaw: 0, pitch: 0 },
+    predatorSchedule: { lastNight: dayIndex(Number(doc.time) || 0), encounters: 0 },
+    animals: (doc.animals || []).map(a => ({ ...a, health: a.health ?? B.predators.maxHealth, injured: false })),
+  };
+  initializeInventory(next);
+  return next;
+}
+const MIGRATIONS = { 0: fromV0, 1: fromV1, 2: fromV2 };
 
 export function migrate(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw Error("not an object");
@@ -68,6 +80,7 @@ export function migrate(raw) {
 
 const num = (x, d = 0) => (Number.isFinite(Number(x)) ? Number(x) : d);
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const inventoryCount = n => { const c = Math.max(0, Math.floor(num(n))); return c > B.inventory.stackMax * SLOT_COUNT ? B.inventory.stackMax : c; };
 
 // Repairs recoverable damage and rejects documents too broken to trust.
 export function validate(doc) {
@@ -86,7 +99,7 @@ export function validate(doc) {
   }
   s.inv = {};
   for (const [k, n] of Object.entries(doc.inv ?? {})) {
-    const c = clamp(Math.floor(num(n)), 0, B.inventory.stackMax);
+    const c = inventoryCount(n);
     if (ITEM_KEYS.has(k) && c > 0) s.inv[k] = c;
     else if (!ITEM_KEYS.has(k)) problems.push("item " + k);
   }
@@ -126,12 +139,27 @@ export function validate(doc) {
       deadFor: Math.max(0, num(a.deadFor)),
       x: num(a.x),
       y: num(a.y),
+      health: clamp(num(a.health, B.predators.maxHealth), 0, B.predators.maxHealth),
+      injured: num(a.health, B.predators.maxHealth) < B.predators.injuryThreshold,
+      ...(Number.isFinite(a.heading) ? { heading: a.heading } : {}),
+      ...(Number.isFinite(a.calledUntil) ? { calledUntil: a.calledUntil } : {}),
+      ...(Number.isFinite(a.lastHurt) ? { lastHurt: a.lastHurt } : {}),
+      ...(a.deathCause ? { deathCause: a.deathCause } : {}),
+      ...(typeof a.penned === 'boolean' ? { penned: a.penned } : {}),
+      ...(typeof a.wandering === 'boolean' ? { wandering: a.wandering } : {}),
     }));
   s.pickups = (Array.isArray(doc.pickups) ? doc.pickups : [])
     .filter((p) => p && ["egg", "milk"].includes(p.kind) && Number.isFinite(p.x) && Number.isFinite(p.y))
     .slice(0, B.pickups.max)
     .map((p) => ({ id: Math.floor(num(p.id)), kind: p.kind, x: p.x, y: p.y, t: num(p.t), from: p.from ?? null }));
-  const ids = [...s.beds, ...s.buildings, ...s.animals, ...s.pickups].map((o) => o.id);
+  const fenceKeys = new Set();
+  s.fences = (Array.isArray(doc.fences) ? doc.fences : []).filter(f => {
+    if (!f || !Number.isInteger(f.gx) || !Number.isInteger(f.gy) || !['h', 'v'].includes(f.axis)) return false;
+    const k = `${f.gx},${f.gy},${f.axis}`;
+    if (fenceKeys.has(k)) return false;
+    fenceKeys.add(k); return true;
+  }).slice(0, B.fences.max).map(f => ({ id: Math.floor(num(f.id)), gx: f.gx, gy: f.gy, axis: f.axis, gate: !!f.gate, open: !!f.gate && !!f.open }));
+  const ids = [...s.beds, ...s.buildings, ...s.animals, ...s.pickups, ...s.fences].map((o) => o.id);
   if (new Set(ids).size !== ids.length) problems.push("duplicate ids");
   s.nextId = Math.max(Math.floor(num(doc.nextId, 1)), ...ids.map((i) => i + 1), 1);
   s.rng = num(doc.rng, s.seed) >>> 0;
@@ -143,9 +171,20 @@ export function validate(doc) {
   s.stats = { ...base.stats, ...(doc.stats ?? {}) };
   const placing = doc.ui?.placing;
   s.ui = {
+    ...doc.ui,
     tool: typeof doc.ui?.tool === "string" ? doc.ui.tool : "hand",
     placing: placing && KITS.includes(placing.kit) && Number.isInteger(placing.gx) && Number.isInteger(placing.gy) ? { ...placing } : null,
   };
+  s.player = { mode: doc.player?.mode === 'fp' ? 'fp' : 'god', x: num(doc.player?.x, 650), y: num(doc.player?.y, 700), yaw: num(doc.player?.yaw), pitch: clamp(num(doc.player?.pitch), -1.4, 1.4) };
+  s.predators = []; s.alerts = [];
+  s.predatorSchedule = { lastNight: Math.max(-1, Math.floor(num(doc.predatorSchedule?.lastNight, dayIndex(s.time)))), encounters: Math.max(0, Math.floor(num(doc.predatorSchedule?.encounters))) };
+  s.inventoryOverflow = (Array.isArray(doc.inventoryOverflow) ? doc.inventoryOverflow : []).filter(q => q && ITEM_KEYS.has(q.key) && Number.isInteger(q.n) && q.n > 0).map(q => ({ key: q.key, n: q.n }));
+  initializeInventory(s, Array.isArray(doc.slots) ? doc.slots : null);
+  // Accept aggregate edits made by the compatibility bridge while validating
+  // saved layouts; new documents ordinarily have identical totals.
+  s.inv = {};
+  for (const [key, n] of Object.entries(doc.inv || {})) if (ITEM_KEYS.has(key) && Number(n) > 0) s.inv[key] = inventoryCount(n);
+  syncInventory(s);
   return { ok: true, state: s, problems };
 }
 

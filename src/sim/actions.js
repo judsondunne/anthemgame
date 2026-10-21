@@ -3,6 +3,8 @@
 import { BALANCE as B } from "../config/balance.js";
 import { CROPS, GOODS, SEEDS, FEEDS, KITS, kitType, foodsFor, itemKind } from "./catalog.js";
 import { checkPlacement } from "./layout.js";
+import { addInventory, removeInventory, inventoryCapacity } from './inventory.js';
+import { fenceBlocked } from './fences.js';
 import {
   count,
   alive,
@@ -20,7 +22,6 @@ import {
 } from "./sim.js";
 
 const fail = (reason) => ({ ok: false, reason });
-const MAX = () => B.inventory.stackMax;
 const isCount = (n) => Number.isInteger(n) && n > 0;
 
 function spend(s, amount, what) {
@@ -36,12 +37,11 @@ function earn(s, amount, what) {
 }
 
 function addItem(s, key, n) {
-  s.inv[key] = count(s, key) + n;
+  return addInventory(s, key, n);
 }
 
 function takeItem(s, key, n = 1) {
-  s.inv[key] = count(s, key) - n;
-  if (s.inv[key] <= 0) delete s.inv[key];
+  return removeInventory(s, key, n);
 }
 
 export function canBuy(s, key) {
@@ -58,8 +58,9 @@ export function canBuy(s, key) {
     if (ownedOf(s, type) >= max) return fail("max");
   } else {
     const units = kind === "feed" ? B.feed[key].units : 1;
-    if (count(s, key) + units > MAX()) return fail("stack");
+    if (inventoryCapacity(s, key) < units) return fail("stack");
   }
+  if (kind !== "animal" && inventoryCapacity(s, key) < (kind === "feed" ? B.feed[key].units : 1)) return fail("stack");
   if (!Number.isFinite(s.money) || s.money < price) return fail("money");
   return { ok: true, price };
 }
@@ -155,7 +156,7 @@ export function harvest(s, bedId, index) {
   if (plotStage(p) !== 2) return fail("unripe");
   const C = B.crops[p.crop],
     good = C.good ?? p.crop;
-  if (count(s, good) + C.yield > MAX()) return fail("stack");
+  if (inventoryCapacity(s, good) < C.yield) return fail("stack");
   addItem(s, good, C.yield);
   s.stats.harvested += C.yield;
   bed.plots[index] = { crop: null, g: 0, w: p.w };
@@ -232,7 +233,7 @@ export function waterMany(s, ids) {
 export function collect(s, pickupId) {
   const p = s.pickups.find((q) => q.id === pickupId);
   if (!p) return fail("unknown");
-  if (count(s, p.kind) + 1 > MAX()) return fail("stack");
+  if (inventoryCapacity(s, p.kind) < 1) return fail("stack");
   s.pickups = s.pickups.filter((q) => q !== p);
   addItem(s, p.kind, 1);
   s.events.push({ type: "collect", id: p.id, kind: p.kind, x: p.x, y: p.y });
@@ -286,8 +287,7 @@ export function setPositions(s, list, { includeDead = false } = {}) {
   for (const { id, x, y } of list) {
     const a = animalOf(s, id);
     if (a && (a.state === "alive" || includeDead) && Number.isFinite(x) && Number.isFinite(y)) {
-      a.x = x;
-      a.y = y;
+      if (!fenceBlocked(s, a.x, a.y, x, y)) { a.x = x; a.y = y; }
     }
   }
 }

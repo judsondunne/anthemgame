@@ -2,6 +2,46 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { S, B, fresh } from "./helpers.js";
 
+test('every selected seed plants into every bed, grows through all stages, harvests and replants', () => {
+  const s = fresh(); s.animals = []; s.money = 1e7;
+  while (s.beds.length < B.beds.max) {
+    const at = S.layout.bestSpot(s, 'bed'); assert.ok(at);
+    assert.ok(S.buy(s, 'kit_bed').ok); assert.ok(S.place(s, 'kit_bed', at.gx, at.gy).ok);
+  }
+  for (const crop of S.CROPS) {
+    const key = 'seed_' + crop; assert.ok(S.addInventory(s, key, 2 * s.beds.length).ok);
+    let slot = s.slots.findIndex(q => q?.key === key);
+    if (slot >= 10) { assert.ok(S.moveSlot(s, slot, 9).ok); slot = 9; }
+    assert.ok(S.selectSlot(s, slot).ok); assert.equal(S.selectedItem(s).key, key);
+    for (const bed of s.beds) {
+      bed.plots = bed.plots.map(() => ({ crop: null, g: 0, w: 0 }));
+      assert.ok(S.plant(s, bed.id, 0, S.selectedItem(s).key.slice(5)).ok);
+      assert.equal(bed.plots[0].crop, crop); assert.equal(S.plotStage(bed.plots[0]), 0);
+      const n = s.inv[key]; assert.equal(S.plant(s, bed.id, 0, crop).reason, 'occupied'); assert.equal(s.inv[key], n);
+    }
+    const grow = B.crops[crop].grow;
+    S.waterBed(s, s.beds[0].id);
+    // Keep every bed watered at regular intervals; long crops require several waterings.
+    for (let elapsed = 0; elapsed < grow;) {
+      for (const bed of s.beds) S.waterBed(s, bed.id);
+      const dt = Math.min(grow - elapsed, grow * B.stages.growing, B.water.seconds - 1);
+      S.tick(s, dt); elapsed += dt;
+      for (const bed of s.beds) {
+        const p = bed.plots[0];
+        assert.equal(S.plotStage(p), elapsed >= grow - 1e-6 ? 2 : elapsed >= grow * B.stages.growing - 1e-6 ? 1 : 0);
+      }
+    }
+    for (const bed of s.beds) {
+      assert.ok(S.harvest(s, bed.id, 0).ok); assert.equal(bed.plots[0].crop, null);
+      assert.ok(S.plant(s, bed.id, 0, crop).ok); assert.equal(bed.plots[0].crop, crop);
+    }
+  }
+  const empty = s.slots.findIndex((q, i) => i < 10 && !q);
+  const target = empty < 0 ? 9 : empty;
+  if (s.slots[target]) S.moveSlot(s, target, s.slots.findIndex((q, i) => i >= 10 && !q));
+  S.selectSlot(s, target); assert.equal(S.selectedItem(s), null); assert.equal(s.ui.tool, 'empty');
+});
+
 test("crop growth stages advance only while watered", () => {
   const s = fresh(),
     bed = s.beds[0],
