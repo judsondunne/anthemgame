@@ -3,7 +3,7 @@
 import { BALANCE as B } from '../config/balance.js';
 import { cyclePosition, dayIndex, isNightAt } from './clock.js';
 import { nextRandom } from './rng.js';
-import { isPenned, fenceBlocked } from './fences.js';
+import { isPenned, penAt, fenceBlocked } from './fences.js';
 import { groundBlocked, moveToward, navigateToward } from './movement.js';
 import { chickenSheltered, coopFor } from './shelter.js';
 
@@ -140,8 +140,18 @@ export function stepPredators(s, h) {
       p.prowlTarget = protectedAnimal?.id ?? null;
       if (protectedAnimal) {
         const angle = s.time / P.howlEvery + p.id;
-        const target = { x: protectedAnimal.x + Math.cos(angle) * P.prowlRadius, y: protectedAnimal.y + Math.sin(angle) * P.prowlRadius / 1.65 };
-        navigateToward(s, p, target, (p.kind === 'wolf' ? P.wolfSpeed : P.bearSpeed) * P.prowlSpeed, h);
+        const pen = penAt(s, protectedAnimal.x, protectedAnimal.y);
+        let center = protectedAnimal, rx = P.prowlRadius, ry = P.prowlRadius / 1.65;
+        if (pen) {
+          const xs = pen.cells.map(c => c.gx * 40), ys = pen.cells.map(c => c.gy * 40 / 1.65);
+          const x0 = Math.min(...xs), x1 = Math.max(...xs) + 40, y0 = Math.min(...ys), y1 = Math.max(...ys) + 40 / 1.65;
+          center = { x: (x0 + x1) / 2, y: (y0 + y1) / 2 };
+          rx += (x1 - x0) / 2; ry += (y1 - y0) / 2;
+        }
+        const target = { x: center.x + Math.cos(angle) * rx, y: center.y + Math.sin(angle) * ry };
+        // Prowling never needs to route into a closed pen; rotating outside
+        // waypoints keep the pack circling without repeated impossible A*.
+        moveToward(s, p, target, (p.kind === 'wolf' ? P.wolfSpeed : P.bearSpeed) * P.prowlSpeed, h);
       }
       continue;
     }

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { S, B, DAY, fresh, run, withBuilding } from "./helpers.js";
+import { S, B, DAY, fresh, run, withBuilding, growWatered } from "./helpers.js";
 
 test("starting farm matches the brief", () => {
   const s = fresh();
@@ -163,7 +163,7 @@ test("full inventory refuses buying, harvesting and collecting without losing wo
   assert.equal(S.buy(s, "feed_chicken").reason, "stack");
   fill('daisy');
   S.waterBed(s, bed.id);
-  S.tick(s, B.crops.daisy.grow);
+  growWatered(s, B.crops.daisy.grow);
   assert.equal(S.harvest(s, bed.id, 0).reason, "stack");
   assert.equal(bed.plots[0].crop, "daisy", "crop waits in the bed");
   fill('egg');
@@ -187,7 +187,7 @@ test("anti-softlock: a broke, empty farm with no animals receives seeds and reco
   // Play the recovery: plant, water, grow, harvest, sell.
   while (s.inv.seed_daisy) S.plantBed(s, s.beds[0].id, "daisy");
   S.waterBed(s, s.beds[0].id);
-  S.tick(s, B.crops.daisy.grow);
+  growWatered(s, B.crops.daisy.grow);
   assert.ok(S.harvestBed(s, s.beds[0].id).ok);
   assert.ok(S.sellGood(s, "daisy", "all").ok);
   assert.ok(s.money >= B.crops.daisy.seed, "can buy seeds again");

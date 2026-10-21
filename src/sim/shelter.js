@@ -32,6 +32,10 @@ export function chickenSheltered(s, a) {
   return a.sp === 'chicken' && !!a.indoors && !coopState(s, coopFor(s, a).id).doorOpen;
 }
 
+export function coopRoost(c) {
+  return { x: c.x + ((c.slot % B.coop.roostColumns) - 1) * B.coop.roostSpacing, y: c.y - B.coop.roostBack - Math.floor(c.slot / B.coop.roostColumns) * B.coop.rowSpacing };
+}
+
 export function callChickensIn(s) {
   const hour = hourAt(s.time);
   if (hour < B.coop.callHour && hour >= B.time.dawnHour) return { ok: false, reason: 'daylight' };
@@ -99,12 +103,12 @@ export function stepShelter(s, a, h, homes) {
     a.sleeping = distance(a, overflow) < B.coop.arriveRadius;
     return true;
   }
-  const roost = { x: c.x + ((c.slot % B.coop.roostColumns) - 1) * B.coop.roostSpacing, y: c.y - B.coop.roostBack - Math.floor(c.slot / B.coop.roostColumns) * B.coop.rowSpacing };
+  const roost = coopRoost(c);
   if (a.indoors) { a.sleeping = true; return true; }
   if (!coopState(s, c.id).doorOpen && a.enteringCoop) return true;
   if (!a.enteringCoop && distance(a, c.door) < B.coop.doorRadius) a.enteringCoop = true;
   const target = a.enteringCoop ? roost : Math.abs(a.x - c.door.x) > B.coop.doorHalfWidth ? { x: c.door.x, y: c.rect.y1 + B.coop.doorRadius } : c.door;
-  navigateToward(s, a, target, B.coop.runSpeed, h, { avoidAnimals: true });
+  navigateToward(s, a, target, B.coop.runSpeed, h, { avoidAnimals: !a.enteringCoop });
   if (a.enteringCoop && distance(a, roost) < B.coop.arriveRadius) {
     a.indoors = true; a.sleeping = true; a.enteringCoop = false;
     a.x = roost.x; a.y = roost.y;

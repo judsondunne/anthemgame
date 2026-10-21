@@ -7,8 +7,8 @@ const B = S.BALANCE;
 const MINUTES = Number(process.argv.find((a) => /^\d+$/.test(a)) ?? 120);
 const MINUTES_REF = { value: MINUTES };
 const JSON_OUT = process.argv.includes("--json");
-const TAPS_PER_MINUTE = 30; // one tap every two seconds
-const THINK = 4; // seconds between decisions
+const TAPS_PER_MINUTE = B.simulation.tapsPerMinute;
+const THINK = B.simulation.thinkSeconds;
 
 const FOOD_UNIT = { chicken: "feed_chicken", cow: "feed_cow", horse: "feed_horse" };
 
@@ -21,6 +21,8 @@ class Bot {
     this.budget = 0;
     this.log = [];
     this.milestones = {};
+    this.defended = new Set();
+    this.defenseProgress = new Map();
   }
   spend(n = 1) {
     if (this.budget < n) return false;
@@ -40,8 +42,7 @@ class Bot {
   careForAnimals() {
     const s = this.s,
       hs = S.housing(s);
-    // A care-oriented player uses the new single dusk call-in button.
-    if((S.clock.hourAt(s.time)>=B.coop.callHour||S.clock.isNightAt(s.time))&&s.animals.some(a=>a.sp==='chicken'&&a.state==='alive'&&!a.shelterRequested)&&this.spend())S.callChickensIn(s);
+    // Hens return and close their coop automatically; taps go to farm care.
     for (const sp of S.SPECIES) {
       const herd = S.alive(s, sp);
       const hungry = herd.filter((a) => S.needsOf(a).hungry);
@@ -102,6 +103,8 @@ class Bot {
   // Shop tap + buy (+ one placement tap for kits), paid as one step.
   buy(key) {
     const kit = key.startsWith("kit_");
+    const sp = key.startsWith('animal_') ? key.split('_')[1] : null;
+    if (sp && sp !== 'chicken' && !this.protectHousing(sp)) return false;
     if (!S.canBuy(this.s, key).ok) return false;
     const spot = kit ? S.layout.bestSpot(this.s, key.slice(4)) : null;
     if (kit && !spot) return false;
@@ -109,6 +112,32 @@ class Bot {
     const r = S.buy(this.s, key);
     if (r.ok && kit) S.place(this.s, key, spot.gx, spot.gy);
     return r.ok;
+  }
+
+  // A careful progression player draws an inexpensive closed perimeter before
+  // buying large livestock. The separate defense benchmark remains reckless.
+  protectHousing(sp) {
+    const s=this.s, type=B.species[sp].unlockedBy;
+    for(const b of s.buildings.filter(b=>b.type===type)) {
+      if(this.defended.has(b.id))continue;
+      const [bw,bh]=S.layout.footprintOf(type);let perimeter=null;
+      for(let margin=2;margin<=6&&!perimeter;margin++) {
+        const gx=b.gx-margin,gy=b.gy-margin,w=bw+margin*2,h=bh+margin*2+2,list=[];
+        for(let x=0;x<w;x++){list.push({gx:gx+x,gy,axis:'h',gate:false});list.push({gx:gx+x,gy:gy+h,axis:'h',gate:x===Math.floor(w/2)});}
+        for(let y=0;y<h;y++)for(const x of[gx,gx+w])list.push({gx:x,gy:gy+y,axis:'v',gate:false});
+        if(list.every(f=>S.checkFencePlacement(s,f.gx,f.gy,f.axis,f.gate).ok))perimeter=list;
+      }
+      if(!perimeter)return false;
+      const cost=perimeter.reduce((n,f)=>n+(f.gate?B.fences.gatePrice:B.fences.price),0);
+      const taps=B.simulation.fenceDragBaseTaps+perimeter.length*B.simulation.fenceDragSegmentTaps;
+      if(s.money<cost)return false;
+      const progress=this.defenseProgress.get(b.id)??0, work=Math.min(this.budget,taps-progress);
+      if(work>0){this.spend(work);this.defenseProgress.set(b.id,progress+work);}
+      if(progress+work<taps-1e-8)return false;
+      for(const f of perimeter){S.buy(s,f.gate?'gate':'fence');const r=S.placeFence(s,f.gx,f.gy,f.axis,f.gate);if(!r.ok)throw Error('benchmark perimeter failed');}
+      this.defended.add(b.id);this.mark('pen');
+    }
+    return true;
   }
 
   netWorth() {

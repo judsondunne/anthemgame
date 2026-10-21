@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { S, B, fresh } from "./helpers.js";
+import { S, B, fresh, growWatered } from "./helpers.js";
 
 test('every selected seed plants into every bed, grows through all stages, harvests and replants', () => {
   const s = fresh(); s.animals = []; s.money = 1e7;
@@ -24,7 +24,8 @@ test('every selected seed plants into every bed, grows through all stages, harve
     // Keep every bed watered at regular intervals; long crops require several waterings.
     for (let elapsed = 0; elapsed < grow;) {
       for (const bed of s.beds) S.waterBed(s, bed.id);
-      const dt = Math.min(grow - elapsed, grow * B.stages.growing, B.water.seconds - 1);
+      const boundary = elapsed < grow * B.stages.growing - 1e-6 ? grow * B.stages.growing : grow;
+      const dt = Math.min(grow - elapsed, boundary - elapsed, B.water.seconds - 1);
       S.tick(s, dt); elapsed += dt;
       for (const bed of s.beds) {
         const p = bed.plots[0];
@@ -52,9 +53,12 @@ test("crop growth stages advance only while watered", () => {
   assert.ok(S.waterBed(s, bed.id).ok);
   S.tick(s, Math.floor(grow * B.stages.growing) - 1);
   assert.equal(S.plotStage(bed.plots[0]), 0, "still a seedling");
-  S.tick(s, 2);
+  S.tick(s, grow * B.stages.growing - Math.floor(grow * B.stages.growing) + 1);
   assert.equal(S.plotStage(bed.plots[0]), 1, "growing stage");
-  S.tick(s, grow - Math.floor(grow * B.stages.growing) - 2);
+  assert.equal(bed.plots[0].w, 0, 'the growing stage asks for water again');
+  const paused = bed.plots[0].g;S.tick(s, 3);assert.equal(bed.plots[0].g,paused);
+  S.waterBed(s,bed.id);
+  S.tick(s, grow * (1-B.stages.growing) - 1);
   assert.equal(S.plotStage(bed.plots[0]), 1, "not ripe one second early");
   S.tick(s, 1);
   assert.equal(S.plotStage(bed.plots[0]), 2, "ripe exactly at the growth time");
@@ -68,7 +72,7 @@ test("unwatered plants pause rather than die, then resume", () => {
   S.waterBed(s, bed.id);
   S.tick(s, B.water.seconds + 200);
   const g = bed.plots[3].g;
-  assert.ok(Math.abs(g - B.water.seconds / B.crops.lavender.grow) < 1e-9);
+  assert.ok(Math.abs(g - B.stages.growing) < 1e-9);
   S.tick(s, 1000);
   assert.equal(bed.plots[3].g, g, "paused while dry");
   assert.equal(bed.plots[3].crop, "lavender", "dry crop is not lost");
@@ -81,13 +85,13 @@ test("harvest only when ripe; unripe taps change nothing", () => {
   const s = fresh(),
     bed = s.beds[0];
   S.waterBed(s, bed.id);
-  S.tick(s, 20);
+  S.tick(s, B.crops.daisy.grow / 4);
   const before = JSON.stringify(S.toDoc(s));
   assert.deepEqual(S.harvest(s, bed.id, 0), { ok: false, reason: "unripe" });
   assert.deepEqual(S.harvestBed(s, bed.id), { ok: false, reason: "unripe" });
   assert.equal(JSON.stringify(S.toDoc(s)), before);
   assert.deepEqual(S.harvest(s, bed.id, 4), { ok: false, reason: "empty" });
-  S.tick(s, B.crops.daisy.grow);
+  growWatered(s, B.crops.daisy.grow);
   const r = S.harvest(s, bed.id, 0);
   assert.ok(r.ok);
   assert.equal(s.inv.daisy, B.crops.daisy.yield);
@@ -101,7 +105,7 @@ test("wheat harvests into hay, a separate good", () => {
     bed = s.beds[0];
   assert.ok(S.plant(s, bed.id, 2, "wheat").ok);
   S.waterBed(s, bed.id);
-  S.tick(s, B.crops.wheat.grow);
+  growWatered(s, B.crops.wheat.grow);
   assert.ok(S.harvest(s, bed.id, 2).ok);
   assert.equal(s.inv.hay, B.crops.wheat.yield);
   assert.equal(s.inv.wheat, undefined);
@@ -130,5 +134,18 @@ test("a timer straddling dusk/dawn keeps its exact pace", () => {
   assert.equal(S.clock.isNightAt(s.time), false);
   S.tick(s, 100);
   assert.equal(S.clock.isNightAt(s.time), true, "crossed into night");
-  assert.ok(Math.abs(bed.plots[3].g - g0 - 100 / B.crops.lavender.grow) < 1e-9);
+  assert.ok(Math.abs(bed.plots[3].g - B.stages.growing) < 1e-9,'the stage boundary requests water even across dusk');
+});
+
+test('fast crops ripen in 20–45 watered seconds and premium crops in 2–4 minutes',()=>{
+ for(const crop of S.CROPS){
+   const s=fresh();s.animals=[];const bed=s.beds[0];bed.plots=bed.plots.map(()=>({crop:null,g:0,w:0}));
+   S.addInventory(s,'seed_'+crop,2);assert.ok(S.plant(s,bed.id,0,crop).ok);
+   assert.equal(bed.plots[0].w,0,'new planting always prompts for water');
+   const duration=B.crops[crop].grow;
+   assert.ok(['daisy','wheat','tulip'].includes(crop)?duration>=20&&duration<=45:duration>=120&&duration<=240);
+   growWatered(s,duration-1);assert.equal(S.plotStage(bed.plots[0]),1);
+   growWatered(s,1);assert.equal(S.plotStage(bed.plots[0]),2);
+   assert.ok(S.harvest(s,bed.id,0).ok);assert.ok(S.plant(s,bed.id,0,crop).ok);assert.equal(bed.plots[0].w,0);
+ }
 });

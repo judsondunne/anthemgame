@@ -7,6 +7,132 @@ const nightSeconds = 300;
 const DAY = daySeconds + nightSeconds;
 
 export const BALANCE = {
+  // Camera/lighting/render controls are exposed through stable config proxies.
+  camera: {
+    "fov": 48,
+    "minDistance": 1.7,
+    "maxDistance": 148,
+    "defaultDistance": 35.5,
+    "minPitch": 0.19,
+    "maxPitch": 1.43,
+    "defaultPitch": 0.79,
+    "defaultYaw": 0.2,
+    "damping": 11,
+    "inertia": 7,
+    "orbitSpeed": 0.005,
+    "zoomSpeed": 0.0018,
+    "dragThreshold": 7,
+    "touchDragThreshold": 9,
+    "bounds": 88,
+    "softEdge": 8,
+    "eyeHeight": 1.7,
+    "radius": 0.26,
+    "walkSpeed": 3.25,
+    "sprintSpeed": 5.4,
+    "acceleration": 12,
+    "gravity": 18,
+    "jumpSpeed": 6.1,
+    "lookSpeed": 0.0021,
+    "pitchLimit": 1.45,
+    "maxSlopeStep": 0.3,
+    "reach": 4.5,
+    "assistRadius": 88,
+    "doubleTapMs": 300,
+    "headBob": 0.018,
+    "transitionRate": 9,
+    "collisionStep": 0.12,
+    "godKeySpeed": 0.65,
+    "near": 0.035,
+    "far": 430
+  },
+  night: {
+    "flashlight": {
+      "power": 48,
+      "range": 27,
+      "angle": 0.43035515802599905,
+      "penumbra": 0.68,
+      "eyeRange": 30,
+      "coneDot": 0.9,
+      "scareSeconds": 1.5,
+      "nearWolf": 15,
+      "beamOpacity": 0.032
+    },
+    "suspense": {
+      "probability": 0.5,
+      "flickerSeconds": 0.55,
+      "waitSeconds": 2,
+      "lungeSeconds": 0.36,
+      "recoverSeconds": 0.7,
+      "cooldownSeconds": 32,
+      "maxDistance": 14
+    },
+    "tutorial": {
+      "seconds": 13,
+      "duskHour": 18.5
+    },
+    "eyes": {
+      "chicken": {
+        "h": 0.43,
+        "w": 0.105,
+        "forward": 0.14
+      },
+      "cow": {
+        "h": 0.96,
+        "w": 0.23,
+        "forward": 0.36
+      },
+      "horse": {
+        "h": 1.36,
+        "w": 0.19,
+        "forward": 0.4
+      },
+      "wolf": {
+        "h": 0.8,
+        "w": 0.17,
+        "forward": 0.38
+      },
+      "bear": {
+        "h": 1.17,
+        "w": 0.23,
+        "forward": 0.46
+      }
+    }
+  },
+  visual: {
+    "grass": {
+      "high": 8500,
+      "low": 2600,
+      "blades": 6,
+      "height": 0.16,
+      "width": 0.018
+    },
+    "held": {
+      "size": 1.05,
+      "x": 0.54,
+      "y": -0.56,
+      "z": -1.6
+    },
+    "ao": {
+      "radius": 5,
+      "minDistance": 0.0003,
+      "maxDistance": 0.055
+    },
+    "shadow": {
+      "high": 2048,
+      "low": 1024
+    },
+    "hudHz": 10,
+    "lowMotionHz": 12,
+    "egg": {
+      "height": 0.32,
+      "ringRadius": 0.23
+    },
+    "detail": {
+      "sunRadius": 0.0074,
+      "moonRadius": 0.009
+    },
+    "maturityBadge": 64
+  },
   time: {
     daySeconds,
     nightSeconds,
@@ -52,13 +178,18 @@ export const BALANCE = {
     injuryThreshold: 60, restSpeed: 0.65,
   },
   wandering: { chickenSpeed: 17, chickenDecisionSeconds: 9, speed: 9, chickenRadius: 72, herdRadius: 165, wanderRadius: 650, wanderChance: 0.24, decisionSeconds: 24, returnRadius: 30 },
-  movement: { stepHeight: .32, maxJumpTop: 1.2, swimSpeed: 1.6, wadeSpeed: 2.1, buoyancy: 8, floatEyeHeight: 1.05, waterDrag: 5, shoreStep: .45, rippleInterval: .45, diveDip: .85 },
+  movement: { stepHeight: .32, maxJumpTop: 1.2, swimSpeed: 1.6, wadeSpeed: 2.1, buoyancy: 8, floatEyeHeight: 1.05, waterDrag: 5, shoreStep: .45, rippleInterval: .45, diveDip: .85,
+    routeStep: 16, routeNodes: 800, routeWindow: 30, routeStuckSeconds: 2,
+  },
   waterBodies: { pond: { x: 5.98, z: -.792, rx: 3.02, rz: 2.376, surface: .12, maxDepth: 1.8, edgeDepth: .03 }, brook: { maxDepth: 1.65, edgeDepth: .08 } },
   livestockWater: { visitChance: 1, visitSpeed: 100, durationSeconds: 32, decisionSeconds: 180, thirstRecovery: 12, startHour: 8, returnHour: 18 },
-  wildlife: { highCount: 16, lowCount: 7, activeDistance: 65, despawnDistance: 84, fleeDistance: 9, predatorFleeDistance: 13, wanderSpeed: .65, fleeSpeed: 3.4, hopHeight: .16, drinkHours: [5, 8, 17, 20], repathSeconds: 4 },
+  wildlife: { highCount: 16, lowCount: 7, activeDistance: 65, despawnDistance: 84, fleeDistance: 9, predatorFleeDistance: 13, wanderSpeed: .65, fleeSpeed: 3.4, hopHeight: .16, drinkHours: [5, 8, 17, 20], repathSeconds: 4,
+    candidateCount: 36, habitatRadius: 8, grazeSeconds: 5, activeHz: 10, seedEpochSeconds: 600,
+    modelHeight: { deer: 1.25, elk: 1.65, bunny: .38 }, radii: { deer: .35, elk: .42, bunny: .18 }, bunnyEdge: 15.5, chunkSize: 24,
+  },
   world: {
     seed: 721031, radius: 92, property: { halfWidth: 38, halfDepth: 17, blend: 14 }, terrainSegments: 112,
-    forest: { spacing: 4.6, jitter: .82, chunkSize: 24, nearDistance: 54, farDistance: 145, shadowDistance: 44, undergrowthSpacing: 3.2 },
+    forest: { spacing: 4.6, jitter: .82, chunkSize: 40, nearDistance: 54, farDistance: 145, shadowDistance: 44, undergrowthSpacing: 3.2, lowUndergrowthDistance: 30, highUndergrowthDistance: 56 },
     brook: { x: 46, meander: 7, halfWidth: 1.7, shoreWidth: 2.8, crossingZ: 8, crossingHalfDepth: 1.7, rocks: 110 },
     particles: { high: 150, low: 65 },
   },
@@ -77,15 +208,15 @@ export const BALANCE = {
 
   // Cheap/fast/low value -> slow/high value. Growth only accrues while watered.
   crops: {
-    daisy: { seed: 1, grow: 50, yield: 2, sell: 2 },
-    wheat: { seed: 1, grow: 90, yield: 4, good: "hay" },
-    tulip: { seed: 3, grow: 120, yield: 2, sell: 6 },
-    cabbage: { seed: 5, grow: 180, yield: 2, sell: 10 },
-    sunflower: { seed: 8, grow: 260, yield: 2, sell: 16 },
-    lavender: { seed: 12, grow: 360, yield: 2, sell: 24 },
+    daisy: { seed: 1, grow: 24, yield: 2, sell: 3 },
+    wheat: { seed: 1, grow: 32, yield: 4, good: "hay" },
+    tulip: { seed: 3, grow: 42, yield: 2, sell: 8 },
+    cabbage: { seed: 5, grow: 120, yield: 2, sell: 20 },
+    sunflower: { seed: 8, grow: 180, yield: 2, sell: 34 },
+    lavender: { seed: 12, grow: 240, yield: 2, sell: 48 },
   },
   stages: { growing: 0.34 }, // growth fraction where seedling becomes growing; ripe at 1
-  water: { seconds: 160 }, // growth seconds supplied by one watering
+  water: { seconds: 160, dryAtStage: true }, // watering is renewed at each visible growth stage
 
   beds: { plots: 6, basePrice: 100, priceGrowth: 1.32, max: 10, footprint: [4, 3] },
 
@@ -95,11 +226,11 @@ export const BALANCE = {
       sell: { f: 30, m: 25 },
       food: ["feed_chicken", "hay"],
       product: "egg",
-      produceEvery: 90,
+      produceEvery: 45,
       hungryAfter: 240,
       thirstyAfter: 220,
-      growDays: 3,
-      breedDays: 2,
+      growDays: .85,
+      breedDays: .5,
       baseCapacity: 4,
     },
     cow: {
@@ -107,11 +238,11 @@ export const BALANCE = {
       sell: { f: 220, m: 180 },
       food: ["feed_cow", "hay"],
       product: "milk",
-      produceEvery: 240,
+      produceEvery: 80,
       hungryAfter: 300,
       thirstyAfter: 260,
-      growDays: 3,
-      breedDays: 2,
+      growDays: .85,
+      breedDays: .5,
       baseCapacity: 0,
       unlockedBy: "barn",
     },
@@ -123,8 +254,8 @@ export const BALANCE = {
       produceEvery: 0,
       hungryAfter: 300,
       thirstyAfter: 260,
-      growDays: 3,
-      breedDays: 2,
+      growDays: .85,
+      breedDays: .5,
       baseCapacity: 0,
       unlockedBy: "stable",
     },
@@ -155,6 +286,7 @@ export const BALANCE = {
   goods: { egg: 6, milk: 210, hay: 1 }, // crop goods use crops[*].sell
 
   market: { driftAmplitude: 0.1 }, // gentle deterministic daily price drift, +/- 10%
+  simulation: { tapsPerMinute: 30, thinkSeconds: 2, fenceDragBaseTaps: 4, fenceDragSegmentTaps: .08 },
 
   pickups: { max: 30, spread: 70, collectRadius: 190 },
 
@@ -164,6 +296,8 @@ export const BALANCE = {
     iconPixels: 256, iconDprMax: 3, iconLogicalPixels: 96,
     bubbleScaleMin: .76, bubbleScaleMax: 1.08, bubbleDistanceScale: 900,
     inventoryHoldMs: 420, inventoryDragPixels: 7, renderEveryMs: 100,
+    duskHintSeconds: 22,
+    bubbleFpFalloff: .24, bubbleGodScale: 1.3,
     coinPopMs: 900,
     shakeMs: 420,
     holdToSellAllMs: 550,

@@ -40,3 +40,18 @@ export function addAnimal(s, sp, sex, age = 1) {
 }
 
 export const chickens = (s) => s.animals.filter((a) => a.sp === "chicken");
+
+// Ideal attentive crop care: water immediately at stage boundaries. This
+// isolates the configured growth duration from a player's response delay.
+export function growWatered(s, seconds) {
+  let left = seconds;
+  while (left > 1e-7) {
+    for (const bed of s.beds) if (bed.plots.some(p => p.crop && p.g < 1 && p.w <= 1e-7)) S.waterBed(s, bed.id);
+    let h = left;
+    for (const bed of s.beds) for (const p of bed.plots) if (p.crop && p.g < 1) {
+      const target = p.g < B.stages.growing - 1e-7 ? B.stages.growing : 1;
+      h = Math.min(h, p.w, Math.max(1e-7, (target - p.g) * B.crops[p.crop].grow));
+    }
+    S.tick(s, h); left -= h;
+  }
+}

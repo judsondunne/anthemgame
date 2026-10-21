@@ -71,10 +71,10 @@ test("cows give milk on their longer rhythm; bulls do not", () => {
   assert.equal(B.species.horse.product, null, "horses are bred and sold, not milked");
 });
 
-test("a content pair breeds exactly every 2 game days", () => {
+test("a content pair breeds every half game day, one quarter of the old interval", () => {
   const s = fresh();
   const need = B.species.chicken.breedDays * DAY;
-  assert.equal(need, 1200);
+  assert.equal(need, 300);
   run(s, need - 1);
   assert.equal(chickens(s).length, 2);
   run(s, 1);
@@ -93,11 +93,13 @@ test("breeding pauses while either parent needs care", () => {
   assert.equal(hen(s).breed, 0);
 });
 
-test("juveniles mature over exactly 3 game days and only adults produce", () => {
+test("juveniles mature in less than one game day and only adults produce", () => {
   const s = fresh();
   s.animals = [];
   const chick = addAnimal(s, "chicken", "f", 0);
-  run(s, 3 * DAY - 1);
+  const mature = B.species.chicken.growDays * DAY;
+  assert.ok(mature <= DAY);
+  run(s, mature - 1);
   assert.ok(chick.age < 1);
   assert.equal(eggs(s), 0, "juveniles never lay");
   run(s, 1);

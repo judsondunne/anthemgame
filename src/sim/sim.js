@@ -9,7 +9,7 @@ import { initializeInventory, addInventory, inventoryCapacity } from './inventor
 import { stepPredators } from './predators.js';
 import { stepWandering } from './wandering.js';
 import { penAt } from './fences.js';
-import { coopFor, stepCoops } from './shelter.js';
+import { coopFor, coopRoost, stepCoops } from './shelter.js';
 
 export const SCHEMA_VERSION = B.save.schemaVersion;
 
@@ -284,10 +284,17 @@ function stepOnce(s, h, offline) {
   for (const bed of s.beds)
     for (const p of bed.plots) {
       if (!p.crop || p.g >= 1) continue;
-      const use = Math.min(h, p.w);
+      const nextStage = p.g < B.stages.growing - EPS ? B.stages.growing : 1;
+      const untilStage = B.water.dryAtStage ? Math.max(0, nextStage - p.g) * B.crops[p.crop].grow : h;
+      const use = Math.min(h, p.w, untilStage);
       if (use <= 0) continue;
       p.w -= use;
       p.g = Math.min(1, p.g + use / B.crops[p.crop].grow);
+      if (reached(p.g, nextStage)) {
+        p.g = nextStage;
+        if (B.water.dryAtStage) p.w = 0;
+        if (nextStage < 1) s.events.push({ type: 'needsWater', bed: bed.id, crop: p.crop });
+      }
       if (reached(p.g, 1)) p.g = 1;
       if (p.g >= 1) s.events.push({ type: "ripe", bed: bed.id, crop: p.crop });
     }
@@ -350,6 +357,12 @@ function stepOnce(s, h, offline) {
       }
       f.breed = 0;
       const baby = spawnAnimal(s, sp, nextRandom(s) < 0.5 ? "f" : "m", { age: 0, near: { x: f.x - 14, y: f.y + 10 }, variant: f.var });
+      // Chicks hatch in an available nest while their mother is sleeping;
+      // scattering a newborn out through a solid coop wall stranded it outside.
+      if (sp === 'chicken' && f.indoors) {
+        const c = coopFor(s, baby);
+        if (!c.overflow) Object.assign(baby, coopRoost(c), { indoors: true, sleeping: true, shelterRequested: true, roostSlot: c.slot, enteringCoop: false, overflowRoost: false });
+      }
       s.stats.births++;
       s.events.push({ type: "birth", id: baby.id, sp, mother: f.id });
     }

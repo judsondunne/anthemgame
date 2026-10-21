@@ -137,7 +137,7 @@ test("offline catch-up is capped and never advances need clocks or kills", () =>
   assert.equal(h.state, "alive");
   assert.equal(h.hunger, B.species.chicken.hungryAfter + 2 * DAY - 1);
   assert.equal(h.thirst, 10);
-  assert.equal(S.plotStage(s.beds[0].plots[0]), 2, "crops still grew");
+  assert.equal(S.plotStage(s.beds[0].plots[0]), 1, "crops grew to the next watering stage");
   assert.ok(s.pickups.length > 0, "production continued");
   S.tick(s, 1);
   assert.equal(h.state, "dead", "deaths only happen in active play");
@@ -158,5 +158,5 @@ test("juveniles grow during offline catch-up", () => {
   const s = fresh();
   const chick = S.spawnAnimal(s, "chicken", "f", { age: 0 });
   S.catchUp(s, 1e9);
-  assert.ok(Math.abs(chick.age - B.offline.capSeconds / (3 * DAY)) < 1e-9);
+  assert.ok(Math.abs(chick.age - Math.min(1,B.offline.capSeconds / (B.species.chicken.growDays * DAY))) < 1e-9);
 });

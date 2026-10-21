@@ -125,7 +125,7 @@ export function plant(s, bedId, index, crop) {
   if (p.crop) return fail("occupied");
   if (count(s, "seed_" + crop) <= 0) return fail("noSeed");
   takeItem(s, "seed_" + crop);
-  bed.plots[index] = { crop, g: 0, w: p.w };
+  bed.plots[index] = { crop, g: 0, w: 0 };
   s.events.push({ type: "plant", bed: bedId, index, crop });
   return { ok: true };
 }

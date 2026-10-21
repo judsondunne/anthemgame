@@ -118,6 +118,18 @@ export function checkPlacement(state, type, gx, gy) {
       const c = { gx: gx + i, gy: gy + j, w: 1, h: 1 };
       cells.push({ gx: c.gx, gy: c.gy, ok: cellFree(zone, c.gx, c.gy) && !worldCollisionAt(state,(c.gx+.5)*CELL_X,(c.gy+.5)*CELL_Y,27) && !others.some((o) => overlaps(o, c)) });
     }
+  if (type === 'coop') {
+    const center = footprintCenter(gx, gy, w, h), edge = (gy + h) * CELL_Y;
+    const doorClear = [-BALANCE.coop.doorHalfWidth, 0, BALANCE.coop.doorHalfWidth].every(dx =>
+      [BALANCE.animals.radius.chicken, BALANCE.coop.exitDistance].every(dy => {
+        const x = center.x + dx, y = edge + dy;
+        return !OBSTACLES.some(o => o.kind !== 'path' && hitObstacle(o, x, y)) && !worldCollisionAt(state, x, y, BALANCE.animals.radius.chicken) && !others.some(o => {
+          const r = cellRect(o.gx, o.gy, o.w, o.h);
+          return x > r.x0 - BALANCE.animals.radius.chicken && x < r.x1 + BALANCE.animals.radius.chicken && y > r.y0 - BALANCE.animals.radius.chicken && y < r.y1 + BALANCE.animals.radius.chicken;
+        });
+      }));
+    if (!doorClear) for (const c of cells) c.ok = false;
+  }
   return { ok: cells.every((c) => c.ok), cells };
 }
 
