@@ -133,6 +133,47 @@ const ok = (name, detail = {}) => {
     assert(s.inv.feed_chicken === 6, "no feed used on the dead");
     ok("feeding a full or dead animal consumes nothing");
 
+    // A hungry cow standing on her own milk: hay feeds the cow, the hand takes the milk.
+    const cowId = await page.evaluate(() => {
+      const st = Garden.state();
+      if (Garden.clock().night) Garden.setHour(9); // herds shelter at night
+      st.inv.kit_barn = 1;
+      if (!Garden.Sim.place(st, "kit_barn", -17, 28).ok) return null;
+      st.money += 300;
+      const r = Garden.Sim.buy(st, "animal_cow_f");
+      const cow = st.animals.find((q) => q.id === r.id);
+      cow.hunger = Garden.Sim.BALANCE.species.cow.hungryAfter + 10;
+      st.inv.hay = 3;
+      Garden.game.pump();
+      Garden.Farm.targetPan = Garden.Farm.pan = cow.x - 700;
+      return cow.id;
+    });
+    assert(cowId, "barn placed and a cow bought");
+    await page.waitForTimeout(900);
+    const onMilk = async () => {
+      // Drop the carton where she stands right now and aim at her body.
+      const r = await page.evaluate((id) => {
+        const st = Garden.state(),
+          ag = Garden.bridge.agentOf(id);
+        st.pickups = st.pickups.filter((q) => q.kind !== "milk");
+        st.pickups.push({ id: Garden.Sim.newId(st), kind: "milk", x: ag.x, y: ag.y, t: st.time });
+        return Garden.anchor("animal", id);
+      }, cowId);
+      await page.waitForTimeout(120); // the carton is drawn before the tap
+      return page.evaluate((id) => Garden.anchor("animal", id), cowId) ?? r;
+    };
+    await L.tap(page, '.slot[data-key="hay"]');
+    await L.tapAt(page, await onMilk());
+    s = await S();
+    assert(s.animals.find((a) => a.id === cowId).hunger < 5 && s.inv.hay === 2, "hay tap on the cow fed her");
+    assert(s.pickups.some((q) => q.kind === "milk"), "the milk under her was left alone");
+    await L.tap(page, '.slot[data-key="hand"]');
+    const milkBefore = s.inv.milk ?? 0;
+    await L.tapAt(page, await onMilk());
+    s = await S();
+    assert((s.inv.milk ?? 0) === milkBefore + 1 && !s.pickups.some((q) => q.kind === "milk"), "hand tap collected the milk");
+    ok("tool decides between an animal and the pickup under her");
+
     // Animal cap: the tile shows full housing and refuses.
     await page.evaluate(() => {
       const st = Garden.state();

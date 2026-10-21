@@ -45,18 +45,28 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
       }
     };
     // Eggs, milk and bones compete by distance: whichever the finger is nearest wins.
-    for (const pk of s.pickups) consider("pickup", pk.id, pk.x, pk.y, 0.12, 30);
-    for (const a of s.animals) if (a.state === "bones") consider("remains", a.id, a.x, a.y, 0.15, 40);
-    if (best) return best;
-    for (const [id, agent] of bridge.agents) {
-      if (agent.sheltered || agent.bones || (agent.mode === "waking" && agent.wakeDelay > 0)) continue;
-      const big = agent.sp === "chicken" ? 0.35 : agent.sp === "cow" ? 0.7 : 0.85;
-      const r = (agent.sp === "chicken" ? 30 : 44) * (agent.juvenile ? 0.85 : 1) * Math.max(0.8, view.scale * 2.2);
-      const ax = agent.sleeping ? agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26 : agent.x;
-      const ay = agent.sleeping ? agent.home.y - 30 : agent.y;
-      consider("animal", id, ax, ay, big * (agent.juvenile ? 0.7 : 1), r);
+    const items = () => {
+      for (const pk of s.pickups) consider("pickup", pk.id, pk.x, pk.y, 0.12, 30);
+      for (const a of s.animals) if (a.state === "bones") consider("remains", a.id, a.x, a.y, 0.15, 40);
+    };
+    const animals = () => {
+      for (const [id, agent] of bridge.agents) {
+        if (agent.sheltered || agent.bones || (agent.mode === "waking" && agent.wakeDelay > 0)) continue;
+        const big = agent.sp === "chicken" ? 0.35 : agent.sp === "cow" ? 0.7 : 0.85;
+        const r = (agent.sp === "chicken" ? 30 : 44) * (agent.juvenile ? 0.85 : 1) * Math.max(0.8, view.scale * 2.2);
+        const ax = agent.sleeping ? agent.home.x + ((agent.sleepSlot % 4) - 1.5) * 26 : agent.x;
+        const ay = agent.sleeping ? agent.home.y - 30 : agent.y;
+        consider("animal", id, ax, ay, big * (agent.juvenile ? 0.7 : 1), r);
+      }
+    };
+    // Food and the can are for animals, so a cow standing on her milk still gets
+    // fed; the hand reaches for the milk first.
+    const k = tool();
+    const forAnimals = k === "can" || k === "hay" || k.startsWith("feed_");
+    for (const look of forAnimals ? [animals, items] : [items, animals]) {
+      look();
+      if (best) return best;
     }
-    if (best) return best;
     for (const bed of s.beds) {
       const [w, h] = footprintOf("bed");
       if (inRect(cellRect(bed.gx, bed.gy, w, h), p.x, p.y, 6)) {
