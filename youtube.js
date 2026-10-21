@@ -149,7 +149,7 @@ const YouTubeGarden = {
 window.onYouTubeIframeAPIReady = () => YouTubeGarden.init();
 
 // Prepare silently while the welcome card is visible. Continue is the playback gesture.
-YouTubeGarden.prepare();
+// Prepare streaming on the first audio gesture only.
 for (const event of ["pointerdown", "keydown"])
   document.addEventListener(
     event,
