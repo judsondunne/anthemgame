@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "stats": {
+    "averageFrameMs": 16.666,
+    "grassCount": 1088,
+    "grassStride": 1,
+    "dpr": 2
+  },
+  "errors": [],
+  "logs": [
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "checks": [
+    "zero visible text",
+    "mouse needs fulfillment",
+    "mute/unmute",
+    "local WAV decode and playlist advance",
+    "10-second desktop performance",
+    "resize",
+    "DPR cap",
+    "touch interaction",
+    "file URL loading"
+  ]
+}

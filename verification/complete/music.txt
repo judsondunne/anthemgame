@@ -1,0 +1,2 @@
+{"waitedForPlayer":false,"playing":{"playing":true,"title":"Amsterdam","playlist":13,"offscreen":true}}
+{"waitedForPlayer":true,"playing":{"playing":true,"title":"Amsterdam","playlist":13,"offscreen":true}}

@@ -1,0 +1,5 @@
+{"yt":{"ready":true,"playing":true,"failed":false,"state":1,"video":{"video_id":"lz2qpnRB5_E","author":"Gregory Alan Isakov","title":"GREGORY ALAN ISAKOV - \"AMSTERDAM\" (OFFICIAL VIDEO)","isPlayable":true,"errorCode":null,"video_quality":"large","video_quality_features":[],"list":"OLAK5uy_msv3rYmLCLRorkb88DW5nM1xSmIGA9Zj4","backgroundable":false,"eventId":"GvzXaovXC9Smy_sP5LTOmAY","cpn":"ho6wb8KiO88p8-rb","isLive":false,"isWindowedLive":false,"isManifestless":false,"allowLiveDvr":false,"isListed":true,"isMultiChannelAudio":false,"hasProgressBarBoundaries":false,"isPremiere":false,"itct":"CAAQu2kiEwiLzJrU4smXAxVU03IJHWSaE2PKAQTtLMt9","playerResponseCpn":"","progressBarStartPositionUtcTimeMillis":null,"progressBarEndPositionUtcTimeMillis":null,"paidContentOverlayDurationMs":0,"isSeekable":null}},"audio":"running","stats":{"averageFrameMs":16.721666666666668,"grassCount":1087,"grassStride":1,"dpr":1}}
+youtubeMuted true
+youtubeUnmuted true
+playlistLength 13
+{"errors":[],"warnings":[]}

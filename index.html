@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#839c76" />
+    <link rel="icon" href="data:," />
+    <title>Chicken Garden</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    data-modality="pointer"
+    data-started="false"
+    data-tool="pet"
+    data-night="false"
+  >
+    <canvas
+      aria-label="Chicken Garden. Choose a care tool, then tap the garden. Number keys select tools; D changes day and night."
+      inert
+    ></canvas>
+    <div
+      id="welcome"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="welcome-title"
+    >
+      <section class="welcome-card">
+        <h1 id="welcome-title">Welcome to the <br />Chicken Garden!</h1>
+        <p class="welcome-note">
+          make sure your sound is up and take a second and relax :)
+        </p>
+        <button id="continue" autofocus>
+          Continue
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </button>
+      </section>
+    </div>
+    <div id="garden-controls" hidden>
+      <div class="dock" role="toolbar" aria-label="Garden care tools">
+        <div class="care-tools" role="group" aria-label="Choose a care tool">
+          <button
+            data-tool="grain"
+            aria-label="Chicken grain"
+            aria-pressed="false"
+          >
+            <svg class="tool-icon" viewBox="0 0 40 40" aria-hidden="true">
+              <path
+                d="m13 12 3-5h8l3 5-2 4q10 15 3 18H12q-7-3 3-18Z"
+                fill="#d9c597"
+                stroke="#9b865f"
+              />
+              <path d="M14 14h12M16 8l2 5m5-5-1 5" />
+              <path
+                d="M19 29V19m0 5q-8-1-5-5 5 0 5 5m0 4q8-1 6-5-5 0-6 5"
+                stroke="#997e4d"
+              />
+            </svg><span class="tool-label">Grain</span></button>
+          <button
+            data-tool="water"
+            aria-label="Watering can"
+            aria-pressed="false"
+          >
+            <svg class="tool-icon" viewBox="0 0 40 40" aria-hidden="true">
+              <path d="M10 20q-8-13 4-12l3 8" />
+              <path d="m10 17 14-1 3 17H10Z" fill="#a6b9a4" stroke="#718b79" />
+              <path d="m25 22 7-6 4 3-9 10" fill="#b5c4af" stroke="#718b79" />
+              <path d="m31 13 7 7M33 23l-1 3m5-2-1 3" stroke="#8ba9ac" />
+              <path d="M13 20h8" stroke="#dce2c8" />
+            </svg><span class="tool-label">Water</span></button>
+          <button data-tool="fish" aria-label="Fish food" aria-pressed="false">
+            <svg class="tool-icon" viewBox="0 0 40 40" aria-hidden="true">
+              <path d="M10 12h20v22H10Z" fill="#c7b597" stroke="#988368" />
+              <path d="M9 8h22v5H9Z" fill="#9eae98" stroke="#758b78" />
+              <path
+                d="M13 24q7-9 13 0-6 9-13 0Zm13 0 5-4v8Z"
+                fill="#dcaf7b"
+                stroke="#ac885c"
+              />
+              <circle cx="17" cy="23" r=".8" fill="#657361" />
+              <path d="M15 17h10" stroke="#e7d8b8" />
+            </svg><span class="tool-label">Fish food</span></button>
+          <button
+            data-tool="pet"
+            aria-label="Pet the chickens"
+            aria-pressed="true"
+          >
+            <svg class="tool-icon" viewBox="0 0 40 40" aria-hidden="true">
+              <path
+                d="M20 16C7 8 12 1 20 8c8-7 13 0 0 8Z"
+                fill="#d2a39a"
+                stroke="#b48781"
+              />
+              <path
+                d="m10 29 7 5q4 2 7-1l11-10q2-5-3-3l-8 6m-12-5 6-3q2-1 4 1l5 2q3 4-2 4l-6-1"
+                stroke="#9c9479"
+              />
+              <path d="m7 21 5 1v12H7Z" fill="#b7c2a3" stroke="#82957d" />
+            </svg><span class="tool-label">Pet</span></button>
+        </div>
+        <span class="dock-divider" aria-hidden="true"></span>
+        <button
+          id="daynight"
+          aria-label="Settle the garden for the night"
+          aria-pressed="false"
+        >
+          <svg class="sun-icon" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="5" fill="#dbc58b" />
+            <path
+              d="M16 3v3m0 20v3M3 16h3m20 0h3M7 7l2 2m14 14 2 2M7 25l2-2M23 9l2-2"
+            /></svg
+          ><svg class="moon-icon" viewBox="0 0 32 32" aria-hidden="true">
+            <path
+              d="M24 22A11 11 0 0 1 12 5a11 11 0 1 0 12 17Z"
+              fill="#e0d4a4"
+            />
+            <path d="m23 5 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z" />
+          </svg>
+        </button>
+        <button id="sound" aria-label="Mute garden audio" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 10h4l5-4v12l-5-4H4Z" />
+            <path id="waves" d="M17 8q5 4 0 8m2-11q8 7 0 14" />
+          </svg>
+        </button>
+      </div>
+      <div class="music-controls">
+        <button id="stream" aria-label="Retry album music">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 18V5l11-2v13M9 9l11-2" />
+            <ellipse cx="6" cy="18" rx="3" ry="2" />
+            <ellipse cx="17" cy="16" rx="3" ry="2" />
+          </svg></button
+        ><button id="files" aria-label="Choose local music files">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 7V5h7l2 2h9v13H3Z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="youtube-shell" aria-hidden="true">
+      <div id="youtube-player"></div>
+    </div>
+    <input
+      id="music"
+      type="file"
+      accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac"
+      multiple
+      hidden
+    />
+    <script src="sprites.js"></script>
+    <script src="art.js"></script>
+    <script src="geometry.js"></script>
+    <script src="audio.js"></script>
+    <script src="navigation.js"></script>
+    <script src="entities.js"></script>
+    <script src="atmosphere.js"></script>
+    <script src="landscape.js"></script>
+    <script src="farm.js"></script>
+    <script src="renderer.js"></script>
+    <script src="youtube.js"></script>
+    <script src="input.js"></script>
+  </body>
+</html>

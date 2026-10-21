@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "grainApproach": {
+    "distanceBefore": 241.77171192299315,
+    "distanceAfter": 222.01342462147755
+  },
+  "audio": {
+    "playing": true,
+    "gain": 0,
+    "offscreen": true
+  },
+  "errors": []
+}
