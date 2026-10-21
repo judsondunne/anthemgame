@@ -10,6 +10,7 @@ const KEYS = {
   corrupt: "farm-save-corrupt",
   conflict: "farm-save-conflict",
   secret: "farm-save-key",
+  epoch: "farm-save-epoch",
   legacy: "garden-progress",
 };
 
@@ -60,15 +61,19 @@ export class Persistence {
     this.channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("farm-economy") : null;
   }
 
-  // Store a one-time ?k= write key, then strip it from the address bar.
+  // Store a one-time ?k= write key, then strip it (and the other one-shot
+  // params, ?fresh and ?time) from the address bar so a reload never repeats them.
   captureKey() {
     const k = this.params.get("k");
-    if (k) {
-      writeLS(KEYS.secret, k);
-      const u = new URL(location.href);
-      u.searchParams.delete("k");
-      history.replaceState(history.state, "", u.pathname + (u.search ? u.search : "") + u.hash);
-    }
+    if (k) writeLS(KEYS.secret, k);
+    const u = new URL(location.href);
+    let changed = false;
+    for (const one of ["k", "fresh", "time"])
+      if (u.searchParams.has(one)) {
+        u.searchParams.delete(one);
+        changed = true;
+      }
+    if (changed) history.replaceState(history.state, "", u.pathname + u.search + u.hash);
     this.key = readLS(KEYS.secret);
   }
 
@@ -146,6 +151,8 @@ export class Persistence {
 
   // A newly opened or refocused tab takes over; the previous leader flushes and follows.
   announce(state) {
+    this.epoch = (Number(readLS(KEYS.epoch)) || 0) + 1;
+    writeLS(KEYS.epoch, String(this.epoch));
     this.claimTime = performance.now();
     this.loadedSeq = state.seq;
     this.acted = false;
@@ -161,12 +168,21 @@ export class Persistence {
     const t = performance.now();
     if (!now && t - this.lastLocal < B.save.localDebounceMs) return false;
     this.lastLocal = t;
+    // Only the tab holding the newest leadership epoch may write; a stale tab
+    // can never overwrite the farm another tab has taken over.
+    if ((Number(readLS(KEYS.epoch)) || 0) > this.epoch) {
+      this.leader = false;
+      this.onFollow(true);
+      return false;
+    }
     state.seq++;
     state.savedAt = Date.now();
-    const ok = writeLS(KEYS.main, serialize(state));
+    const text = serialize(state);
+    const ok = writeLS(KEYS.main, text);
     this.status.local = ok ? "ok" : "unavailable";
     this.dirtyServer = true;
-    this.channel?.postMessage({ type: "saved", tab: this.tab, seq: state.seq });
+    // The document travels with the message: other tabs may see localStorage late.
+    this.channel?.postMessage({ type: "saved", tab: this.tab, seq: state.seq, text });
     return ok;
   }
 
@@ -227,9 +243,11 @@ export class Persistence {
   // Single active tab: the most recently focused tab simulates and saves; others mirror.
   claim(state) {
     if (this.leader) return state;
-    const latest = loadText(readLS(KEYS.main) ?? "");
+    // Freshest of what localStorage shows and the last broadcast we received.
+    const candidates = [loadText(readLS(KEYS.main) ?? ""), loadText(this.latestText ?? "")].filter((r) => r.ok);
+    const latest = candidates.sort((a, b) => b.state.seq - a.state.seq)[0];
     let next = state;
-    if (latest.ok && latest.state.seq >= state.seq) {
+    if (latest && latest.state.seq >= state.seq) {
       next = latest.state;
       catchUp(next, (Date.now() - next.savedAt) / 1000);
     }
@@ -245,10 +263,12 @@ export class Persistence {
       const m = e.data;
       if (!m || m.tab === this.tab) return;
       if (m.type === "claim" && this.leader) {
-        this.onFollow(true, "flush"); // let the controller flush before yielding
+        // Our latest progress was flushed on blur/hide, before the other tab took focus.
         this.leader = false;
+        this.onFollow(true);
       } else if (m.type === "saved") {
-        const latest = loadText(readLS(KEYS.main) ?? "");
+        this.latestText = m.text;
+        const latest = loadText(m.text ?? "");
         if (!latest.ok) return;
         if (!this.leader) this.onReplace(latest.state, "mirror");
         // The old leader's final flush can land just after we took over.

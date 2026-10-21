@@ -1,0 +1,79 @@
+{
+  "results": [
+    {
+      "name": "one-time ?k= key captured and stripped"
+    },
+    {
+      "name": "reload restores identical state",
+      "timeDelta": 0.51,
+      "gap": 0.82,
+      "animals": 6
+    },
+    {
+      "name": "debounced push reached api/state",
+      "rev": 1,
+      "seq": 2
+    },
+    {
+      "name": "server restart (redeploy) + empty browser storage restores the farm",
+      "rev": 2
+    },
+    {
+      "name": "corrupt save falls back to backup and keeps a copy"
+    },
+    {
+      "name": "empty save starts a fresh farm safely"
+    },
+    {
+      "name": "structurally invalid save starts fresh"
+    },
+    {
+      "name": "schemaVersion 1 save migrates on load",
+      "money": 777
+    },
+    {
+      "name": "clock moving backwards gives zero catch-up",
+      "source": "local",
+      "server": "unknown",
+      "local": "unknown",
+      "leader": true,
+      "rev": 0,
+      "caughtUp": 0
+    },
+    {
+      "name": "five hours away: capped catch-up, nobody died offline",
+      "caughtUp": 600
+    },
+    {
+      "name": "tab hidden for hours: capped, no deaths",
+      "dt": 600,
+      "alive": 2
+    },
+    {
+      "name": "two tabs: single leader, mirrored saves, nothing lost",
+      "money": 933
+    },
+    {
+      "name": "revision conflict: stale write refused, newest wins, loser backed up",
+      "rev": 5
+    },
+    {
+      "name": "server unreachable: silent localStorage fallback",
+      "server": "unreachable",
+      "source": "local",
+      "browserLoggedAbort": 3
+    },
+    {
+      "name": "route without SAVE_KEY refuses writes silently (localStorage-only)",
+      "source": "server",
+      "server": "unavailable",
+      "local": "unknown",
+      "leader": true,
+      "rev": 6,
+      "caughtUp": 3.951
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "failed": []
+}

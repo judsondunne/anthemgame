@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "seed": 9,
+  "rng": 12345,
+  "time": 4321,
+  "coins": 777,
+  "inventory": [{ "k": "seed_tulip", "n": 4 }, { "k": "egg", "n": 2 }, { "k": "egg", "n": 1 }],
+  "beds": [{ "id": 1, "gx": 7, "gy": 23, "plots": [{ "crop": "tulip", "g": 0.5, "w": 20 }] }],
+  "buildings": [{ "id": 2, "type": "barn", "gx": -17, "gy": 28 }],
+  "animals": [
+    { "id": 3, "sp": "cow", "sex": "f", "age": 1, "hunger": 10, "thirst": 5, "prod": 1, "breed": 0, "dead": false, "x": -500, "y": 780 },
+    { "id": 4, "sp": "chicken", "sex": "m", "age": 1, "hunger": 0, "thirst": 0, "prod": 0, "breed": 0, "dead": true, "deadFor": 400, "x": 300, "y": 860 },
+    { "id": 5, "sp": "chicken", "sex": "f", "age": 1, "hunger": 0, "thirst": 0, "prod": 0, "breed": 0, "dead": false, "x": 330, "y": 860 }
+  ],
+  "pickups": [],
+  "nextId": 6
+}
