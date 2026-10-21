@@ -8,6 +8,7 @@ import { needsOf, plotStage, foodsFor, isPenned, layout } from "../sim/index.js"
 const { footprintCenter, footprintOf, plotPosition } = layout;
 const HEIGHT = { chicken: 1.1, cow: 1.75, horse: 2.05 };
 const foodIcon = (sp) => itemIcon(foodsFor(sp)[0]);
+const needRing = '<svg class="need-ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-opacity=".13" stroke-width="2.25"/><circle class="need-progress" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></svg>';
 
 export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbient }) {
   const layer = document.querySelector("#needs");
@@ -23,7 +24,7 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
     }
     if (e.dataset.html !== html) {
       e.dataset.html = html;
-      e.innerHTML = html;
+      e.innerHTML = cls.includes("coop-call") ? html : html.replace(/(<button[^>]*>)/g, "$1" + needRing);
       e.querySelectorAll("button").forEach((b) => {
         b.onclick = (ev) => {
           ev.stopPropagation();
@@ -42,6 +43,12 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
     e.style.visibility = p.visible === false ? "hidden" : "visible";
     e.style.left = p.x + "px";
     e.style.top = p.y + Math.sin(G.world.elapsed * 2 + bob) * 3 + "px";
+    const player = game.state.player;
+    const distance = Math.hypot(x - (player?.x ?? x), (y - (player?.y ?? y)) * 1.65);
+    const scale = player?.mode === 'fp'
+      ? B.ui.bubbleScaleMax - distance / B.ui.bubbleDistanceScale * B.ui.bubbleFpFalloff
+      : Math.sqrt(Math.max(.01, G.view?.scale ?? 1)) * B.ui.bubbleGodScale;
+    e.style.setProperty('--bubble-scale', Math.min(B.ui.bubbleScaleMax, Math.max(B.ui.bubbleScaleMin, scale)).toFixed(3));
   }
 
   function update() {
@@ -60,6 +67,7 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
         food: (b, el) => onAnimal(a.id, "food", b, el),
         water: (b, el) => onAnimal(a.id, "water", b, el),
       });
+      e.style.setProperty('--need-progress', String(Math.max(0, Math.min(1, n.untilDeath / (B.neglect.deathDays * B.time.cycleSeconds)))));
       position(e, at.x, at.y, (HEIGHT[a.sp] ?? 1.2) * (agent.juvenile ? 0.75 : 1) * (hidden ? 0.8 : 1), a.id);
     }
     if(game.clock.hour>=B.coop.callHour||game.clock.hour<6){
@@ -87,6 +95,7 @@ export function createBubbles({ G, game, bridge, screen, onAnimal, onBed, onAmbi
       });
       const [w, h] = footprintOf("bed");
       const c = footprintCenter(bed.gx, bed.gy, w, h);
+      e.style.setProperty('--need-progress', String(ripe ? 1 : Math.max(...bed.plots.filter(p=>p.crop).map(p=>p.g))));
       position(e, c.x, c.y - 18, 0.95, bed.id);
     }
     for (const n of G.world.needs) {

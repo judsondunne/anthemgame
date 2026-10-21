@@ -1,34 +1,14 @@
 import { NIGHT_ICONS } from "./night-icons.js";
 // Icon-only interface: every glyph is an inline SVG on a 48x48 grid using the
 // garden palette. No letters anywhere.
-const C = {
-  ink: "#6b5b45",
-  cream: "#fff3d9",
-  paper: "#f6e9cc",
-  sage: "#8fae7e",
-  sageDark: "#5f7f62",
-  leaf: "#78985b",
-  gold: "#e3bf73",
-  goldDark: "#c39a48",
-  terra: "#cf8273",
-  terraDark: "#a85e52",
-  blush: "#d39b8f",
-  sky: "#78a9b0",
-  skyLight: "#bce0dc",
-  lav: "#a993cf",
-  lavDark: "#7f6aa8",
-  wood: "#c3ab86",
-  woodDark: "#8b6c4f",
-  white: "#fffaf0",
-  stone: "#a7a99a",
-  night: "#55678f",
-};
-export const PALETTE = C;
+import { PALETTE as C } from './theme/palette.js';
+export { PALETTE } from './theme/palette.js';
 const svg = (body, vb = "0 0 48 48") => `<svg viewBox="${vb}" aria-hidden="true" focusable="false">${body}</svg>`;
 const S = `stroke="${C.ink}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
 
 // ---------- glyph parts (no outer svg) ----------
 const parts = {
+  clock: `<circle cx="24" cy="24" r="17" fill="${C.paper}" ${S}/><path d="M24 13v12l8 5" fill="none" ${S}/>`,
   coin: `<circle cx="24" cy="24" r="17" fill="${C.gold}" ${S}/><circle cx="24" cy="24" r="11.5" fill="none" stroke="${C.goldDark}" stroke-width="2"/><path d="M24 31c0-6 0-9 0-13m0 4c-3-4-7-3-8-1 3 2 6 2 8 1m0-2c2-4 6-4 8-2-2 3-5 3-8 2" fill="${C.cream}" stroke="${C.goldDark}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
   daisy: `<path d="M24 44V27" stroke="${C.leaf}" stroke-width="3" stroke-linecap="round"/><path d="M24 36c-6-1-9-5-9-8 5 0 8 3 9 8" fill="${C.sage}" stroke="${C.sageDark}" stroke-width="1.5"/>${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<ellipse cx="24" cy="10" rx="4" ry="7" fill="${C.white}" stroke="${C.stone}" stroke-width="1.3" transform="rotate(${a} 24 19)"/>`).join("")}<circle cx="24" cy="19" r="5" fill="${C.gold}" stroke="${C.goldDark}" stroke-width="1.5"/>`,
   tulip: `<path d="M24 44V26" stroke="${C.leaf}" stroke-width="3" stroke-linecap="round"/><path d="M24 40c-7-2-10-8-9-13 6 2 9 7 9 13m0-2c6-2 9-7 9-12-6 1-9 6-9 12" fill="${C.sage}" stroke="${C.sageDark}" stroke-width="1.5"/><path d="M14 10l5 5 5-8 5 8 5-5v9c0 6-4 10-10 10s-10-4-10-10Z" fill="${C.terra}" ${S}/>`,
@@ -114,7 +94,24 @@ const CROP_TINT = { daisy: "#e8eedc", wheat: "#f0dca4", tulip: "#f2c8bd", cabbag
 const cropGlyph = (crop) => (crop === "wheat" ? parts.grain : parts[crop]);
 
 // Icon for any inventory/shop key.
+const modelIcons = new Map();
+const modelCursors = new Map();
+
+// Install model thumbnails once before the UI is constructed. Abstract glyphs
+// remain vector SVG; inventory items use the same downloaded models as the farm.
+export function registerItemIcons(entries) {
+  for (const [key, value] of Object.entries(entries)) {
+    modelIcons.set(key, value.html);
+    modelCursors.set(key, value.cursor);
+  }
+  for (const [glyph, key] of Object.entries({hen:'animal_chicken_f',rooster:'animal_chicken_m',cowF:'animal_cow_f',cowM:'animal_cow_m',horseF:'animal_horse_f',horseM:'animal_horse_m',coop:'kit_coop',barn:'kit_barn',stable:'kit_stable',bed:'kit_bed'})) {
+    if (modelIcons.has(key)) ICONS[glyph] = modelIcons.get(key);
+  }
+  for (const key of ['can','fish','flashlight']) if (modelIcons.has(key)) TOOL_ICONS[key] = modelIcons.get(key);
+}
+
 export function itemIcon(key) {
+  if (modelIcons.has(key)) return modelIcons.get(key);
   if (NIGHT_ICONS[key]) return NIGHT_ICONS[key];
   if (key.startsWith("seed_")) {
     const crop = key.slice(5);
@@ -133,6 +130,7 @@ export const TOOL_ICONS = { hand: ICONS.hand, can: ICONS.can, fish: ICONS.fishfo
 
 // Small CSS cursor reflecting the selected item (desktop pointers).
 export function cursorFor(key) {
+  if (modelCursors.has(key)) return `url("${modelCursors.get(key)}") 5 5, pointer`;
   const raw = key in TOOL_ICONS ? TOOL_ICONS[key] : itemIcon(key);
   const s = raw.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" ');
   return `url("data:image/svg+xml,${encodeURIComponent(s)}") 8 8, pointer`;

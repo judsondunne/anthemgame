@@ -23,14 +23,16 @@ export function createShop({ game, hud, juice, audio, onKit }) {
   el.id = "shop";
   el.className = "glass";
   el.setAttribute("role", "dialog");
-  el.innerHTML = `<div class="shophead"><button class="tab buy" aria-label="Buy">${ICONS.basket}</button><button class="tab sell" aria-label="Sell">${ICONS.coins}</button><div class="pill money"><span class="ico">${ICONS.coin}</span><span class="num"></span></div><button class="close" aria-label="Close">${ICONS.close}</button></div><div class="quantity-stepper"><button class="less" aria-label="Decrease quantity">−</button><span>1</span><button class="more" aria-label="Increase quantity">+</button></div><div class="shopbody"></div>`;
+  el.setAttribute("aria-label", "Market");
+  el.setAttribute("aria-modal", "true");
+  el.innerHTML = `<div class="shophead"><button class="tab buy" aria-label="Buy" aria-pressed="true"><span class="tab-art">${ICONS.basket}</span><span class="tab-direction">${ICONS.down}</span></button><button class="tab sell" aria-label="Sell" aria-pressed="false"><span class="tab-art">${ICONS.coins}</span><span class="tab-direction">${ICONS.up}</span></button><div class="pill money"><span class="ico">${ICONS.coin}</span><span class="num"></span></div><button class="close" aria-label="Close">${ICONS.close}</button></div><div class="quantity-stepper"><button class="less" aria-label="Decrease quantity">−</button><span>1</span><button class="more" aria-label="Increase quantity">+</button></div><div class="shopbody"></div>`;
   document.body.append(veil, el);
   const body = el.querySelector(".shopbody"),
     numEl = el.querySelector(".num"),
     tabs = { buy: el.querySelector(".tab.buy"), sell: el.querySelector(".tab.sell") };
   let quantity=1;
   el.querySelector(".quantity-stepper .less").onclick=()=>{quantity=Math.max(1,quantity-1);el.querySelector(".quantity-stepper span").textContent=quantity;render();};
-  el.querySelector(".quantity-stepper .more").onclick=()=>{quantity=Math.min(99,quantity+1);el.querySelector(".quantity-stepper span").textContent=quantity;render();};
+  el.querySelector(".quantity-stepper .more").onclick=()=>{quantity=Math.min(B.inventory.stackMax,quantity+1);el.querySelector(".quantity-stepper span").textContent=quantity;render();};
   let tab = "buy",
     isOpen = false,
     signature = "",
@@ -59,6 +61,10 @@ export function createShop({ game, hud, juice, audio, onKit }) {
     tab = which;
     tabs.buy.classList.toggle("active", tab === "buy");
     tabs.sell.classList.toggle("active", tab === "sell");
+    tabs.buy.setAttribute("aria-pressed", String(tab === "buy"));
+    tabs.sell.setAttribute("aria-pressed", String(tab === "sell"));
+    el.dataset.tab = tab;
+    audio.lightClick?.();
     signature = "";
     render();
   }
@@ -71,7 +77,7 @@ export function createShop({ game, hud, juice, audio, onKit }) {
     t.setAttribute("aria-label", key);
     const animal = /^animal_(\w+)_(f|m)$/.exec(key);
     t.innerHTML = `<div class="art">${itemIcon(key)}${animal ? `<span class="sex">${animal[2] === "f" ? ICONS.female : ICONS.male}</span>` : ""}</div><div class="price"><span class="ico">${ICONS.coin}</span><span class="n"></span></div>`;
-    if(key.startsWith('seed_')){const crop=key.slice(5),C=B.crops[crop],good=C.good??crop;t.insertAdjacentHTML('beforeend',`<span class="crop-yield">+<span>${ICONS.coin}</span>${sellPrice(s,good)*C.yield}</span><span class="maturity">◷ ${maturityTime(C.grow)}</span>`);t.classList.add('seed-tile');}
+    if(key.startsWith('seed_')){const crop=key.slice(5),C=B.crops[crop],good=C.good??crop;t.insertAdjacentHTML('beforeend',`<span class="crop-yield">+<span>${ICONS.coin}</span>${sellPrice(s,good)*C.yield}</span><span class="maturity"><span class="ico">${ICONS.clock}</span>${maturityTime(C.grow)}</span>`);t.classList.add('seed-tile');}
     if (animal) t.insertAdjacentHTML("beforeend", `<div class="cap"><span class="ico">${ICONS.house}</span><span class="c"></span></div>`);
     else if (key.startsWith("kit_") || FEEDS.includes(key) || SEEDS.includes(key)) t.insertAdjacentHTML("beforeend", `<span class="count"></span>`);
     t.addEventListener("pointerdown", (e) => startHold(e, t, key));
@@ -139,6 +145,8 @@ export function createShop({ game, hud, juice, audio, onKit }) {
   }
 
   function startHold(e, t, key) {
+    if(e.button!==0)return;
+    e.preventDefault();
     stopHold();
     audio.start?.().catch?.(() => {});
     attemptBuy(t, key);
@@ -169,6 +177,8 @@ export function createShop({ game, hud, juice, audio, onKit }) {
     t.className = "tile";
     t.dataset.key = entry.key;
     t.setAttribute("role", "button");
+    t.tabIndex = 0;
+    t.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sell(t, entry.key, quantity); } };
     t.setAttribute("aria-label", entry.key);
     t.innerHTML = `<div class="art">${itemIcon(entry.key)}${entry.sex ? `<span class="sex">${entry.sex === "f" ? ICONS.female : ICONS.male}</span>` : ""}</div><div class="price"><span class="ico">${ICONS.coin}</span><span class="n"></span><span class="trend"></span></div><span class="count"></span><button class="all" aria-label="Sell all">${ICONS.all}</button>`;
     t.onclick = (e) => {
