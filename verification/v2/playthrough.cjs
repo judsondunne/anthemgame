@@ -89,7 +89,13 @@ async function foodFor(sp) {
   if (await has("feed_" + sp)) return "feed_" + sp;
   if (await has("hay")) return "hay";
   const price = await page.evaluate((k) => Garden.Sim.buyPrice(Garden.state(), k), "feed_" + sp);
+  // Broke: sell what's in the basket, and if that isn't enough pick up the
+  // milk and eggs lying around first, like a player would.
   if ((await S()).money < price) await sellAll({});
+  if ((await S()).money < price) {
+    await gather();
+    await sellAll({});
+  }
   await buy("feed_" + sp, 1);
   assert(await has("feed_" + sp), "bought feed for " + sp);
   return "feed_" + sp;
