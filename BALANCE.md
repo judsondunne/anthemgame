@@ -88,3 +88,11 @@ The balanced farm completes at minute 78, with 0 deaths.
 | partialFence | 84 | 218 | 50 | 0 |
 | closedPen | 87 | 0 | 100 | 0 |
 | activeFlashlight | 0 | 374 | 31 | 0 |
+
+## Quality update — predator diagnosis and retune (schema 4)
+
+This section supersedes the earlier predator timings. A failing regression on seed 6 reproduced the missing-wolf report: the random radius-2250 spawn placed a wolf beyond the brook, and local steering never brought it closer than 3450 logical units to the cow before dawn. Night groups now choose a clear approach about 620 units from livestock and use obstacle routing. The seed-6 arrival regression and first-night pack regression were run failing before the fix.
+
+Wolves now arrive every eligible night at 40 seconds (13% of the 300-second night). Chicken-only farms receive a gentle lone wolf at 0.12 health/s. Owning any cow or horse triggers 2–4 wolves: `min(4, 2 + floor(herd / 5))`, including the first night and fully enclosed farms. Wolves move at 54 units/s and deal 0.32 health/s, twice the previous sustained damage. Bears are an independent 72% roll with at least six cows/horses, arrive at 105 seconds, move at 36 units/s and deal 0.65 health/s; they can accompany wolves. Wolves still need 1.5 seconds of first-person flashlight exposure; bears remain immune. Packs howl on arrival and while prowling. Closed pens and chickens inside closed coops receive no damage. Offline catch-up neither spawns predators nor damages animals.
+
+A twelve-night seed-1247 benchmark with six cared-for animals measured 2 deaths / 4 survivors without fences, 0 deaths with a one-segment gap, 0 damage and 6 survivors in an 87-coin closed pen, and 1 death / 5 survivors with active flashlight use. A gap delays approach but is not safe. These are recoverable losses for a reckless farm; the closed pen remains the dependable defense. Production and faster-crop measurements are updated in the next section.

@@ -41,9 +41,12 @@ export const BALANCE = {
     maxFloodCells: 60000, nudge: 5, playerClearance: 14,
   },
   predators: {
-    delayIntoNight: 40, maxWolves: 3, bearAfterHerd: 6, bearChance: 0.16,
-    wolfSpeed: 34, bearSpeed: 23, fleeSpeed: 100, spawnRadius: 2250,
-    attackRange: 34, alertRange: 400, wolfDamage: 0.16, bearDamage: 0.32,
+    delayIntoNight: 40, minWolves: 2, maxWolves: 4, herdPerWolf: 5,
+    bearAfterHerd: 6, bearChance: .72, bearDelayIntoNight: 105,
+    wolfSpeed: 54, bearSpeed: 36, fleeSpeed: 100, spawnRadius: 2250,
+    arrivalRadius: 620, arrivalAttempts: 24, packSpacing: 30,
+    attackRange: 34, alertRange: 520, wolfDamage: .32, bearDamage: .65,
+    gentleDamage: .12, prowlRadius: 160, prowlSpeed: .65, howlEvery: 45,
     targetSpread: 450, scareSeconds: 1.5, exposureDecay: 1, encounterChance: 0.5,
     retreatSeconds: 12, maxHealth: 100, healPerSecond: 0.4,
     injuryThreshold: 60, restSpeed: 0.65,
@@ -53,6 +56,13 @@ export const BALANCE = {
   waterBodies: { pond: { x: 5.98, z: -.792, rx: 3.02, rz: 2.376, surface: .12, maxDepth: 1.8, edgeDepth: .03 }, brook: { maxDepth: 1.65, edgeDepth: .08 } },
   livestockWater: { visitChance: 1, visitSpeed: 100, durationSeconds: 32, decisionSeconds: 180, thirstRecovery: 12, startHour: 8, returnHour: 18 },
   wildlife: { highCount: 16, lowCount: 7, activeDistance: 65, despawnDistance: 84, fleeDistance: 9, predatorFleeDistance: 13, wanderSpeed: .65, fleeSpeed: 3.4, hopHeight: .16, drinkHours: [5, 8, 17, 20], repathSeconds: 4 },
+  world: {
+    seed: 721031, radius: 92, property: { halfWidth: 38, halfDepth: 17, blend: 14 }, terrainSegments: 112,
+    forest: { spacing: 4.6, jitter: .82, chunkSize: 24, nearDistance: 54, farDistance: 145, shadowDistance: 44, undergrowthSpacing: 3.2 },
+    brook: { x: 46, meander: 7, halfWidth: 1.7, shoreWidth: 2.8, crossingZ: 8, crossingHalfDepth: 1.7, rocks: 110 },
+    particles: { high: 150, low: 65 },
+  },
+  cottage: { halfWidth: 3.1, depth: 5.4, floor: .12, wallHeight: 2.6, doorWidth: 1.2, doorSpeed: 4, cutawayDistance: 20, lightDay: .45, lightNight: 1.55 },
 
   start: {
     money: 1000,

@@ -66,7 +66,7 @@ function fromV3(doc) {
   const open = !isNightAt(Number(doc.time) || 0);
   const coops = { base: { doorOpen: open, doorProgress: open ? 1 : 0 } };
   for (const b of doc.buildings || []) if (b.type === 'coop') coops[String(b.id)] = { doorOpen: open, doorProgress: open ? 1 : 0 };
-  return { ...doc, schemaVersion: 4, coops };
+  return { ...doc, schemaVersion: 4, coops, predatorSchedule: { ...doc.predatorSchedule, lastBearNight: doc.predatorSchedule?.lastNight ?? dayIndex(Number(doc.time) || 0) } };
 }
 const MIGRATIONS = { 0: fromV0, 1: fromV1, 2: fromV2, 3: fromV3 };
 
@@ -165,6 +165,8 @@ export function validate(doc) {
       ...(Number.isInteger(a.roostSlot)?{roostSlot:Math.max(0,a.roostSlot)}:{}),
       ...(typeof a.penned === 'boolean' ? { penned: a.penned } : {}),
       ...(typeof a.wandering === 'boolean' ? { wandering: a.wandering } : {}),
+      ...(typeof a.drinking === 'boolean' ? { drinking: a.drinking } : {}),
+      ...(typeof a.inWater === 'boolean' ? { inWater: a.inWater } : {}),
     }));
   s.pickups = (Array.isArray(doc.pickups) ? doc.pickups : [])
     .filter((p) => p && ["egg", "milk"].includes(p.kind) && Number.isFinite(p.x) && Number.isFinite(p.y))
@@ -197,7 +199,7 @@ export function validate(doc) {
   };
   s.player = { mode: doc.player?.mode === 'fp' ? 'fp' : 'god', x: num(doc.player?.x, 650), y: num(doc.player?.y, 700), yaw: num(doc.player?.yaw), pitch: clamp(num(doc.player?.pitch), -1.4, 1.4) };
   s.predators = []; s.alerts = [];
-  s.predatorSchedule = { lastNight: Math.max(-1, Math.floor(num(doc.predatorSchedule?.lastNight, dayIndex(s.time)))), encounters: Math.max(0, Math.floor(num(doc.predatorSchedule?.encounters))) };
+  s.predatorSchedule = { lastNight: Math.max(-1, Math.floor(num(doc.predatorSchedule?.lastNight, dayIndex(s.time)))), lastBearNight: Math.max(-1, Math.floor(num(doc.predatorSchedule?.lastBearNight, dayIndex(s.time)))), encounters: Math.max(0, Math.floor(num(doc.predatorSchedule?.encounters))) };
   s.inventoryOverflow = (Array.isArray(doc.inventoryOverflow) ? doc.inventoryOverflow : []).filter(q => q && ITEM_KEYS.has(q.key) && Number.isInteger(q.n) && q.n > 0).map(q => ({ key: q.key, n: q.n }));
   initializeInventory(s, Array.isArray(doc.slots) ? doc.slots : null);
   // Accept aggregate edits made by the compatibility bridge while validating

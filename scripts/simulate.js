@@ -267,7 +267,7 @@ export function runPredatorStrategies(nights = 12) {
       }
       for (let y = 26; y < 31; y++) for (const x of [-20, -12]) if (S.placeFence(s, x, y, 'v').ok) fenceCost += B.fences.price;
     }
-    let damage = 0, lowestHealth = 100, scares = 0, alerts = 0, spawns = 0;
+    let damage = 0, lowestHealth = 100, scares = 0, alerts = 0, spawns = 0, wolves = 0, bears = 0;
     for (let t = 0; t < nights * S.DAY_SECONDS; t++) {
       if (t % 30 === 0) for (const a of s.animals) if (a.state === 'alive') a.hunger = a.thirst = 0;
       const before = new Map(s.animals.map(a => [a.id, a.health]));
@@ -283,10 +283,10 @@ export function runPredatorStrategies(nights = 12) {
       }
       for (const e of S.drainEvents(s)) {
         if (e.type === 'predatorAlert') alerts++;
-        if (e.type === 'predatorSpawn') spawns++;
+        if (e.type === 'predatorSpawn') { spawns++; if(e.kind==='wolf')wolves++;else bears++; }
       }
     }
-    return { name, nights, fenceCost, damage: Math.round(damage), lowestHealth: Math.round(lowestHealth), deaths: s.stats.deaths, survivors: S.alive(s).length, scares, alerts, spawns };
+    return { name, nights, fenceCost, damage: Math.round(damage), lowestHealth: Math.round(lowestHealth), deaths: s.stats.deaths, survivors: S.alive(s).length, scares, alerts, spawns, wolves, bears };
   });
 }
 

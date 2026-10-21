@@ -11,8 +11,8 @@ test('night wolves appear for the starter chicken farm as well as a larger herd'
   const s = fresh(); S.tick(s, 400); assert.equal(s.predators.length, 1);assert.equal(s.predators[0].kind,'wolf');
   const t = fresh(); herd(t); t.time = S.clock.nextTimeAtHour(t.time, 20);
   S.tick(t, B.predators.delayIntoNight - 1); assert.equal(t.predators.length, 0);
-  S.tick(t, 1); assert.equal(t.predators.length, 1); assert.equal(t.predators[0].kind, 'wolf');
-  S.tick(t, 1); assert.equal(t.predators.length, 1);
+  S.tick(t, 1); assert.equal(t.predators.length, B.predators.minWolves); assert.equal(t.predators[0].kind, 'wolf');
+  S.tick(t, 1); assert.equal(t.predators.length, B.predators.minWolves);
 });
 test('wolves target exposed livestock; indoor chickens and closed pens stay safe', () => {
   const s = fresh(), a = herd(s); night(s);
@@ -83,4 +83,41 @@ test('outdoor chickens are wolf targets, while called-in sleeping chickens are p
  const p=S.forcePredator(s,'wolf',{x:chicken.x+5,y:chicken.y}).predator;
  S.stepPredators(s,1);assert.equal(p.target,chicken.id);assert.ok(chicken.health<100);
  chicken.indoors=true;S.stepPredators(s,1);assert.equal(p.target,null);
+});
+
+test('regression: seed 6 wolves reach the farm before dawn instead of spawning beyond the brook',()=>{
+ const s=fresh(6);s.animals=[];const cow=herd(s);let nearest=Infinity,damage=0;
+ for(let t=0;t<DAY;t++){
+   cow.hunger=cow.thirst=0;const before=cow.health;S.tick(s,1);damage+=Math.max(0,before-cow.health);
+   for(const p of s.predators)nearest=Math.min(nearest,Math.hypot(p.x-cow.x,(p.y-cow.y)*1.65));
+ }
+ assert.ok(nearest<B.predators.alertRange,`wolf never reached the farm: closest ${Math.round(nearest)}`);
+ assert.ok(damage>0,'an unprotected cow is actively hunted before dawn');
+});
+
+test('a cow or horse triggers a wolf pack every night, including the first and protected nights',()=>{
+ for(const size of [1,6,12]){
+   const s=fresh(4);s.animals=[];for(let i=0;i<size;i++)herd(s);enclose(s);
+   for(let day=0;day<3;day++){
+     s.time=S.clock.nextTimeAtHour(s.time,20)+B.predators.delayIntoNight;
+     S.stepPredators(s,1);
+     const wolves=s.predators.filter(p=>p.kind==='wolf');
+     assert.equal(wolves.length,Math.min(4,2+Math.floor(size/5)));
+     assert.ok(s.events.some(e=>e.type==='predatorHowl'));
+     S.stepPredators(s,1);assert.equal(s.predators.filter(p=>p.kind==='wolf').length,wolves.length,'one pack per night');
+     s.time=S.clock.nextTimeAtHour(s.time,6);S.stepPredators(s,1);
+   }
+ }
+});
+
+test('late-game bears visit most nights alongside wolves and ignore the flashlight',()=>{
+ let nightsWithBear=0;
+ for(let seed=1;seed<=40;seed++){
+   const s=fresh(seed);s.animals=[];for(let i=0;i<B.predators.bearAfterHerd;i++)herd(s);
+   s.time=S.clock.nextTimeAtHour(0,20)+B.predators.bearDelayIntoNight;S.stepPredators(s,1);
+   assert.ok(s.predators.some(p=>p.kind==='wolf'),'bear never replaces the guaranteed wolf pack');
+   const bear=s.predators.find(p=>p.kind==='bear');
+   if(bear){nightsWithBear++;s.player.mode='fp';assert.equal(S.illuminate(s,bear.id,20).reason,'immune');}
+ }
+ assert.ok(nightsWithBear>20&&nightsWithBear<40,`most, not every, eligible night: ${nightsWithBear}/40`);
 });

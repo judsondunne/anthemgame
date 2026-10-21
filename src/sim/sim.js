@@ -39,7 +39,7 @@ export function createState({ seed = B.start.seed } = {}) {
     fences: [],
     predators: [],
     alerts: [],
-    predatorSchedule: { lastNight: -1, encounters: 0 },
+    predatorSchedule: { lastNight: -1, lastBearNight: -1, encounters: 0 },
     player: { mode: 'god', x: 650, y: 700, yaw: 0, pitch: 0 },
     softlock: { clock: 0 },
     celebrated: { cow: false, horse: false },
@@ -382,6 +382,7 @@ export function catchUp(s, realSeconds) {
   if (dt > 0) {
     s.predators = []; s.alerts = [];
     s.predatorSchedule.lastNight = dayIndex(s.time);
+    s.predatorSchedule.lastBearNight = dayIndex(s.time);
   }
   return dt;
 }
