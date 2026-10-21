@@ -206,6 +206,15 @@ export function createInput({ canvas, camera, G, game, hud, shop, farm, bridge, 
       return;
     }
     if (sweep) return;
+    if (t.kind === "building" && k === "hand") {
+      // Gather every egg or milk carton lying around this building.
+      const b = s.buildings.find((q) => q.id === t.id);
+      const front = b ? layout.frontOf(b).approach : layout.BASE_COOP.approach;
+      const before = s.pickups.map((q) => ({ ...q }));
+      const r = game.act("collectNear", front.x, front.y);
+      if (r.ok) for (const q of before) if (!game.state.pickups.some((x) => x.id === q.id)) gained(q.kind, q.x, q.y, 0.2);
+      return;
+    }
     if (t.kind === "building" || t.kind === "trough") {
       const herd = groupOf(t);
       if (isFood) {

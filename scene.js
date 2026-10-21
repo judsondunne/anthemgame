@@ -583,7 +583,7 @@ function lighting() {
   moon.position.set(-Math.cos(moonAngle) * 20 + pan, Math.max(4, moonHigh * 24), 10);
   moon.target.position.set(pan, 0, 0);
   hemi.intensity = 1.12 - night * 0.42;
-  hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.55).lerp(LIGHT.hemiNight, night);
+  hemi.color.copy(LIGHT.hemiDay).lerp(LIGHT.hemiGold, gold * 0.2).lerp(LIGHT.hemiNight, night);
   hemi.groundColor.copy(LIGHT.groundDay).lerp(LIGHT.groundNight, night);
   sun.intensity = (3.1 + gold * 0.65) * (1 - night);
   sun.color.copy(LIGHT.sunDay).lerp(morning ? LIGHT.sunDawn : LIGHT.sunDusk, S(gold, 0.12, 0.45));
@@ -874,7 +874,7 @@ farmLayer.sync(game.state, 0);
 // Warm shader programs for materials that first appear later (ghost, grid).
 const warm = new THREE.Group();
 warm.position.y = -40;
-warm.add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ color: "#a6e3a0", transparent: true, opacity: 0.5, depthWrite: false })));
+warm.add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshLambertMaterial({ color: "#b9f0b0", emissive: "#2f6a2c", transparent: true, opacity: 0.6, depthWrite: false })));
 const warmCells = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.3, depthWrite: false }), 1);
 warmCells.setColorAt(0, new THREE.Color("#ffffff"));
 warm.add(warmCells);

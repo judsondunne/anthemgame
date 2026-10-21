@@ -168,3 +168,25 @@ export function plotPosition(bed, index) {
     row = Math.floor(index / cols);
   return { x: c.x + (col - (cols - 1) / 2) * ((w * CELL_X) / (cols + 0.35)), y: c.y + (row - 0.5) * ((h * CELL_Y) / 2.25) };
 }
+
+// A valid spot that packs tightly against obstacles and other footprints,
+// preferring positions near `near` (logical point). Used by the headless
+// balance players and for the ghost's starting position.
+export function bestSpot(state, type, near = null) {
+  const [w, h] = footprintOf(type),
+    zone = ZONES[ZONE_OF[type]],
+    others = placedFootprints(state);
+  const blocked = (gx, gy) => !cellFree(zone, gx, gy) || others.some((o) => overlaps(o, { gx, gy, w: 1, h: 1 }));
+  let best = null;
+  for (const c of zoneCells(type)) {
+    if (!checkPlacement(state, type, c.gx, c.gy).ok) continue;
+    let touch = 0;
+    for (let i = -1; i <= w; i++) touch += blocked(c.gx + i, c.gy - 1) + blocked(c.gx + i, c.gy + h);
+    for (let j = 0; j < h; j++) touch += blocked(c.gx - 1, c.gy + j) + blocked(c.gx + w, c.gy + j);
+    const centre = footprintCenter(c.gx, c.gy, w, h);
+    const dist = near ? Math.hypot(centre.x - near.x, (centre.y - near.y) * 1.65) : 0;
+    const score = touch * 60 - dist * 0.12;
+    if (!best || score > best.score) best = { gx: c.gx, gy: c.gy, score };
+  }
+  return best;
+}

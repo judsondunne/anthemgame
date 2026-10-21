@@ -86,6 +86,8 @@ export const BUILDINGS = {
         roofScale: [3.5, 2.1, 5.2],
         height: 2.1,
         chimney: false,
+        tint: "#fff4e2",
+        roofTint: "#f0b4a2",
       },
       lanterns,
     );

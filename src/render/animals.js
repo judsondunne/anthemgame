@@ -124,17 +124,17 @@ export function createAnimalRenderer(ctx) {
       } else {
         const squash = a.pet ? Math.sin(a.pet * 12) * 0.06 : 0;
         const s = base * juvenileScale * popScale;
-        o.scale.set(s * (1 + squash), s * (1 - squash) * (a.sad ? 0.94 : 1), s);
+        o.scale.set(s * (1 + squash), s * (1 - squash) * (a.sad ? 0.88 : 1), s);
       }
       const angle = chicken ? (a.path.length ? Math.atan2(a.path[0].x - a.x, (a.path[0].y - a.y) * 1.65) : (a.dir * Math.PI) / 2) : (a.dir * Math.PI) / 2;
       o.rotation.y += Math.atan2(Math.sin(angle - o.rotation.y), Math.cos(angle - o.rotation.y)) * (1 - Math.exp(-dt * 7));
-      o.rotation.x = a.sad ? 0.22 : 0; // drooped posture
+      o.rotation.x = a.sad ? (chicken ? 0.38 : 0.12) : 0; // drooped posture
       const mixer = o.userData.mixer;
       if (mixer) mixer.timeScale = a.sad ? 0.45 : 1;
       if (chicken) {
         play(o, a.sleeping ? "idle" : moving ? "walk" : a.mode === "feeding" || a.mode === "drinking" ? "eat" : a.shake > 0 ? "no" : "idle");
         if (a.mode === "feeding" && !a.juvenile) play(o, "bite_front");
-      } else play(o, moving ? ((a.boltUntil ?? 0) > world.elapsed || (a.kind === "horse" && !a.sad && !a.juvenile) ? "gallop" : "walk") : a.eating ? "eating" : a.sad ? "idle_headlow" : "idle");
+      } else play(o, moving ? ((a.boltUntil ?? 0) > world.elapsed ? "gallop" : "walk") : a.eating ? "eating" : a.sad ? "idle_headlow" : "idle");
       a.shake = Math.max(0, (a.shake ?? 0) - dt);
       mixer?.update(dt);
       if (chicken && !a.sleeping) {

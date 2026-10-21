@@ -239,6 +239,18 @@ export function collect(s, pickupId) {
   return { ok: true, kind: p.kind };
 }
 
+// Tapping a coop, barn or stable gathers every egg or milk lying around it.
+export function collectNear(s, x, y, radius = B.pickups.collectRadius) {
+  let n = 0,
+    last = fail("none");
+  for (const p of [...s.pickups])
+    if (Math.hypot(p.x - x, (p.y - y) * 1.6) <= radius) {
+      last = collect(s, p.id);
+      if (last.ok) n++;
+    }
+  return n ? { ok: true, n } : last;
+}
+
 export function place(s, kit, gx, gy) {
   if (!KITS.includes(kit)) return fail("unknown");
   if (count(s, kit) <= 0) return fail("noKit");

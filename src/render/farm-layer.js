@@ -147,7 +147,16 @@ export function createFarmLayer(ctx) {
   function remainsObject(a) {
     const g = new THREE.Group();
     const size = a.sp === "chicken" ? 0.42 : a.sp === "cow" ? 1.0 : 1.1;
-    const rib = model("ribcage", { width: size, tint: "#efe4cc" });
+    const rib = model("ribcage", { width: size });
+    // Plain bone-white instead of the atlas' tan, same downloaded geometry.
+    rib.traverse((m) => {
+      if (m.isMesh) {
+        m.material = m.material.clone();
+        m.material.map = null;
+        m.material.color.set("#ece4d2");
+        m.material.needsUpdate = true;
+      }
+    });
     rib.rotation.y = (a.id * 2.3) % 6.28;
     g.add(rib);
     const bone = model("bone", { width: size * 0.62, recolor: { Beige: "#e9dcc2" } });
@@ -160,9 +169,10 @@ export function createFarmLayer(ctx) {
   }
 
   // ---------- placement ghost and grid ----------
+  // Lit, translucent tints keep the building's shape readable while placing.
   const ghostMats = {
-    ok: new THREE.MeshBasicMaterial({ color: "#a6e3a0", transparent: true, opacity: 0.55, depthWrite: false }),
-    bad: new THREE.MeshBasicMaterial({ color: "#f08f86", transparent: true, opacity: 0.55, depthWrite: false }),
+    ok: new THREE.MeshLambertMaterial({ color: "#b9f0b0", emissive: "#2f6a2c", transparent: true, opacity: 0.6, depthWrite: false }),
+    bad: new THREE.MeshLambertMaterial({ color: "#ffb2a8", emissive: "#7a2a22", transparent: true, opacity: 0.6, depthWrite: false }),
   };
   const cellGeo = new THREE.PlaneGeometry(0.72, 0.72).rotateX(-Math.PI / 2);
   const cellMat = new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 0.32, depthWrite: false });

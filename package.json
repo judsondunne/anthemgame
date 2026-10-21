@@ -7,6 +7,10 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
+    "serve": "node scripts/serve.js",
+    "test": "node --test tests/*.test.js",
+    "simulate": "node scripts/simulate.js 150",
+    "e2e": "node verification/v2/run-all.cjs",
     "verify": "node verification/verify.cjs"
   },
   "keywords": [],
