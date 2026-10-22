@@ -102,6 +102,11 @@ function material(original, key, sway) {
       shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n roughnessFactor=clamp(roughnessFactor+sin(vBuildingSurface.y*93.)*.07,.55,1.);');};
     m.customProgramCacheKey=()=>priorKey+'|crafted-building-v1|'+(key.startsWith('roof')?'roof':'timber');
   }
+  if(key==='forest_shrub'){
+    const previous=m.onBeforeCompile,priorKey=m.customProgramCacheKey();
+    m.onBeforeCompile=shader=>{previous(shader);shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n float leafLight=clamp(diffuseColor.r*1.2+diffuseColor.g,0.,1.);diffuseColor.rgb=mix(vec3(.09,.17,.07),vec3(.35,.49,.20),leafLight);');};
+    m.customProgramCacheKey=()=>priorKey+'|sage-shrub-v1';
+  }
   materials.set(id, m);
   return m;
 }

@@ -120,7 +120,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
     if(!batches.has(key))batches.set(key,{name,category,cx:(chunkX+.5)*W.forest.chunkSize-W.radius,cz:(chunkZ+.5)*W.forest.chunkSize-W.radius,placements:[]});
     batches.get(key).placements.push({x,z,y:terrainHeight(x,z),size,heading,stretch,color:new THREE.Color().setHSL(.25+rng()*.06,.10+rng()*.11,.77+rng()*.18)});
   }
-  const trees=['forest_fir','forest_fir_b','forest_fir_c','forest_leaf_tree','forest_leaf_tree_b','forest_canopy_b','forest_canopy','forest_oak_b'];
+  const trees=['forest_fir','forest_fir_b','forest_fir_c','forest_fir_b','forest_leaf_tree','forest_leaf_tree_b'];
   const spacing=W.forest.spacing;
   let treeCount=0;
   for(let z=-W.radius+3;z<W.radius-3;z+=spacing)for(let x=-W.radius+3;x<W.radius-3;x+=spacing){
@@ -223,7 +223,7 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
           material.onBeforeCompile=shader=>{shader.uniforms.uWindTime=windTime;shader.vertexShader='uniform float uWindTime;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
             float phase=instanceMatrix[3].x*.67+instanceMatrix[3].z*.43;
             transformed.x+=sin(uWindTime*.9+phase+position.y*2.)*pow(max(0.,position.y),2.)*.012;
-          `);};material.customProgramCacheKey=()=> 'detailed-canopy-v4';
+          `);if(name==='forest_shrub')shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n float leafLight=clamp(diffuseColor.r*1.2+diffuseColor.g,0.,1.);diffuseColor.rgb=mix(vec3(.09,.17,.07),vec3(.35,.49,.20),leafLight);');};material.customProgramCacheKey=()=> 'detailed-canopy-v5'+(name==='forest_shrub'?'sage':'');
           list.push({geometry:mesh.geometry.clone().applyMatrix4(mesh.matrixWorld),material});});geometryCache.set(cacheKey,list);
       }parts=geometryCache.get(cacheKey);
     }else parts=[{geometry:sourceGeometry(name),material:forestMaterial}];
@@ -231,12 +231,19 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
       entry.placements.forEach((p,i)=>{dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(0,p.heading,0);dummy.scale.set(p.size,p.size*p.stretch,p.size);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);if(entry.category==='tree')im.setColorAt(i,new THREE.Color().setRGB(.94+(i%3)*.015,.97,.89+(i%4)*.018));});im.computeBoundingSphere();result.add(im);
     }return result;
   }
+  const farBatches=new Map();
   for(const entry of batches.values()){
     const near=instances(entry,entry.name);group.add(near);
-    let far=null;
-    if(entry.category==='tree') {far=instances(entry,entry.name.startsWith('forest_fir')?'tree_pineTallA':'tree_oak_dark',true);group.add(far);}
-    chunks.push({...entry,near,far});
+    chunks.push({...entry,near,far:null});
+    if(entry.category==='tree'){
+      const name=entry.name,key=`${entry.cx}:${entry.cz}:${name}`;
+      if(!farBatches.has(key))farBatches.set(key,{...entry,name,placements:[]});
+      farBatches.get(key).placements.push(...entry.placements);
+    }
   }
+  // Preserve the original textured tree silhouettes at every distance, as
+  // requested. Chunk visibility still limits distant draws and shadows.
+  for(const entry of farBatches.values()){const far=instances(entry,entry.name,true);group.add(far);chunks.push({...entry,near:null,far});}
   const bridge=model('bridge_wood',{width:brookWidth(W.brook.crossingZ)*2+2.1});
   bridge.name='Brook crossing';bridge.position.set(brookX(W.brook.crossingZ),brookHeight(W.brook.crossingZ)-.09,W.brook.crossingZ);group.add(bridge);
   const particlesCount=low?W.particles.low:W.particles.high,particlePositions=new Float32Array(particlesCount*3),particleSeeds=[];
@@ -257,9 +264,9 @@ export function createWorld({scene,camera,quality='high',seed=W.seed}={}) {
       lodAt=elapsed;
       for(const c of chunks){
         const d=Math.hypot(cam.position.x-c.cx,cam.position.z-c.cz);
-        c.near.visible=d<(c.category==='tree'?(low?nearLimit*.72:nearLimit):(low?W.forest.lowUndergrowthDistance:W.forest.highUndergrowthDistance));
+        if(c.near)c.near.visible=d<(c.category==='tree'?(low?nearLimit*.72:nearLimit):(low?W.forest.lowUndergrowthDistance:W.forest.highUndergrowthDistance));
         if(c.far)c.far.visible=d>=(low?nearLimit*.72:nearLimit)&&d<(low?farLimit*.8:farLimit);
-        for(const mesh of c.near.children)mesh.castShadow=c.category==='tree'&&!low&&d<W.forest.shadowDistance;
+        for(const mesh of c.near?.children??[])mesh.castShadow=c.category==='tree'&&!low&&d<W.forest.shadowDistance;
       }
     }
     const array=pg.attributes.position.array;

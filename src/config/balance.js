@@ -189,7 +189,7 @@ export const BALANCE = {
   },
   world: {
     seed: 721031, radius: 92, property: { halfWidth: 38, halfDepth: 17, blend: 14 }, terrainSegments: 112,
-    forest: { spacing: 4.6, jitter: .82, chunkSize: 40, nearDistance: 54, farDistance: 145, shadowDistance: 44, undergrowthSpacing: 3.2, lowUndergrowthDistance: 30, highUndergrowthDistance: 56 },
+    forest: { spacing: 4.8, jitter: .82, chunkSize: 40, nearDistance: 54, farDistance: 145, shadowDistance: 44, undergrowthSpacing: 3.2, lowUndergrowthDistance: 30, highUndergrowthDistance: 56 },
     brook: { x: 46, meander: 7, halfWidth: 1.7, shoreWidth: 2.8, crossingZ: 8, crossingHalfDepth: 1.7, rocks: 110 },
     particles: { high: 150, low: 65 },
   },

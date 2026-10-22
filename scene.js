@@ -156,7 +156,7 @@ const propertyColliders=[];
 function place(o, x, y, h = 0) {
   o.position.copy(logical(x, y, h));
   root.add(o);
-  if(/^(forest_leaf_tree|tree_)/.test(o.userData.asset??""))propertyColliders.push({x:o.position.x,z:o.position.z,radius:.46,type:"tree"});
+  if(/^(forest_(leaf_tree|canopy|oak)|tree_)/.test(o.userData.asset??""))propertyColliders.push({x:o.position.x,z:o.position.z,radius:.46,type:"tree"});
   return o;
 }
 await loadAssets({anisotropy:renderer.capabilities.getMaxAnisotropy()});

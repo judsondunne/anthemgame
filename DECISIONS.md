@@ -23,3 +23,8 @@
 - Penned livestock can drink at the brook only when their closed pen includes accessible water. A trough remains the supported water source for ordinary pens; animals never cross closed fences to seek water.
 - Predator absence must be tested as actual visible arrivals and first-night pack size, not just an allocated offscreen record. Preserve offline safety and fully protected animals.
 - The existing static location keys and Blob document path remain stable; the migration updates the save document in place. No credential or store changes are required by a schema bump.
+- A version-3 coop whose front hatch was placed flush against another solid obstacle is moved to the nearest valid cell during migration. Its purchase, capacity, residents, money and inventory are retained; residents are re-snapped to their allocated roosts. This repairs previously unreachable legacy doorways.
+- Newborn chicks from sleeping hens hatch at their assigned roost when capacity permits. Overflow birds remain outside and retain the ordinary predator risk.
+- Studio icons use a short-lived transparent WebGL renderer and Canvas2D copies; no synchronous pixel readback stalls the main game renderer.
+
+- Latest user preference: restore the original textured tree species, property aliases, seeded spacing and distant silhouettes. Keep the new undergrowth, interior, wildlife, UI, balance and movement work. Tree chunking/culling still applies; no blocky far-tree replacements remain.
