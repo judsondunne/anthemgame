@@ -164,7 +164,7 @@ export class Persistence {
   }
 
   saveLocal(state, { now = false } = {}) {
-    if (!this.leader) return false;
+    if (this.suspended || !this.leader) return false;
     const t = performance.now();
     if (!now && t - this.lastLocal < B.save.localDebounceMs) return false;
     this.lastLocal = t;
@@ -190,6 +190,7 @@ export class Persistence {
 
   // Debounced server push; conflicts resolve to the newest document.
   async push(state, { now = false, keepalive = false } = {}) {
+    if(this.suspended)return;
     if (!this.sync || !this.key || !this.leader || !this.dirtyServer) return;
     const t = performance.now();
     if (!now && (t - this.lastPush < B.save.serverDebounceMs || this.pushing)) return;
@@ -237,7 +238,7 @@ export class Persistence {
   }
 
   flush(state) {
-    if (!this.leader) return;
+    if (this.suspended || !this.leader) return;
     this.saveLocal(state, { now: true });
     this.push(state, { now: true, keepalive: true });
   }

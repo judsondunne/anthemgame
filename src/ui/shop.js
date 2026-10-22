@@ -14,7 +14,7 @@ const SECTIONS = [
   { icon: () => ICONS.hen, keys: SPECIES.flatMap((sp) => ["f", "m"].map((x) => `animal_${sp}_${x}`)) },
   { icon: () => ICONS.house, keys: ["kit_bed", "kit_coop", "kit_barn", "kit_stable"] },
 ];
-const BUILDING_FOR = { cow: "barn", horse: "stable" };
+const BUILDING_FOR = { chicken:"coop", cow: "barn", horse: "stable" };
 
 export function createShop({ game, hud, juice, audio, onKit }) {
   const veil = document.createElement("div");

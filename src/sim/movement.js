@@ -1,7 +1,7 @@
 // Shared logical-coordinate steering. Solid fences, buildings and deep pond
 // water are respected by both livestock and predators.
 import { BALANCE as B } from '../config/balance.js';
-import { OBSTACLES, hitObstacle, placedFootprints, cellRect, CELL_X, CELL_Y } from './layout.js';
+import { activeObstacles, hitObstacle, placedFootprints, cellRect, CELL_X, CELL_Y } from './layout.js';
 import { fenceBlocked } from './fences.js';
 import { coopEntryAllowed } from './shelter.js';
 import { worldCollisionAt } from './world-collision.js';
@@ -22,7 +22,7 @@ export function groundBlocked(s, x, y, animal=null) {
   if (x < z.gx0 * CELL_X || x > z.gx1 * CELL_X || y < z.gy0 * CELL_Y || y > z.gy1 * CELL_Y) return true;
   const canSwim = ['cow', 'horse', 'deer', 'elk'].includes(animal?.sp);
   if ((deepWaterAt(x, y) && !canSwim) || (animal?.sp === 'chicken' && waterAtLogical(x, y)) || worldCollisionAt(s,x,y,radius)) return true;
-  if (OBSTACLES.some(o => {
+  if (activeObstacles(s).some(o => {
     if(o.kind==='path')return false;
     if(coop&&o.kind==='rect'&&o.x0===220&&coop.id===null)return false;
     if(o.kind==='rect')return x>o.x0-radius&&x<o.x1+radius&&y>o.y0-radius/1.65&&y<o.y1+radius/1.65;

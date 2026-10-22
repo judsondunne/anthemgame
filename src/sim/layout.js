@@ -48,6 +48,9 @@ export const OBSTACLES = [
   circle(2410, 840, 40),
 ];
 
+const BARE_OBSTACLES=OBSTACLES.filter(o=>!(o.kind==='rect'&&o.x0===220));
+export const activeObstacles = state => state?.starterCoop===false?BARE_OBSTACLES:OBSTACLES;
+
 export const BASE_COOP = { x: 320, y: 818, door: { x: 317, y: 821 }, approach: { x: 292, y: 858 } };
 export const STARTER_BED = { gx: 7, gy: 23 };
 export const TROUGHS = {
@@ -84,7 +87,7 @@ export function frontOf(item) {
   return { x: c.x, y, door: { x: c.x, y: y - 4 }, approach: { x: c.x - 18, y: y + 32 } };
 }
 
-function cellFree(zone, gx, gy) {
+function cellFree(zone, gx, gy, state) {
   const r = cellRect(gx, gy);
   if (r.x0 < zone.x0 || r.x1 > zone.x1 || r.y0 < zone.y0 || r.y1 > zone.y1) return false;
   const pts = [
@@ -94,7 +97,7 @@ function cellFree(zone, gx, gy) {
     [r.x1 - 1, r.y1 - 1],
     [(r.x0 + r.x1) / 2, (r.y0 + r.y1) / 2],
   ];
-  return !OBSTACLES.some((o) => pts.some(([x, y]) => hitObstacle(o, x, y)));
+  return !activeObstacles(state).some((o) => pts.some(([x, y]) => hitObstacle(o, x, y)));
 }
 
 const overlaps = (a, b) => a.gx < b.gx + b.w && b.gx < a.gx + a.w && a.gy < b.gy + b.h && b.gy < a.gy + a.h;
@@ -116,14 +119,14 @@ export function checkPlacement(state, type, gx, gy) {
   for (let j = 0; j < h; j++)
     for (let i = 0; i < w; i++) {
       const c = { gx: gx + i, gy: gy + j, w: 1, h: 1 };
-      cells.push({ gx: c.gx, gy: c.gy, ok: cellFree(zone, c.gx, c.gy) && !worldCollisionAt(state,(c.gx+.5)*CELL_X,(c.gy+.5)*CELL_Y,27) && !others.some((o) => overlaps(o, c)) });
+      cells.push({ gx: c.gx, gy: c.gy, ok: cellFree(zone, c.gx, c.gy,state) && !worldCollisionAt(state,(c.gx+.5)*CELL_X,(c.gy+.5)*CELL_Y,27) && !others.some((o) => overlaps(o, c)) });
     }
   if (type === 'coop') {
     const center = footprintCenter(gx, gy, w, h), edge = (gy + h) * CELL_Y;
     const doorClear = [-BALANCE.coop.doorHalfWidth, 0, BALANCE.coop.doorHalfWidth].every(dx =>
       [BALANCE.animals.radius.chicken, BALANCE.coop.exitDistance].every(dy => {
         const x = center.x + dx, y = edge + dy;
-        return !OBSTACLES.some(o => o.kind !== 'path' && hitObstacle(o, x, y)) && !worldCollisionAt(state, x, y, BALANCE.animals.radius.chicken) && !others.some(o => {
+        return !activeObstacles(state).some(o => o.kind !== 'path' && hitObstacle(o, x, y)) && !worldCollisionAt(state, x, y, BALANCE.animals.radius.chicken) && !others.some(o => {
           const r = cellRect(o.gx, o.gy, o.w, o.h);
           return x > r.x0 - BALANCE.animals.radius.chicken && x < r.x1 + BALANCE.animals.radius.chicken && y > r.y0 - BALANCE.animals.radius.chicken && y < r.y1 + BALANCE.animals.radius.chicken;
         });
@@ -133,12 +136,12 @@ export function checkPlacement(state, type, gx, gy) {
   return { ok: cells.every((c) => c.ok), cells };
 }
 
-export function zoneCells(type) {
+export function zoneCells(type,state) {
   const zone = ZONES[ZONE_OF[type]],
     out = [];
   for (let gy = Math.floor(zone.y0 / CELL_Y); gy * CELL_Y < zone.y1; gy++)
     for (let gx = Math.floor(zone.x0 / CELL_X); gx * CELL_X < zone.x1; gx++)
-      if (cellFree(zone, gx, gy)) out.push({ gx, gy });
+      if (cellFree(zone, gx, gy,state)) out.push({ gx, gy });
   return out;
 }
 
@@ -165,7 +168,7 @@ export const LAWNS = {
 export function openGround(state, lawn, x, y) {
   const z = LAWNS[lawn];
   if (!z || x < z.x0 + 6 || x > z.x1 - 6 || y < z.y0 + 6 || y > z.y1 - 6) return false;
-  if (OBSTACLES.some((o) => hitObstacle(o, x, y))||worldCollisionAt(state,x,y,12)) return false;
+  if (activeObstacles(state).some((o) => hitObstacle(o, x, y))||worldCollisionAt(state,x,y,12)) return false;
   for (const f of placedFootprints(state)) {
     const r = cellRect(f.gx, f.gy, f.w, f.h);
     if (x > r.x0 - 8 && x < r.x1 + 8 && y > r.y0 - 8 && y < r.y1 + 8) return false;
@@ -189,9 +192,9 @@ export function bestSpot(state, type, near = null) {
   const [w, h] = footprintOf(type),
     zone = ZONES[ZONE_OF[type]],
     others = placedFootprints(state);
-  const blocked = (gx, gy) => !cellFree(zone, gx, gy) || others.some((o) => overlaps(o, { gx, gy, w: 1, h: 1 }));
+  const blocked = (gx, gy) => !cellFree(zone, gx, gy,state) || others.some((o) => overlaps(o, { gx, gy, w: 1, h: 1 }));
   let best = null;
-  for (const c of zoneCells(type)) {
+  for (const c of zoneCells(type,state)) {
     if (!checkPlacement(state, type, c.gx, c.gy).ok) continue;
     let touch = 0;
     for (let i = -1; i <= w; i++) touch += blocked(c.gx + i, c.gy - 1) + blocked(c.gx + i, c.gy + h);

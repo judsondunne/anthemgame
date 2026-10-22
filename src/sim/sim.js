@@ -79,16 +79,16 @@ const housingCache=new WeakMap();
 
 // Housing: placed buildings fill first (best multipliers), then the starter coop.
 export function housing(s) {
-  const signature=s.buildings.map(b=>b.id+':'+b.type).join(';')+'|'+s.animals.filter(a=>a.state==='alive').map(a=>a.id+':'+a.sp).join(';');
+  const signature=(s.starterCoop===false?'bare|':'legacy|')+s.buildings.map(b=>b.id+':'+b.type).join(';')+'|'+s.animals.filter(a=>a.state==='alive').map(a=>a.id+':'+a.sp).join(';');
   const cached=housingCache.get(s);if(cached?.signature===signature)return cached.value;
-  const cap = { chicken: B.species.chicken.baseCapacity, cow: B.species.cow.baseCapacity, horse: B.species.horse.baseCapacity };
+  const cap = { chicken: s.starterCoop===false?0:B.species.chicken.baseCapacity, cow: B.species.cow.baseCapacity, horse: B.species.horse.baseCapacity };
   const slots = { chicken: [], cow: [], horse: [] };
   for (const b of [...s.buildings].sort((p, q) => p.id - q.id))
     for (const [sp, n] of Object.entries(B.buildings[b.type].capacity)) {
       slots[sp].push({ b, n });
       cap[sp] += n;
     }
-  slots.chicken.push({ b: null, n: B.species.chicken.baseCapacity });
+  if(s.starterCoop!==false)slots.chicken.push({ b: null, n: B.species.chicken.baseCapacity });
   const homes = new Map();
   for (const sp of SPECIES) {
     const list = alive(s, sp).sort((p, q) => p.id - q.id);
@@ -119,6 +119,7 @@ export function homePoint(s, a, h = housing(s)) {
 }
 
 export function isUnlocked(s, sp) {
+  if(sp==='chicken'&&s.starterCoop===false)return s.buildings.some(b=>b.type==='coop');
   const by = B.species[sp].unlockedBy;
   return !by || s.buildings.some((b) => b.type === by);
 }

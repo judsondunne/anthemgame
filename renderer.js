@@ -65,6 +65,7 @@ function drawCoop(e, t) {
   ctx.restore();
 }
 function drawCoopDreams(t) {
+  if(window.ClassicFarm?.game.state.starterCoop===false)return;
   const co = world.coop;
   ctx.save();
   ctx.translate(co.x, co.y);
@@ -420,7 +421,7 @@ function render() {
   }
   ctx.globalAlpha = 1;
   let entities = [
-    ...world.scenery,
+    ...world.scenery.filter(e=>e.type!=='coop'||!window.ClassicFarm||window.ClassicFarm.game.state.starterCoop!==false),
     ...(window.ClassicFarm?.renderables()??[]),
     ...world.plants.map((p) => ({
       ...p,
@@ -601,7 +602,7 @@ function render() {
     ellipse(ctx, lx, ly, 2.2, 4, "#f2d28d");
     const co = world.coop,
       p = project3(0, 0, 40);
-    glow(co.x + p.x, co.y + p.y, 60, "#f3c77545");
+    if(!window.ClassicFarm||window.ClassicFarm.game.state.starterCoop!==false)glow(co.x + p.x, co.y + p.y, 60, "#f3c77545");
     ctx.restore();
     for (let i = 0; i < 26; i++) {
       let x = 220 + ((i * 83) % 950) + Math.sin(t * 0.3 + i) * 19,

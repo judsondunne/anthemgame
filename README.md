@@ -8,6 +8,8 @@ Run `npm run dev`, then open http://localhost:8093. Native JavaScript modules re
 
 ## Playing
 
+On the first real Continue after this update, the garden starts once with 1,000 coins, basic tools, and one empty bed. There are no chickens, coops, barns, stables, planted crops, or owned livestock. Buy a coop (400), a hen (60), and a rooster (50); 490 coins remain for flowers and feed. The welcome preview does not reset or save anything. The first-start marker is committed only by a trusted Continue gesture, then later visits resume progress. A copy of the previous farm is kept under `farm-save-before-fresh-start-v1`.
+
 The original cream and sage toolbar now holds ten inventory slots, a backpack, market, and walking toggle. Number keys select slots; I opens the 64-slot backpack. Drag items between slots, right-drag to split a stack, or Shift-click to move between backpack and hotbar. On touch, hold an item to split it. Swipe the hotbar to reach additional slots.
 
 Buy seeds, feed, animals, fences, gates, beds, coops, barns, and stables at the market. Select seeds and tap soil to plant. Water dry beds with the can; growing crops need another watering. Use the hand to harvest sparkling ripe crops, then sell them through the market's Sell tab. Eggs and milk collect into inventory. Suitable adult animal pairs breed when cared for and housed; babies mature over time. Needs bubbles offer contextual feeding and watering.

@@ -30,7 +30,7 @@ export function coopFor(s, a, homes = housing(s).homes) {
   const f = placed ? frontOf(b) : BASE_COOP;
   const id = placed ? b.id : null;
   const slot = slotsFor(s, homes).get(a.id) ?? -1;
-  const capacity = placed ? B.buildings.coop.capacity.chicken : B.species.chicken.baseCapacity;
+  const capacity = placed ? B.buildings.coop.capacity.chicken : s.starterCoop===false?0:B.species.chicken.baseCapacity;
   return {
     id, x: f.x, y: f.y,
     door: { x: f.x, y: f.y + (placed ? 8 : 12) },

@@ -179,7 +179,7 @@ const Farm = {
         if(a.happy>0)heart(a.x,a.y-108*size-Math.sin(t*3)*4,.65,'#c99589');
       }
       this.fence(left,right,885,p.gate);
-      this.trough(p,t);
+      if(!window.ClassicFarm||window.ClassicFarm.game.state.buildings.some(b=>b.type===(p.kind==='cow'?'barn':'stable')))this.trough(p,t);
     }
   },
   trough(p,t){
