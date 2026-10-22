@@ -406,6 +406,10 @@ function update(dt) {
       }
     }
   }
+  updateAmbient(dt);
+}
+
+function updateAmbient(dt) {
   for (const k of world.koi) {
     let a = world.elapsed * 0.12 + k.phase,
       spot =

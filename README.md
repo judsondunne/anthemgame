@@ -1,52 +1,29 @@
 # Chicken Garden
 
-Open `index.html` to play the garden locally. For the YouTube soundtrack, run `python3 -m http.server 8080` from this folder and open http://localhost:8080. No build or installation is needed. YouTube requires an internet connection; all garden artwork is generated locally.
+The original October 20 illustrated Canvas garden, with the full farm economy and night gameplay. No WebGL or Three.js runtime is loaded.
 
-The welcome card says **Welcome to the Chicken Garden!**, followed by this exact sentence:
+## Play locally
 
-> make sure your sound is up and take a second and relax :)
-
-Continue starts the game and requests playback directly within the click gesture. The player prepares silently while the card is visible and always stays offscreen. The playlist contains 13 album-audio uploads from Gregory Alan Isakov's _The Weatherman_. No recordings are downloaded or included in the repository. A quiet original Web Audio soundtrack is available if streaming fails.
+Run `npm run dev`, then open http://localhost:8093. Native JavaScript modules require an HTTP server. All artwork is generated locally. Streaming music needs an internet connection; the garden also has original synthesized audio.
 
 ## Playing
 
-The centered toolbar contains chicken grain, a watering can, fish food, affection, a day/night toggle, and mute. Keyboard shortcuts: **1–4** select care tools; **D** changes day/night; **Escape** returns to affection. The small controls at the top right retry music or select a private local audio playlist.
+The original cream and sage toolbar now holds ten inventory slots, a backpack, market, and walking toggle. Number keys select slots; I opens the 64-slot backpack. Drag items between slots, right-drag to split a stack, or Shift-click to move between backpack and hotbar. On touch, hold an item to split it. Swipe the hotbar to reach additional slots.
 
-- **Grain:** tap open lawn. All awake chickens walk to the scattered feed, following paths around the garden's ground footprints.
-- **Water:** tap or drag over flowers. Each watering gradually increases their size, with a gentle maximum so the beds stay readable.
-- **Fish food:** tap the pond. All five koi swim to the pellets and nibble around the feeding point.
-- **Affection:** tap a chicken to pet it. Floating need bubbles also support contextual care.
-- **Night:** the scene transitions into darkness, all seven chickens hurry to the coop, and their sleeping poses and little Zs appear inside. Morning lets them emerge one by one and resume wandering.
+Buy seeds, feed, animals, fences, gates, beds, coops, barns, and stables at the market. Select seeds and tap soil to plant. Water dry beds with the can; growing crops need another watering. Use the hand to harvest sparkling ripe crops, then sell them through the market's Sell tab. Eggs and milk collect into inventory. Suitable adult animal pairs breed when cared for and housed; babies mature over time. Needs bubbles offer contextual feeding and watering.
 
-A natural day lasts about seven minutes. Using the toggle holds the chosen time. There are no scores, penalties, or failure states. The garden and sound pause when hidden. Local music files stay on the computer and must be selected again after reload.
+Building kits show a placement preview on clear lawn. Barns unlock cows; stables unlock horses. Fence segments snap to a grid. R rotates, X switches removal, and the hand opens or closes gates. Closed pens and closed coop hatches protect livestock. Decorative original boundary fences are scenery; build a complete pen with inventory fences for protection.
 
-## Rendering and scale
+Each day and night lasts five minutes. Chickens head home in the evening and coop doors close automatically. Tap the coop to call them home after dusk. Wolves threaten exposed livestock; bears can arrive as the herd grows. Choose the flashlight to enter walking mode, then aim steadily at a wolf for 1.5 real seconds to scare its pack. Bears need secure pens. WASD walks, F toggles overview/walking, P pauses, N advances day/night. Touch walking has directional buttons. Arrow buttons or swipes explore the pastures and brook. Livestock visit water, while wild deer, elk, and rabbits wander nearby.
 
-`geometry.js` defines one orthographic camera (28° yaw, 35° elevation). The cottage, coop, fencing, and beds are constructed from actual width, depth, and height coordinates; their walls, roofs, windows, posts, and floors share that camera. Garden plants sit on the projected soil surface. Ground anchors and contact shadows use the actual visible foot position rather than the transparent bounds of an image.
+## Persistent progress
 
-The camera math and caching approach were informed by the official [Three.js orthographic camera documentation](https://threejs.org/docs/pages/OrthographicCamera.html) and [PixiJS cache-as-texture guidance](https://pixijs.com/8.x/guides/components/scene-objects/container/cache-as-texture). The implementation renders these models into double-resolution Canvas sprites, preserving the buildless, local-file workflow without a runtime library dependency.
+Progress autosaves in this site's browser storage every two seconds, immediately after successful actions, and on hide/close. The previous valid save is retained as a recovery backup. Reloads and Vercel redeployments on the same domain preserve coins, inventory, crops, buildings, fences, animals, clock, and pickups. The Saved indicator confirms a successful local write. Keep using the same browser/device and allow site storage. Clearing browser data clears local saves.
 
-The chickens and butterflies keep their original illustrated style. The terrain, mountain layers, time-of-day lighting, fireflies, pond, and small care effects are animated on one main canvas. Retina DPR is capped at 2. Phone, tablet, and landscape layouts keep the interactive parts of the garden in view.
+The schema migrates existing newer farm saves. Offline catch-up is capped and does not kill neglected animals. Multiple tabs coordinate so a stale tab cannot overwrite an active farm. Optional private cross-device synchronization uses `/api/state` only when `BLOB_READ_WRITE_TOKEN` and `SAVE_KEY` are configured in Vercel; without them local saving remains fully functional. Neither secret is embedded in the client.
 
-## Files
+## Verification and deployment
 
-- `index.html`, `style.css`: welcome card, centered care toolbar, music controls, and responsive presentation.
-- `sprites.js`, `art.js`: shared drawing helpers, palette, chickens, flowers, foliage, and detail sprites.
-- `geometry.js`: shared 3D projection and cached cottage, coop, beds, fences, and sleeping chickens.
-- `entities.js`, `navigation.js`: care, growth, fish steering, flock behavior, bedtime, day cycle, and obstacle-aware navigation.
-- `landscape.js`, `renderer.js`: Vermont-inspired backdrop, canvas composition, ground anchors, lighting, and animations.
-- `input.js`, `audio.js`, `youtube.js`: pointer/keyboard tools, generated ambience, private audio files, and YouTube playback.
+`npm test` checks the simulation, progression balance, inventory, fences, shelter, predators, persistence formats, server behavior, pause, and water movement. `npm run test:browser` runs the actual illustrated game through planting, watering, harvesting, selling, building, buying livestock, inventory, flashlight encounters, pausing, reloads, and mobile market controls (requires Playwright/Chrome and the local server).
 
-## Verification
-
-Current screenshots and results are in `verification/complete/`. Earlier visual passes remain in the other verification folders. Tests use Playwright with Chrome; set `PLAYWRIGHT_PATH` to the installed Playwright module if it is outside this checkout and start the local server on port 8080.
-
-The current feature test covers the exact welcome sentence, silence before Continue, immediate music playback after Continue, all seven chickens gathering at grain, all five koi approaching fish food, incremental flower growth, full-flock bedtime and morning release, mute, hidden video, touch tools, centered controls, phone coop framing, DPR, and frame timing. Separate playback checks exercise both an immediate Continue click and a click after the player is ready in a fresh browser profile.
-
-Visual review includes the house and its ground contact, aligned garden beds, tree/fence placement, toolbar, sleeping coop, morning/noon/sunset/dusk/night scenes, and phone/tablet/landscape layouts. `window.Garden` exposes time overrides, need previews, and performance statistics for verification; it is not visible in the game.
-
-
-## Expanded farm
-Arrow keys, horizontal two-finger trackpad scrolling, on-screen arrows, or touch dragging pan between Clover Pasture, Chicken Garden, and Horses. Grain calls cows and horses to their gates; they shelter in their barns at night. Click eggs with any selected tool to collect them. Care and egg collection send XP to the level bar; progress is saved in local storage. Baby chicks, calves, and foals arrive periodically during the day and grow over about 2.5 minutes. Populations are capped to keep the farm calm.
-
-Feed is a stored quantity in each pasture trough: grain adds supply and animals consume it while eating. Feeding XP arrives on the first bite. The contextual feed tool changes to cow feed or hay as the camera moves. Pet cows and horses for hearts, or click them with another care tool to make them trot. Side labels navigate to pastures; chickens can wander higher and visit the koi pond bank for a drink.
+Deploy the static root and serverless API with `vercel --prod`. The original 3D rebuild remains backed up on the GitHub branches `codex/cozy-world-quality-update`, `codex/living-world-nightfall`, and `codex/three-garden-rebuild`.

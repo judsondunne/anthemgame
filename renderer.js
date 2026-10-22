@@ -44,7 +44,7 @@ function blit(s, x, y, scale = 1) {
 function drawCoop(e, t) {
   blit(S.coop, e.x, e.y, e.scale);
   const residents = world.chickens.filter(
-    (b) => b.sleeping || (b.mode === "waking" && b.wakeDelay > 0),
+    (b) => (b.coopId==null)&&(b.sleeping || (b.mode === "waking" && b.wakeDelay > 0)),
   );
   if (!residents.length) return;
   ctx.save();
@@ -331,15 +331,15 @@ function render() {
   ctx.translate(view.x, view.y);
   ctx.scale(view.scale, view.scale);
   ctx.fillStyle = "#d9ddc9";
-  ctx.fillRect(-2000, -2000, 5000, 2000);
+  ctx.fillRect(-3000, -2000, 9000, 2000);
   let lawn = ctx.createLinearGradient(0, 0, 0, H);
   lawn.addColorStop(0, "#b9c49b");
   lawn.addColorStop(0.3, "#a6b580");
   lawn.addColorStop(1, "#8da674");
   ctx.fillStyle = lawn;
-  ctx.fillRect(-2000, 0, 5000, H);
+  ctx.fillRect(-3000, 0, 9000, H);
   ctx.fillStyle = "#8da674";
-  ctx.fillRect(-2000, H, 5000, 2000);
+  ctx.fillRect(-3000, H, 9000, 2000);
   ctx.drawImage(ground.canvas, 0, 0, W, H);
   // Continue the meadow and garden path into tall portrait viewports.
   if (view.h / view.scale > H) {
@@ -361,8 +361,8 @@ function render() {
   }
   drawLandscape(t, d, night, sunset);
   Farm.draw(t,night);
-  blit(S.bed, 355, 637, 1);
-  blit(S.bed, 710, 637, 1);
+  if(window.ClassicFarm)window.ClassicFarm.drawGround(ctx);
+  else {blit(S.bed,355,637,1);blit(S.bed,710,637,1);}
   // Drifting broad shadows make the lawn feel alive.
   for (let i = 0; i < 3; i++) {
     ctx.save();
@@ -434,6 +434,7 @@ function render() {
     if (e.type === "coop") {
       shadow(e.x + 10, e.y - 5, 85 * e.scale, 24 * e.scale, night);
       drawCoop(e, t);
+      window.ClassicFarm?.drawDoor(ctx,e.x,e.y,e.scale);
       continue;
     }
     if (e.type === "chicken") {
@@ -477,6 +478,7 @@ function render() {
             Math.hypot(b.x - world.coop.door.x, b.y - world.coop.door.y) / 20,
           );
       ctx.globalAlpha = 1 - entry * 0.7;
+      if(window.ClassicFarm){const size=.5+Math.min(1,b.age??1)*.5;ctx.scale(size,size);}
       ctx.scale(1 - entry * 0.25, 1 - entry * 0.2);
       ctx.scale(
         b.dir * (1 + Math.sin(b.pet * 12) * 0.06),
@@ -539,7 +541,7 @@ function render() {
     blit(s, 0, 0, e.scale);
     ctx.restore();
   }
-  Farm.drawSmall(t);
+  if(window.ClassicFarm)window.ClassicFarm.drawObjects(ctx,t);else Farm.drawSmall(t);
   // The path starts at the actual projected bottom stair, not the sprite's bounding box.
   for (const p of [
     [621, 508],
@@ -570,13 +572,13 @@ function render() {
   // Ambient grade derives from the same clock as the sun.
   if (sunset > 0.01) {
     ctx.fillStyle = `rgba(228,153,108,${sunset * 0.1})`;
-    ctx.fillRect(-2000, -2000, 5000, 5000);
+    ctx.fillRect(-4000, -3000, 12000, 8000);
   }
   if (night > 0) {
     ctx.fillStyle = `rgba(39,58,87,${night * 0.43})`;
-    ctx.fillRect(-2000, -2000, 5000, 5000);
+    ctx.fillRect(-4000, -3000, 12000, 8000);
     ctx.fillStyle = `rgba(99,111,136,${night * 0.04})`;
-    ctx.fillRect(-2000, -2000, 5000, 5000);
+    ctx.fillRect(-4000, -3000, 12000, 8000);
     ctx.save();
     ctx.globalAlpha = night;
     ctx.globalCompositeOperation = "screen";
@@ -691,14 +693,14 @@ function render() {
   v.addColorStop(0, "#475c4900");
   v.addColorStop(1, "#465c492c");
   ctx.fillStyle = v;
-  ctx.fillRect(-2000, -2000, 5000, 5000);
+  ctx.fillRect(-4000, -3000, 12000, 8000);
   ctx.restore();
 }
 function tick(now) {
   let dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
   last = now;
   if (!document.hidden) {
-    update(dt);
+    if(window.ClassicFarm)window.ClassicFarm.frame(dt);else update(dt);
     if (world.started) {Atmosphere.update(dt);Farm.update(dt);updateGardenCursor();}
     render();
     if (dt > 0) {

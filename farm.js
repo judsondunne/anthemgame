@@ -48,10 +48,10 @@ const Farm = {
     document.body.append(ui);
     document.querySelector('#to-cows').onclick=()=>this.targetPan=this.pan>600?0:-1230;
     document.querySelector('#to-horses').onclick=()=>this.targetPan=this.pan< -600?0:1230;
-    for(const [id,dir] of [['pan-left',-1],['pan-right',1]])document.getElementById(id).onclick=()=>this.targetPan=Math.max(-1450,Math.min(1450,this.targetPan+dir*1230));
+    for(const [id,dir] of [['pan-left',-1],['pan-right',1]])document.getElementById(id).onclick=()=>this.targetPan=Math.max(-1450,Math.min(2600,this.targetPan+dir*1230));
     addEventListener('keydown',e=>{if(!world.started||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();this.held=e.key==='ArrowLeft'?-1:1;});
     addEventListener('keyup',e=>{if(['ArrowLeft','ArrowRight'].includes(e.key))this.held=0;});addEventListener('blur',()=>this.held=0);
-    canvas.addEventListener('wheel',e=>{if(!world.started||Math.abs(e.deltaX)<Math.abs(e.deltaY)*.6)return;e.preventDefault();this.targetPan=Math.max(-1450,Math.min(1450,this.targetPan+e.deltaX/view.scale));},{passive:false});
+    canvas.addEventListener('wheel',e=>{if(!world.started||Math.abs(e.deltaX)<Math.abs(e.deltaY)*.6)return;e.preventDefault();this.targetPan=Math.max(-1450,Math.min(2600,this.targetPan+e.deltaX/view.scale));},{passive:false});
   },
   progress(){const level=Math.floor(this.shownXP/100)+1,value=this.shownXP%100;document.querySelector('#level-title').textContent=`Level ${level}`;document.querySelector('#xp-count').textContent=`${Math.floor(value)} / 100 XP`;document.querySelector('#xp-fill').style.width=value+'%';const track=document.querySelector('.xp-track');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',Math.floor(value));},
   award(x,y,amount,label){
@@ -99,17 +99,18 @@ const Farm = {
   },
   update(dt){
     document.querySelector('#farm-ui').hidden=!world.started;if(!world.started)return;
-    this.targetPan=Math.max(-1450,Math.min(1450,this.targetPan+this.held*620*dt));
+    this.targetPan=Math.max(-1450,Math.min(2600,this.targetPan+this.held*620*dt));
     const old=this.pan;this.pan+=(this.targetPan-this.pan)*(1-Math.exp(-dt*6));view.x-=(this.pan-old)*view.scale;if(world.pointer?.visible)world.pointer.x+=this.pan-old;
-    document.querySelector('#place-name').textContent=this.pan < -600?'Clover Pasture':this.pan>600?'Horses':'Chicken Garden';
-    document.querySelector('#pan-left').disabled=this.targetPan<=-1449;document.querySelector('#pan-right').disabled=this.targetPan>=1449;
+    document.querySelector('#place-name').textContent=this.pan < -600?'Clover Pasture':this.pan>1750?'Brook':this.pan>600?'Horses':'Chicken Garden';
+    document.querySelector('#pan-left').disabled=this.targetPan<=-1449;document.querySelector('#pan-right').disabled=this.targetPan>=2599;
     this.flights=this.flights.filter(f=>{if(world.elapsed>=f.at){this.shownXP+=f.value;return false;}return true;});
-    this.syncTool();
+    if(!window.ClassicFarm)this.syncTool();
     const left=document.querySelector('#to-cows'),right=document.querySelector('#to-horses');
     left.hidden=this.pan< -600;right.hidden=this.pan>600;
     left.querySelector('span').textContent=this.pan>600?'Chicken Garden':'Cows';
     right.querySelector('span').textContent=this.pan< -600?'Chicken Garden':'Horses';
     this.progress();
+    if(window.ClassicFarm)return;
     for(const p of this.pastures){
       p.visualFeed+=(p.feed-p.visualFeed)*(1-Math.exp(-dt*4));
       if(isNight()){p.queue=[];continue;}
@@ -165,7 +166,7 @@ const Farm = {
       for(let i=0;i<190;i++){const x=left+((i*137)%1050),y=510+((i*71)%370);blit(S.tuft,x,y,.45+(i%3)*.12);}
       for(const [x,y,s] of [[left+25,510,.65],[right-15,515,.65],[p.kind==='cow'?left+30:right-30,840,.6]]){shadow(x,y,28*s,8*s,night);blit(S.tree,x,y,s);}
       this.fence(left,right,550);
-      shadow(p.barn,545,115,24,night);blit(this.barns[p.kind],p.barn,545,1);
+      if(!window.ClassicFarm){shadow(p.barn,545,115,24,night);blit(this.barns[p.kind],p.barn,545,1);}
       for(const a of this.animals.filter(a=>a.kind===p.kind).sort((a,b)=>a.y-b.y)){
         if(a.sheltered){
           const index=this.animals.filter(b=>b.kind===p.kind).indexOf(a);

@@ -10,6 +10,8 @@
     <link rel="icon" href="data:," />
     <title>Chicken Garden</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="src/ui/ui.css" />
+    <link rel="stylesheet" href="classic-game.css" />
   </head>
   <body
     data-modality="pointer"
@@ -32,7 +34,7 @@
         <p class="welcome-note">
           make sure your sound is up and take a second and relax :)
         </p>
-        <button id="continue" autofocus>
+        <button id="continue" autofocus disabled>
           Continue
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="m9 6 6 6-6 6" />
@@ -164,5 +166,6 @@
     <script src="renderer.js"></script>
     <script src="youtube.js"></script>
     <script src="input.js"></script>
+    <script type="module" src="classic-game.js"></script>
   </body>
 </html>

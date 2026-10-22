@@ -35,6 +35,7 @@ function fulfillNeed(n) {
 }
 function useTool(x, y, continuous = false) {
   if (!world.started) return;
+  if(window.ClassicFarm){window.ClassicFarm.interact(x,y,continuous);return;}
   if (!continuous) {
     const need=needAt(x,y);
     if(need){fulfillNeed(need);updateGardenCursor();return;}
@@ -107,7 +108,7 @@ canvas.addEventListener("pointermove", (e) => {
   const p = pointerWorld(e);
   world.pointer = { ...p, visible: e.pointerType !== "touch" };
   updateGardenCursor();
-  if(dragging && e.pointerType==="touch" && touchStart && Math.abs(e.clientX-touchStart.clientX)>10){touchPanned=true;Farm.targetPan=Math.max(-1450,Math.min(1450,touchStart.pan-(e.clientX-touchStart.clientX)/view.scale));}
+  if(dragging && e.pointerType==="touch" && touchStart && Math.abs(e.clientX-touchStart.clientX)>10){touchPanned=true;Farm.targetPan=Math.max(-1450,Math.min(2600,touchStart.pan-(e.clientX-touchStart.clientX)/view.scale));}
   if (dragging && !touchStart && world.tool === "water") useTool(p.x, p.y, true);
 
 });
@@ -140,7 +141,7 @@ document.querySelector("#continue").addEventListener("click", () => {
       .focus({ preventScroll: true });
   }, 400);
 });
-document.querySelector("#daynight").addEventListener("click", toggleDayNight);
+document.querySelector("#daynight").addEventListener("click",()=>window.ClassicFarm?window.ClassicFarm.changeTime():toggleDayNight());
 document.querySelector("#files").onclick = () =>
   document.querySelector("#music").click();
 document.querySelector("#music").onchange = (e) => {
@@ -166,8 +167,9 @@ document.addEventListener("visibilitychange", () => {
 document.addEventListener("keydown", (e) => {
   if (!world.started || e.altKey || e.ctrlKey || e.metaKey) return;
   const tools = { 1: "grain", 2: "water", 3: "fish", 4: "pet", Escape: "pet" };
-  if (tools[e.key]) selectTool(tools[e.key]);
-  if (e.key.toLowerCase() === "d") toggleDayNight();
+  if (!window.ClassicFarm&&tools[e.key]) selectTool(tools[e.key]);
+  if (e.key.toLowerCase() === "d"&&!window.ClassicFarm) toggleDayNight();
+  if(e.key.toLowerCase()==="n"&&window.ClassicFarm)window.ClassicFarm.changeTime();
 });
 
 document.addEventListener(
@@ -185,7 +187,10 @@ selectTool(world.tool);
 
 function updateGardenCursor(){
   const p=world.pointer;
+  if(window.ClassicFarm)return;
   canvas.style.cursor=p?.visible&&(needAt(p.x,p.y)||Farm.hover(p.x,p.y))?"pointer":canvas.dataset.toolCursor;
 }
 
 Farm.init();
+
+window.ClassicHost={world,Farm,S,canvas,ctx,get view(){return view;},blit,ellipse,path,line,burst,updateAmbient,feedFish,inPond,shadow};

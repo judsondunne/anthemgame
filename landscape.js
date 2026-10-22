@@ -175,7 +175,7 @@ function drawLandscape(t, d, night, sunset) {
     blendColor("#e4ddc2", "#e6be98", sunset),
   ]);
   ctx.fillStyle = sky;
-  ctx.fillRect(-2200, top, 5800, bottom - top);
+  ctx.fillRect(-4000, top, 12000, bottom - top);
   // Warm horizon light, feathered into the air rather than hard sun rays.
   if (sunset > 0.02) {
     let g = ctx.createRadialGradient(1080, 175, 5, 1080, 175, 400);
@@ -221,13 +221,14 @@ function drawLandscape(t, d, night, sunset) {
   ctx.drawImage(mountains.canvas, -2700, 0, 2400, 500);
   ctx.drawImage(mountains.canvas, -500, 0, 2400, 500);
   ctx.drawImage(mountains.canvas, 1700, 0, 2400, 500);
+  ctx.drawImage(mountains.canvas, 3900, 0, 2400, 500);
   // Light mist softens the valley and merges it into the near meadow.
   let fog = ctx.createLinearGradient(0, 215, 0, 420);
   fog.addColorStop(0, "#d1dac000");
   fog.addColorStop(0.5, "#c4d2ac33");
   fog.addColorStop(1, "#a6b58000");
   ctx.fillStyle = fog;
-  ctx.fillRect(-2000, 215, 5000, 205);
+  ctx.fillRect(-4000, 215, 12000, 205);
 }
 S.moon = sprite(40, 40, (c) => {
   let g = c.createRadialGradient(15, 14, 1, 20, 20, 18);
