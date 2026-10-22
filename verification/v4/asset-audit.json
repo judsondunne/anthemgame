@@ -1,7 +1,0 @@
-{
-  "assets": 111,
-  "missingFiles": [],
-  "incompleteProvenance": [],
-  "generatedSolidProps": false,
-  "geometryReview": "Procedural geometry restricted to terrain/water/sky/grass/light volume/particles/ground overlays. Architecture and held props retain downloaded GLB topology; printing is a material texture."
-}

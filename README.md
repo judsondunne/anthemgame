@@ -1,90 +1,52 @@
-# Chicken Garden — a cozy farm
+# Chicken Garden
 
-A Three.js farm made entirely from downloaded CC0 models, with an icon-led interface and short optional tutorials, a 10-minute day/night cycle, crops, chickens, cows and horses, a market, and a save that survives reloads and redeploys.
+Open `index.html` to play the garden locally. For the YouTube soundtrack, run `python3 -m http.server 8080` from this folder and open http://localhost:8080. No build or installation is needed. YouTube requires an internet connection; all garden artwork is generated locally.
 
-## Run it
+The welcome card says **Welcome to the Chicken Garden!**, followed by this exact sentence:
 
-```bash
-npm install
-npm run dev        # Vite dev server; /api/state is served from a local file mock
-npm test           # unit/sim/server/balance tests
-npm run simulate   # headless balance strategies, money over 150 game minutes
-npm run build      # production build into dist/
-npm run serve      # dist/ + /api/state on http://127.0.0.1:8095 (file mock of Vercel Blob)
-```
+> make sure your sound is up and take a second and relax :)
 
-Verification (Playwright, headless Chromium with WebGL; `npx playwright install chromium` once):
+Continue starts the game and requests playback directly within the click gesture. The player prepares silently while the card is visible and always stays offscreen. The playlist contains 13 album-audio uploads from Gregory Alan Isakov's _The Weatherman_. No recordings are downloaded or included in the repository. A quiet original Web Audio soundtrack is available if streaming fails.
 
-```bash
-npm run build && npm run verify
-```
+## Playing
 
-`verification/v5/run-all.cjs` runs the unit suite, production build, full asset/license/geometry audit and one eight-view SwiftShader smoke. The browser checks visible-letter-free UI, loaded requests/console, inventory dimensions, both market tabs, wildlife caps, cottage doorway collision, swimming, mobile panel bounds and save round trips. Evidence is saved under `verification/v5/`; SwiftShader is a rendering/behavior check, not a hardware frame-rate measurement. The older v4 scripts remain available as historical verification.
+The centered toolbar contains chicken grain, a watering can, fish food, affection, a day/night toggle, and mute. Keyboard shortcuts: **1–4** select care tools; **D** changes day/night; **Escape** returns to affection. The small controls at the top right retry music or select a private local audio playlist.
 
-Results and the screenshot review are in `verification/v5/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
+- **Grain:** tap open lawn. All awake chickens walk to the scattered feed, following paths around the garden's ground footprints.
+- **Water:** tap or drag over flowers. Each watering gradually increases their size, with a gentle maximum so the beds stay readable.
+- **Fish food:** tap the pond. All five koi swim to the pellets and nibble around the feeding point.
+- **Affection:** tap a chicken to pet it. Floating need bubbles also support contextual care.
+- **Night:** the scene transitions into darkness, all seven chickens hurry to the coop, and their sleeping poses and little Zs appear inside. Morning lets them emerge one by one and resume wandering.
 
-## Quality update
+A natural day lasts about seven minutes. Using the toggle holds the chosen time. There are no scores, penalties, or failure states. The garden and sound pause when hidden. Local music files stay on the computer and must be selected again after reload.
 
-The icon-only interface uses one studio-lit set of model portraits. The cottage now has three furnished rooms and an interactive front door; aim at it and click/tap to open or close. God View cuts away its roof when you focus inside. First-person movement supports low props, wading and swimming in the pond/brook, camera dips, ripples and splash audio. Unpenned cows/horses visit the brook during the day; a closed pen requires a trough or water inside its perimeter. Deer, stylized elk (stag source) and bunnies roam the woods and flee from players/predators.
+## Rendering and scale
 
-Fast crops take 24–42 seconds of watered growth; premium crops take 2–4 minutes. Water newly planted crops and again when they reach their growing stage. Breeding takes half a game day and babies mature in .85 day, with existing housing multipliers. See `BALANCE.md` for measured progression and defense outcomes.
+`geometry.js` defines one orthographic camera (28° yaw, 35° elevation). The cottage, coop, fencing, and beds are constructed from actual width, depth, and height coordinates; their walls, roofs, windows, posts, and floors share that camera. Garden plants sit on the projected soil surface. Ground anchors and contact shadows use the actual visible foot position rather than the transparent bounds of an image.
 
-## How to play
+The camera math and caching approach were informed by the official [Three.js orthographic camera documentation](https://threejs.org/docs/pages/OrthographicCamera.html) and [PixiJS cache-as-texture guidance](https://pixijs.com/8.x/guides/components/scene-objects/container/cache-as-texture). The implementation renders these models into double-resolution Canvas sprites, preserving the buildless, local-file workflow without a runtime library dependency.
 
-- **Hotbar** (bottom): hand, watering can, fish food, then whatever you hold — seed packets, feed sacks, hay, building kits, harvested goods — each with a count. Tap a slot to hold it; on desktop the cursor shows the held item. Number keys 1–0 pick slots. E (or I/Tab) opens a 64-slot backpack; drag to move, right-drag or long press splits, Shift-click quick moves.
-- **Crops**: hold seeds and tap a bed to plant; tap a bed with the can to water it (dry crops simply pause); tap a ripe plant (sparkles, bubble) with the hand to harvest. Six crops, from daisy (fast, cheap) to lavender (slow, valuable); wheat becomes hay.
-- **Animals**: request bubbles show food and water; tap the bubble, or tap the animal (or its coop/barn/stable, or a trough) holding feed, hay or the can. Bubbles turn amber and then red as neglect approaches the death threshold; a sad animal droops; after two game days of an unmet need it dies, lies still, and half a day later becomes bones you can tap away. Animals never starve while you are away.
-- **Eggs and milk** appear in the world: tap them, or tap their coop or barn with the hand to gather everything around it.
-- **Market**: the stall button (or the stall beside the cottage). Basket tab buys seeds, feed, animals (♀/♂) and buildings; coins tab sells goods and adult animals (tap = one, the coin stack = all). Cows unlock with a barn, horses with a stable (padlock + building icon until then).
-- **Building**: buying a coop, barn, stable or bed enters placement mode: a ghost over the build grid, green when it fits, red when it doesn't. Drag or tap to move it, tap it again or press the check to confirm; the cross keeps the kit in the hotbar for later. Barns go in the west pasture, stables in the east meadow, beds and coops in the garden.
-- **Camera**: drag to orbit, right-drag to pan, wheel or pinch to zoom; touch drags pan and two fingers orbit/pinch. The eye button switches to first person. WASD moves, Shift sprints, Space jumps, left-click interacts, E opens inventory, M opens the market, Q changes view, F toggles the torch, and Escape pauses. Double-tap W or hold Shift to sprint. Building kits automatically switch to God view for placement; Q returns to first person.
-- **Night**: chickens automatically hurry into their assigned coop at dusk; the hatch closes once they are settled and opens for any late resident. At dawn they walk back out. The moon icon can call them in early. Outdoor animals can be attacked. Build a closed fence loop with a closed gate to protect livestock. First-person flashlight aim scares wolves; half of pack encounters flicker, pause two seconds and briefly jump toward the screen. Bears require fences.
-- **Sound**: the speaker toggle; M opens the market, the speaker button mutes. R streams the optional album, L plays local audio files.
-
-## Test parameters (no UI)
-
-| Param | Effect |
-|---|---|
-| `?timescale=N` | game-time multiplier (0 freezes the clock, up to 2000) |
-| `?time=H` | jump forward (never backward) to hour H, once; stripped after use |
-| `?fresh=1` | start a new farm (the previous local save is kept as a backup); stripped after use |
-| `?nosync=1` | skip the server copy (localStorage only) |
-| `?seed=N` | seed for scenery layout and a fresh farm |
-| `?k=SECRET` | one-time: stores the save key in localStorage, then removes it from the address bar |
-| `?mode=fp`, `?predator=wolf`, `?fences=demo`, `?money=N`, `?give=item:count` | reproducible camera, encounter and inventory fixtures |
-| `?quality=low`, `?close=house\|pond\|chickens\|x,y` | renderer quality / close-up framing for captures |
-
-`window.Garden` exposes read/advance hooks for the verification scripts (state, advance, setHour, anchor positions, stats). It renders nothing.
-
-## Saving
-
-- One JSON save document (`schemaVersion` 4, with migrations from the pre-economy XP record and versions 1–3). Door progress, residents and nest locations persist; wildlife is ephemeral. Autosaved to localStorage every 2 s and on hide/blur/pagehide; a backup copy of the last good save and a copy of any unreadable save are kept.
-- `api/state` (Vercel serverless function) stores the same document as one private Vercel Blob, `farm/save.json` (fixed pathname, no random suffix, overwrite allowed, uncached reads). Every write carries the revision it was based on; the route compares-and-swaps with the blob's ETag, so an older tab or device can never overwrite a newer save. On a conflict the newest document wins and the other is kept in localStorage (`farm-save-conflict`).
-- Writes need the `x-save-key` header to equal the `SAVE_KEY` environment variable. Reads are open. The client sends the key it captured from `?k=`.
-- The client loads the newest of the server copy and localStorage, pushes at most every 5 s and on hide (keepalive), and never shows an error. Without Blob credentials the route answers `{"status":"unavailable"}` with HTTP 200 and the game quietly runs on localStorage alone.
-- Coming back after time away fast-forwards crops, growth and production by up to 10 game minutes (`balance.js`), with need clocks frozen: nothing can starve while the tab is closed or hidden. Only the most recently focused tab simulates and saves; other tabs mirror it.
-
-## Vercel schema update
-
-Redeploy the client and `/api/state` together so both use schema 4. Versions 1–3 migrate automatically without resetting inventory, animals, money, beds, fences or revisions. Keep the existing Blob store, pathname and `SAVE_KEY`; no new environment variable or manual Blob edit is needed.
-
-## Vercel dashboard steps (manual)
-
-1. **Create a private Blob store**: Vercel dashboard → project `chicken-garden` → **Storage** tab → **Create Storage** → **Blob** → **Continue** → set access to **Private** → create it.
-2. **Connect it to the project** in all environments (Production, Preview, Development) when prompted (or from the store's **Projects** tab → **Connect Project**). Connecting adds `BLOB_STORE_ID` and lets the SDK authenticate with Vercel OIDC.
-3. **Check `BLOB_READ_WRITE_TOKEN`**: under **Settings → Environment Variables**, confirm `BLOB_READ_WRITE_TOKEN` (or at least `BLOB_STORE_ID`) is present. If neither is, copy the read-write token from the store's page (its `.env.local` snippet) and add it as `BLOB_READ_WRITE_TOKEN` for Production. The route works with either. (A *public* store also works if you add `BLOB_ACCESS=public`.)
-4. **Set the save key**: **Settings → Environment Variables** → add `SAVE_KEY` = a long random string (e.g. `openssl rand -hex 24`) for Production (and Preview if you play there).
-5. **Redeploy**: **Deployments** → latest → **Redeploy**; environment variables only reach new deployments. The build is `npm run build` → `dist/` (see `vercel.json`), and `api/state.js` deploys as a function.
-6. **Authorise each browser once**: open `https://<your-domain>/?k=<SAVE_KEY>`. The key is stored in that browser and removed from the address bar.
-
-Until this is done the deployed game still works and saves to localStorage only; `GET /api/state` answers `{"status":"unavailable"}`.
+The chickens and butterflies keep their original illustrated style. The terrain, mountain layers, time-of-day lighting, fireflies, pond, and small care effects are animated on one main canvas. Retina DPR is capped at 2. Phone, tablet, and landscape layouts keep the interactive parts of the garden in view.
 
 ## Files
 
-- `src/config/balance.js` — every tunable number (prices, growth, rates, timers, durations, caps, footprints).
-- `src/sim/` — pure deterministic simulation: `sim.js` (state, queries, tick), `actions.js`, `save.js` (serialise/migrate/validate), `catalog.js`, `layout.js` (grid, zones, obstacles), `clock.js`, `rng.js`.
-- `src/game/` — browser glue: `controller.js` (ticks the sim, routes actions, catch-up), `persistence.js`, `bridge.js` (sim animals → behaviour agents), `input.js` (taps, drags, placement).
-- `src/render/` — `farm-layer.js` (beds, crop stages, buildings, pickups, bones, ghost + grid), `animals.js`, `kit.js` (kitbashed buildings).
-- `src/ui/` — `hud.js`, `shop.js`, `bubbles.js`, `juice.js`, `icons.js`, `ui.css`.
-- `scene.js`, `assets.js`, `public/game/*.js` — the original renderer and behaviour scripts (hen A* navigation, herds, koi, ambience), now driven by the simulation.
-- `api/state.js`, `src/server/` — the save route, store-agnostic handler, Blob and file-mock stores.
+- `index.html`, `style.css`: welcome card, centered care toolbar, music controls, and responsive presentation.
+- `sprites.js`, `art.js`: shared drawing helpers, palette, chickens, flowers, foliage, and detail sprites.
+- `geometry.js`: shared 3D projection and cached cottage, coop, beds, fences, and sleeping chickens.
+- `entities.js`, `navigation.js`: care, growth, fish steering, flock behavior, bedtime, day cycle, and obstacle-aware navigation.
+- `landscape.js`, `renderer.js`: Vermont-inspired backdrop, canvas composition, ground anchors, lighting, and animations.
+- `input.js`, `audio.js`, `youtube.js`: pointer/keyboard tools, generated ambience, private audio files, and YouTube playback.
+
+## Verification
+
+Current screenshots and results are in `verification/complete/`. Earlier visual passes remain in the other verification folders. Tests use Playwright with Chrome; set `PLAYWRIGHT_PATH` to the installed Playwright module if it is outside this checkout and start the local server on port 8080.
+
+The current feature test covers the exact welcome sentence, silence before Continue, immediate music playback after Continue, all seven chickens gathering at grain, all five koi approaching fish food, incremental flower growth, full-flock bedtime and morning release, mute, hidden video, touch tools, centered controls, phone coop framing, DPR, and frame timing. Separate playback checks exercise both an immediate Continue click and a click after the player is ready in a fresh browser profile.
+
+Visual review includes the house and its ground contact, aligned garden beds, tree/fence placement, toolbar, sleeping coop, morning/noon/sunset/dusk/night scenes, and phone/tablet/landscape layouts. `window.Garden` exposes time overrides, need previews, and performance statistics for verification; it is not visible in the game.
+
+
+## Expanded farm
+Arrow keys, horizontal two-finger trackpad scrolling, on-screen arrows, or touch dragging pan between Clover Pasture, Chicken Garden, and Horses. Grain calls cows and horses to their gates; they shelter in their barns at night. Click eggs with any selected tool to collect them. Care and egg collection send XP to the level bar; progress is saved in local storage. Baby chicks, calves, and foals arrive periodically during the day and grow over about 2.5 minutes. Populations are capped to keep the farm calm.
+
+Feed is a stored quantity in each pasture trough: grain adds supply and animals consume it while eating. Feeding XP arrives on the first bite. The contextual feed tool changes to cow feed or hay as the camera moves. Pet cows and horses for hearts, or click them with another care tool to make them trot. Side labels navigate to pastures; chickens can wander higher and visit the koi pond bank for a drink.

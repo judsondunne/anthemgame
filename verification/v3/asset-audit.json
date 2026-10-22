@@ -1,6 +1,0 @@
-{
-  "assets": 102,
-  "missingFiles": [],
-  "incompleteProvenance": [],
-  "geometryReview": "Source grep inspected: solid props use downloaded GLB geometry; generated primitives only terrain/sky/water/grass/light volume/particles and ground overlays."
-}
