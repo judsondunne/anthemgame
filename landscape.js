@@ -218,10 +218,13 @@ function drawLandscape(t, d, night, sunset) {
     ctx.restore();
   }
   Atmosphere.draw(ctx, t, night, sunset);
+  ctx.save();
+  ctx.translate(Farm.pan*.82,0);
   ctx.drawImage(mountains.canvas, -2700, 0, 2400, 500);
   ctx.drawImage(mountains.canvas, -500, 0, 2400, 500);
   ctx.drawImage(mountains.canvas, 1700, 0, 2400, 500);
   ctx.drawImage(mountains.canvas, 3900, 0, 2400, 500);
+  ctx.restore();
   // Light mist softens the valley and merges it into the near meadow.
   let fog = ctx.createLinearGradient(0, 215, 0, 420);
   fog.addColorStop(0, "#d1dac000");

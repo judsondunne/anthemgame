@@ -164,13 +164,13 @@ export class Persistence {
   }
 
   saveLocal(state, { now = false } = {}) {
-    if (this.suspended || !this.leader) return false;
+    if (this.suspended || (!this.leader&&!this.sharedMode)) return false;
     const t = performance.now();
     if (!now && t - this.lastLocal < B.save.localDebounceMs) return false;
     this.lastLocal = t;
     // Only the tab holding the newest leadership epoch may write; a stale tab
     // can never overwrite the farm another tab has taken over.
-    if ((Number(readLS(KEYS.epoch)) || 0) > this.epoch) {
+    if (!this.sharedMode&&(Number(readLS(KEYS.epoch)) || 0) > this.epoch) {
       this.leader = false;
       this.onFollow(true);
       return false;
@@ -238,7 +238,7 @@ export class Persistence {
   }
 
   flush(state) {
-    if (this.suspended || !this.leader) return;
+    if (this.suspended || (!this.leader&&!this.sharedMode)) return;
     this.saveLocal(state, { now: true });
     this.push(state, { now: true, keepalive: true });
   }

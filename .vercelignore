@@ -11,3 +11,5 @@ tests
 scripts
 BALANCE.md
 INVENTORY.md
+.env*
+.local-shared-farm

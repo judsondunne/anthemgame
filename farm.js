@@ -165,7 +165,7 @@ const Farm = {
       // The pasture shares the continuous meadow rather than a rectangular tile.
       for(let i=0;i<190;i++){const x=left+((i*137)%1050),y=510+((i*71)%370);blit(S.tuft,x,y,.45+(i%3)*.12);}
       for(const [x,y,s] of [[left+25,510,.65],[right-15,515,.65],[p.kind==='cow'?left+30:right-30,840,.6]]){shadow(x,y,28*s,8*s,night);blit(S.tree,x,y,s);}
-      this.fence(left,right,550);
+      if(!window.ClassicFarm)this.fence(left,right,550);
       if(!window.ClassicFarm){shadow(p.barn,545,115,24,night);blit(this.barns[p.kind],p.barn,545,1);}
       for(const a of (window.ClassicFarm?[]:this.animals.filter(a=>a.kind===p.kind)).sort((a,b)=>a.y-b.y)){
         if(a.sheltered){
@@ -178,7 +178,7 @@ const Farm = {
         const size=.52+a.age*.48;shadow(a.x,a.y,46*size,12*size,night);ctx.save();ctx.translate(a.x,a.y);ctx.scale(a.dir*size,size);this.animal(ctx,a,t,false);ctx.restore();
         if(a.happy>0)heart(a.x,a.y-108*size-Math.sin(t*3)*4,.65,'#c99589');
       }
-      this.fence(left,right,885,p.gate);
+      if(!window.ClassicFarm)this.fence(left,right,885,p.gate);
       if(!window.ClassicFarm||window.ClassicFarm.game.state.buildings.some(b=>b.type===(p.kind==='cow'?'barn':'stable')))this.trough(p,t);
     }
   },

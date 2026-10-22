@@ -169,6 +169,7 @@ export function validate(doc) {
       health: clamp(num(a.health, B.predators.maxHealth), 0, B.predators.maxHealth),
       injured: num(a.health, B.predators.maxHealth) < B.predators.injuryThreshold,
       ...(Number.isFinite(a.heading) ? { heading: a.heading } : {}),
+      ...(Number.isFinite(a.petUntil) ? {petUntil:a.petUntil} : {}),
       ...(Number.isFinite(a.calledUntil) ? { calledUntil: a.calledUntil } : {}),
       ...(Number.isFinite(a.lastHurt) ? { lastHurt: a.lastHurt } : {}),
       ...(a.deathCause ? { deathCause: a.deathCause } : {}),

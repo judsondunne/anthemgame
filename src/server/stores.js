@@ -27,14 +27,14 @@ export function blobStore(env = process.env) {
         await put(SAVE_PATHNAME, JSON.stringify(data), {
           access,
           addRandomSuffix: false,
-          allowOverwrite: true,
+          allowOverwrite: !!etag,
           contentType: "application/json",
           cacheControlMaxAge: 60,
           ...(etag ? { ifMatch: etag } : {}),
         });
         return true;
       } catch (e) {
-        if (e instanceof BlobPreconditionFailedError) return false;
+        if (e instanceof BlobPreconditionFailedError || /already exists/i.test(e.message)) return false;
         throw e;
       }
     },
@@ -44,6 +44,7 @@ export function blobStore(env = process.env) {
 // Mock of Blob storage for local servers and tests: one JSON file, ETag = hash.
 export function fileStore(dir) {
   const file = path.join(dir, SAVE_PATHNAME);
+  let writer=Promise.resolve();
   const etagOf = (text) => createHash("sha1").update(text).digest("hex");
   return {
     file,
@@ -57,14 +58,12 @@ export function fileStore(dir) {
       }
     },
     async write(data, etag) {
-      const cur = await this.read();
-      if (etag && cur?.etag !== etag) return false;
-      if (!etag && cur) return false;
-      await fs.mkdir(path.dirname(file), { recursive: true });
-      const tmp = file + "." + process.pid + ".tmp";
-      await fs.writeFile(tmp, JSON.stringify(data));
-      await fs.rename(tmp, file);
-      return true;
+      const run=async()=>{
+        const cur=await this.read();if(etag&&cur?.etag!==etag)return false;if(!etag&&cur)return false;
+        await fs.mkdir(path.dirname(file),{recursive:true});const tmp=file+'.'+process.pid+'.tmp';
+        await fs.writeFile(tmp,JSON.stringify(data));await fs.rename(tmp,file);return true;
+      };
+      const result=writer.then(run);writer=result.catch(()=>{});return result;
     },
   };
 }

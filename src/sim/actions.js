@@ -1,3 +1,4 @@
+import {isNightAt} from './clock.js';
 // Player actions. Each validates fully and returns { ok, reason? }; a failed
 // action never mutates state, so spam taps and stale UI are harmless.
 import { BALANCE as B } from "../config/balance.js";
@@ -18,6 +19,7 @@ import {
   plotStage,
   spawnAnimal,
   housing,
+  advanceToHour,
   newId,
 } from "./sim.js";
 
@@ -293,3 +295,7 @@ export function setPositions(s, list, { includeDead = false } = {}) {
 }
 
 export { housing, SEEDS, FEEDS };
+
+export function petAnimal(s,id){const a=animalOf(s,id);if(!a||a.state!=='alive')return fail('unknown');a.petUntil=s.time+4;s.events.push({type:'petted',id});return{ok:true};}
+
+export function changeDayNight(s){advanceToHour(s,isNightAt(s.time)?8:21,{offline:true});return{ok:true};}

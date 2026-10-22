@@ -55,7 +55,7 @@ const Atmosphere = {
     c.restore();
   },
   bird(c,phase){
-    const flap=Math.sin(phase), lift=flap*26;
+    const flap=Math.sin(phase), lift=flap*14;
     c.lineJoin='round';c.lineCap='round';
     // Broad tapered flight feathers remain a single coherent wing silhouette.
     function wing(far){
@@ -69,7 +69,7 @@ const Atmosphere = {
       c.quadraticCurveTo(-24,y+14,-18,y+12);
       c.bezierCurveTo(-9,y*.6+9,0,9,8,4);c.closePath();c.fill();
     }
-    c.save();c.translate(-2,-2);wing(true);c.restore();
+    c.save();c.translate(-2,-2);c.scale(.68,.65);wing(true);c.restore();
     c.fillStyle='#e0dbc5';c.beginPath();c.ellipse(-2,4,14,5.5,-.08,0,Math.PI*2);c.fill();
     c.fillStyle='#999982';c.beginPath();c.ellipse(-3,1,14,5,-.08,0,Math.PI*2);c.fill();
     path(c,[[-13,0],[-23,2],[-15,5]],'#565e52');
@@ -78,6 +78,6 @@ const Atmosphere = {
     c.fillStyle='#39483f';c.beginPath();c.ellipse(31,-3,4.5,3,0,0,Math.PI*2);c.fill();
     path(c,[[34,-4],[40,-2.5],[34,-1]],'#414c42');
     c.strokeStyle='#eeeada';c.lineWidth=2;c.beginPath();c.moveTo(31,-1);c.quadraticCurveTo(28,1,27,-1);c.stroke();
-    wing(false);
+    c.save();c.translate(0,1);c.scale(.7,.65);wing(false);c.restore();
   }
 };

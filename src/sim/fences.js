@@ -122,3 +122,13 @@ function regions(s) {
 export function penAt(s, x, y) { return regions(s).cells.get(cellKey(Math.floor(x / CELL_X), Math.floor(y / CELL_Y))) || null; }
 export function isPenned(s, animalOrX, y) { return !!(typeof animalOrX === 'object' ? penAt(s, animalOrX.x, animalOrX.y) : penAt(s, animalOrX, y)); }
 export function enclosedPens(s) { return regions(s).pens; }
+
+// Atomic relocation keeps the same piece, gate state and inventory count.
+export function moveFence(s,id,gx,gy,axis){
+ const f=(s.fences??[]).find(f=>f.id===id);if(!f)return fail('unknown');
+ const check=checkFencePlacement({...s,fences:s.fences.filter(q=>q.id!==id)},gx,gy,axis,f.gate);
+ if(!check.ok)return check;
+ Object.assign(f,{gx,gy,axis});
+ for(const a of s.animals){if(a.state!=='alive')continue;const l=check.line;if(axis==='h'&&a.x>=l.x1&&a.x<=l.x2&&Math.abs(a.y-l.y1)<B.fences.nudge)a.y=l.y1+(a.y<l.y1?-1:1)*B.fences.nudge;if(axis==='v'&&a.y>=l.y1&&a.y<=l.y2&&Math.abs(a.x-l.x1)<B.fences.nudge)a.x=l.x1+(a.x<l.x1?-1:1)*B.fences.nudge;}
+ cache.delete(s);s.events.push({type:'fenceMoved',id});return{ok:true,id};
+}

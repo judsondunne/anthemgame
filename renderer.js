@@ -169,21 +169,17 @@ const pond = sprite(405, 235, (c) => {
   g.addColorStop(0.55, "#6c9e92");
   g.addColorStop(1, "#477d79");
   c.beginPath();
-  c.moveTo(-165, 0);
-  c.bezierCurveTo(-200, -55, -100, -101, -33, -83);
-  c.bezierCurveTo(28, -109, 154, -73, 171, -19);
-  c.bezierCurveTo(206, 31, 99, 89, 28, 82);
-  c.bezierCurveTo(-50, 108, -171, 58, -165, 0);
+  for(let i=0;i<=128;i++){const a=i/128*Math.PI*2,r=1+.035*Math.sin(a*3)+.018*Math.cos(a*5),x=Math.cos(a)*170*r,y=Math.sin(a)*86*r;i?c.lineTo(x,y):c.moveTo(x,y);}c.closePath();
   c.fillStyle = g;
   c.fill();
   c.lineWidth = 8;
   c.strokeStyle = "#78977c";
   c.stroke();
   c.restore();
-  for (let i = 0; i < 44; i++) {
-    let a = (i / 44) * Math.PI * 2,
-      x = 200 + Math.cos(a) * (166 + Math.sin(a * 3) * 9),
-      y = 120 + Math.sin(a) * (83 + Math.cos(a * 4) * 6);
+  for (let i = 0; i < 58; i++) {
+    let a = (i / 58) * Math.PI * 2,
+      x = 200 + Math.cos(a) * 174 * (1+.035*Math.sin(a*3)+.018*Math.cos(a*5)),
+      y = 120 + Math.sin(a) * 89 * (1+.035*Math.sin(a*3)+.018*Math.cos(a*5));
     c.save();
     c.translate(x, y);
     c.rotate(Math.sin(a * 3) * 0.14);
@@ -464,7 +460,10 @@ function render() {
         continue;
       }
       ctx.save();
-      ctx.translate(b.x, b.y);
+      const dance=b.pet>0&&!b.sleeping;
+      const hop=dance?Math.abs(Math.sin(t*9+b.phase))*9:0;
+      ctx.translate(b.x,b.y-hop);
+      if(dance)ctx.rotate(Math.sin(t*9+b.phase)*.13);
       let entry = 0;
       if (b.mode === "returning" && b.homeStage === "enter")
         entry =
