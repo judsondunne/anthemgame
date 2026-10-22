@@ -16,7 +16,7 @@ Buy seeds, feed, animals, fences, gates, beds, coops, barns, and stables at the 
 
 Building kits show a placement preview on clear lawn. Barns unlock cows; stables unlock horses. Fence segments snap to a grid. R rotates, X switches removal, and the hand opens or closes gates. Closed pens and closed coop hatches protect livestock. Decorative original boundary fences are scenery; build a complete pen with inventory fences for protection.
 
-Each day and night lasts five minutes. Chickens head home in the evening and coop doors close automatically. Tap the coop to call them home after dusk. Wolves threaten exposed livestock; bears can arrive as the herd grows. Choose the flashlight to enter walking mode, then aim steadily at a wolf for 1.5 real seconds to scare its pack. Bears need secure pens. WASD walks, F toggles overview/walking, P pauses, N advances day/night. Touch walking has directional buttons. Arrow buttons or swipes explore the pastures and brook. Livestock visit water, while wild deer, elk, and rabbits wander nearby.
+Each day and night lasts five minutes. Chickens head home in the evening and coop doors close automatically. Tap the coop to call them home after dusk. Wolves threaten exposed livestock; bears can arrive as the herd grows. Choose the flashlight to enter walking mode, then aim steadily at a wolf for 1.5 real seconds to scare its pack. Bears need secure pens. WASD walks, F toggles overview/walking, P pauses, N advances day/night. Touch walking has directional buttons. Arrow buttons or swipes explore the pastures and brook. Livestock visit water, while wild rabbits wander nearby; horses appear only as owned livestock.
 
 ## Persistent progress
 
