@@ -19,9 +19,15 @@ Verification (Playwright, headless Chromium with WebGL; `npx playwright install 
 npm run build && npm run verify
 ```
 
-`verification/v4/run-all.cjs` runs unit tests, builds the game, verifies persistence against a file-backed Blob mock, then runs sequential camera, first-person, gameplay, tutorial/mobile, software-renderer and full-farm performance checks. GPU suites use Metal on macOS; the software smoke uses SwiftShader. Evidence is saved under `verification/v4/`. Native headless pointer lock is emulated and recorded explicitly.
+`verification/v5/run-all.cjs` runs the unit suite, production build, full asset/license/geometry audit and one eight-view SwiftShader smoke. The browser checks visible-letter-free UI, loaded requests/console, inventory dimensions, both market tabs, wildlife caps, cottage doorway collision, swimming, mobile panel bounds and save round trips. Evidence is saved under `verification/v5/`; SwiftShader is a rendering/behavior check, not a hardware frame-rate measurement. The older v4 scripts remain available as historical verification.
 
-Results and the screenshot review are in `verification/v4/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
+Results and the screenshot review are in `verification/v5/REPORT.md`. Balance results are in `BALANCE.md`; asset sources and compromises in `ASSETS.md`; the architecture plan in `PLAN.md`.
+
+## Quality update
+
+The icon-only interface uses one studio-lit set of model portraits. The cottage now has three furnished rooms and an interactive front door; aim at it and click/tap to open or close. God View cuts away its roof when you focus inside. First-person movement supports low props, wading and swimming in the pond/brook, camera dips, ripples and splash audio. Unpenned cows/horses visit the brook during the day; a closed pen requires a trough or water inside its perimeter. Deer, stylized elk (stag source) and bunnies roam the woods and flee from players/predators.
+
+Fast crops take 24–42 seconds of watered growth; premium crops take 2–4 minutes. Water newly planted crops and again when they reach their growing stage. Breeding takes half a game day and babies mature in .85 day, with existing housing multipliers. See `BALANCE.md` for measured progression and defense outcomes.
 
 ## How to play
 
@@ -32,7 +38,7 @@ Results and the screenshot review are in `verification/v4/REPORT.md`. Balance re
 - **Market**: the stall button (or the stall beside the cottage). Basket tab buys seeds, feed, animals (♀/♂) and buildings; coins tab sells goods and adult animals (tap = one, the coin stack = all). Cows unlock with a barn, horses with a stable (padlock + building icon until then).
 - **Building**: buying a coop, barn, stable or bed enters placement mode: a ghost over the build grid, green when it fits, red when it doesn't. Drag or tap to move it, tap it again or press the check to confirm; the cross keeps the kit in the hotbar for later. Barns go in the west pasture, stables in the east meadow, beds and coops in the garden.
 - **Camera**: drag to orbit, right-drag to pan, wheel or pinch to zoom; touch drags pan and two fingers orbit/pinch. The eye button switches to first person. WASD moves, Shift sprints, Space jumps, left-click interacts, E opens inventory, M opens the market, Q changes view, F toggles the torch, and Escape pauses. Double-tap W or hold Shift to sprint. Building kits automatically switch to God view for placement; Q returns to first person.
-- **Night**: tap the coop's dusk moon button to bring chickens inside; watch them settle on their roosts. Outdoor animals can be attacked. Build a closed fence loop with a closed gate to protect livestock. First-person flashlight aim scares wolves; half of pack encounters flicker, pause two seconds and briefly jump toward the screen. Bears require fences.
+- **Night**: chickens automatically hurry into their assigned coop at dusk; the hatch closes once they are settled and opens for any late resident. At dawn they walk back out. The moon icon can call them in early. Outdoor animals can be attacked. Build a closed fence loop with a closed gate to protect livestock. First-person flashlight aim scares wolves; half of pack encounters flicker, pause two seconds and briefly jump toward the screen. Bears require fences.
 - **Sound**: the speaker toggle; M opens the market, the speaker button mutes. R streams the optional album, L plays local audio files.
 
 ## Test parameters (no UI)
@@ -52,11 +58,15 @@ Results and the screenshot review are in `verification/v4/REPORT.md`. Balance re
 
 ## Saving
 
-- One JSON save document (`schemaVersion` 3, with migrations from the pre-economy XP record and the v1 draft). Autosaved to localStorage every 2 s and on hide/blur/pagehide; a backup copy of the last good save and a copy of any unreadable save are kept.
+- One JSON save document (`schemaVersion` 4, with migrations from the pre-economy XP record and versions 1–3). Door progress, residents and nest locations persist; wildlife is ephemeral. Autosaved to localStorage every 2 s and on hide/blur/pagehide; a backup copy of the last good save and a copy of any unreadable save are kept.
 - `api/state` (Vercel serverless function) stores the same document as one private Vercel Blob, `farm/save.json` (fixed pathname, no random suffix, overwrite allowed, uncached reads). Every write carries the revision it was based on; the route compares-and-swaps with the blob's ETag, so an older tab or device can never overwrite a newer save. On a conflict the newest document wins and the other is kept in localStorage (`farm-save-conflict`).
 - Writes need the `x-save-key` header to equal the `SAVE_KEY` environment variable. Reads are open. The client sends the key it captured from `?k=`.
 - The client loads the newest of the server copy and localStorage, pushes at most every 5 s and on hide (keepalive), and never shows an error. Without Blob credentials the route answers `{"status":"unavailable"}` with HTTP 200 and the game quietly runs on localStorage alone.
 - Coming back after time away fast-forwards crops, growth and production by up to 10 game minutes (`balance.js`), with need clocks frozen: nothing can starve while the tab is closed or hidden. Only the most recently focused tab simulates and saves; other tabs mirror it.
+
+## Vercel schema update
+
+Redeploy the client and `/api/state` together so both use schema 4. Versions 1–3 migrate automatically without resetting inventory, animals, money, beds, fences or revisions. Keep the existing Blob store, pathname and `SAVE_KEY`; no new environment variable or manual Blob edit is needed.
 
 ## Vercel dashboard steps (manual)
 

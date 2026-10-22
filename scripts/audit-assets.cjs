@@ -19,8 +19,9 @@ for (const f of files) {
   if (/\.(glb|gltf)$/i.test(f)) {
     const a = manifest.find((a) => "public" + a.path === f);
     assert(a, "No manifest: " + f);
-    assert(ledger.includes(f), "No ledger: " + f);
+    assert(ledger.includes(f) || ledger.includes(a.path), "No ledger: " + f);
     assert.equal(a.license, "CC0-1.0");
+    assert(a.source && a.triangles > 0, "Incomplete provenance: " + f);
     const b = fs.readFileSync(f);
     assert.equal(b.toString("utf8", 0, 4), "glTF");
     const g = JSON.parse(b.toString("utf8", 20, 20 + b.readUInt32LE(12)));
@@ -45,8 +46,12 @@ const constructors = sources.flatMap((file) =>
   [...fs.readFileSync(file, "utf8").matchAll(/new THREE\.([A-Za-z]*Geometry)\(([^;]*)/g)].map((m) => ({ file, kind: m[1], text: m[0].slice(0, 70) })),
 );
 const ALLOWED = {
-  "scene.js": { PlaneGeometry: 6, SphereGeometry: 1, BufferGeometry: 1 }, // ground, pond floor, water, grass blade, 2 hidden shader warm-up planes; sky dome; particle points
-  "src/render/farm-layer.js": { PlaneGeometry: 1 }, // placement-grid cell overlay
+  "scene.js": { PlaneGeometry: 5, SphereGeometry: 1, BufferGeometry: 1 }, // terrain, pond bed/surface, shader warm-up overlays; sky; particles
+  "src/render/farm-layer.js": { PlaneGeometry: 2 }, // pickup ring shader and placement overlay
+  "src/render/meadow.js": { BufferGeometry: 1 }, // instanced grass blades
+  "src/render/threats.js": { ConeGeometry: 1, BufferGeometry: 1, PlaneGeometry: 1 }, // light shader volume, eye particles, pen overlay
+  "src/render/water-feedback.js": { BufferGeometry: 1 }, // ripple/splash particles
+  "src/render/world.js": { BufferGeometry: 2, PlaneGeometry: 1 }, // brook surface, pollen particles, terrain
 };
 const counts = {};
 for (const c of constructors) {
@@ -66,7 +71,8 @@ const out = {
   geometryConstructors: constructors,
   licenses: "All CC0-1.0; every GLB has source, path and triangle ledger entry",
   proceduralGeometry:
-    "Allowed surfaces only: ground, pond floor, water, instanced grass blade, sky dome, placement-grid cell overlay, two hidden shader warm-up planes. Particle BufferGeometry stores point positions only. Every solid object is a downloaded model.",
+    "Allowed geometry only: terrain/pond beds, water surfaces, grass blades, sky, light shader volume, ground UI overlays and particle buffers. Every solid object retains downloaded GLB topology; cottage collider boxes are data only.",
 };
-fs.writeFileSync("verification/asset-audit.json", JSON.stringify(out, null, 2));
+fs.mkdirSync("verification/v5", { recursive: true });
+fs.writeFileSync("verification/v5/asset-audit.json", JSON.stringify(out, null, 2));
 console.log(JSON.stringify(out, null, 2));

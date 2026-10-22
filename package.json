@@ -11,7 +11,9 @@
     "test": "node --test tests/*.test.js",
     "simulate": "node scripts/simulate.js 150",
     "e2e": "node verification/v4/run-all.cjs",
-    "verify": "node verification/v4/run-all.cjs"
+    "verify": "node verification/v5/run-all.cjs",
+    "smoke": "node verification/v5/smoke.cjs",
+    "audit": "node scripts/audit-assets.cjs"
   },
   "keywords": [],
   "author": "",

@@ -1,18 +1,21 @@
-import test from "node:test";
+import test, { after } from "node:test";
+import { writeFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { runStrategies, runPredatorStrategies } from "../scripts/simulate.js";
 
 const results = Object.fromEntries(runStrategies(150).map((r) => [r.name, r]));
+const predatorResults = runPredatorStrategies(12);
+if (process.env.FARM_BALANCE_REPORT) after(() => writeFileSync(process.env.FARM_BALANCE_REPORT, JSON.stringify({progression:Object.values(results).map(r=>({name:r.name,log:r.log,milestones:r.milestones,taps:r.taps,deaths:r.s.stats.deaths,final:{money:r.s.money,worth:r.netWorth()}})),predators:predatorResults},null,2)));
 const worth = (name, min) => results[name].log.find((l) => l.min === min).worth;
 
-test("balance: the intended progression reaches a full farm within two hours", () => {
+test("balance: the faster progression reaches a protected full farm within ninety minutes", () => {
   const m = results.balanced.milestones;
   assert.ok(m.coop <= 15, "coop early");
   assert.ok(m.barn <= 40, "barn by 40 min");
   assert.ok(m.cow <= 45, "cows by 45 min");
   assert.ok(m.stable <= 75, "stable by 75 min");
   assert.ok(m.horse <= 85, "horses by 85 min");
-  assert.ok(m.fullFarm >= 60 && m.fullFarm <= 120, `full farm in 1-2 h (got ${m.fullFarm})`);
+  assert.ok(m.fullFarm >= 10 && m.fullFarm <= 90, `full farm in 10–90 min (got ${m.fullFarm})`);
   assert.equal(results.balanced.s.stats.deaths, 0);
 });
 
@@ -33,7 +36,7 @@ test("balance: the first ten minutes build up the farm", () => {
 });
 
 test('balance: a modest closed pen prevents all damage and active flashlight play reduces exposure', () => {
-  const outcomes = Object.fromEntries(runPredatorStrategies(12).map(r => [r.name, r]));
+  const outcomes = Object.fromEntries(predatorResults.map(r => [r.name, r]));
   assert.equal(outcomes.closedPen.damage, 0);
   assert.equal(outcomes.closedPen.lowestHealth, 100);
   assert.ok(outcomes.closedPen.fenceCost < 100, 'a modest pen is inexpensive');
@@ -41,5 +44,8 @@ test('balance: a modest closed pen prevents all damage and active flashlight pla
   assert.ok(outcomes.partialFence.damage > 0, 'a gap is not protective');
   assert.ok(outcomes.activeFlashlight.damage < outcomes.noFences.damage);
   assert.ok(outcomes.activeFlashlight.scares > 0);
-  for (const result of Object.values(outcomes)) assert.equal(result.deaths, 0, 'regular care avoids disaster over twelve nights');
+  assert.equal(outcomes.closedPen.deaths,0,'a cared-for closed pen has no losses');
+  assert.ok(outcomes.noFences.deaths>0,'reckless outdoor livestock can be lost');
+  assert.ok(outcomes.noFences.survivors>0,'losses are recoverable rather than a total wipeout');
+  assert.ok(outcomes.activeFlashlight.deaths<=outcomes.noFences.deaths,'active defense reduces losses');
 });

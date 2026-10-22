@@ -1,0 +1,1458 @@
+{
+  "progression": [
+    {
+      "name": "idle",
+      "log": [
+        {
+          "min": 0,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 5,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 10,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 15,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 20,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 25,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 30,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 35,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 40,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 45,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 50,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 55,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 60,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 65,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 70,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 75,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 80,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 85,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 90,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 95,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 100,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 105,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 110,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 115,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 120,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 125,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 130,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 135,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 140,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 145,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        },
+        {
+          "min": 150,
+          "money": 1000,
+          "worth": 1000,
+          "animals": 0,
+          "beds": 1
+        }
+      ],
+      "milestones": {
+        "firstDeath": 24
+      },
+      "taps": 0,
+      "deaths": 2,
+      "final": {
+        "money": 1000,
+        "worth": 1000
+      }
+    },
+    {
+      "name": "daisySpam",
+      "log": [
+        {
+          "min": 0,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 5,
+          "money": 472,
+          "worth": 548,
+          "animals": 2,
+          "beds": 7
+        },
+        {
+          "min": 10,
+          "money": 148,
+          "worth": 256,
+          "animals": 3,
+          "beds": 9
+        },
+        {
+          "min": 15,
+          "money": 222,
+          "worth": 329,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 20,
+          "money": 1260,
+          "worth": 1405,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 25,
+          "money": 2244,
+          "worth": 2359,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 30,
+          "money": 3222,
+          "worth": 3343,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 35,
+          "money": 4242,
+          "worth": 4375,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 40,
+          "money": 5070,
+          "worth": 5329,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 45,
+          "money": 6114,
+          "worth": 6235,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 50,
+          "money": 7074,
+          "worth": 7243,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 55,
+          "money": 8094,
+          "worth": 8239,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 60,
+          "money": 9108,
+          "worth": 9223,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 65,
+          "money": 10044,
+          "worth": 10177,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 70,
+          "money": 11022,
+          "worth": 11161,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 75,
+          "money": 11994,
+          "worth": 12109,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 80,
+          "money": 12930,
+          "worth": 13102,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 85,
+          "money": 13920,
+          "worth": 14099,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 90,
+          "money": 14994,
+          "worth": 15109,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 95,
+          "money": 15858,
+          "worth": 16063,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 100,
+          "money": 16836,
+          "worth": 17047,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 105,
+          "money": 17874,
+          "worth": 17989,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 110,
+          "money": 18816,
+          "worth": 18973,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 115,
+          "money": 19830,
+          "worth": 19999,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 120,
+          "money": 20778,
+          "worth": 20959,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 125,
+          "money": 21720,
+          "worth": 21840,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 130,
+          "money": 22608,
+          "worth": 22780,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 135,
+          "money": 23634,
+          "worth": 23827,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 140,
+          "money": 24714,
+          "worth": 24835,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 145,
+          "money": 25680,
+          "worth": 25813,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 150,
+          "money": 26706,
+          "worth": 26821,
+          "animals": 4,
+          "beds": 10
+        }
+      ],
+      "milestones": {
+        "allBeds": 14
+      },
+      "taps": 4500,
+      "deaths": 0,
+      "final": {
+        "money": 26706,
+        "worth": 26821
+      }
+    },
+    {
+      "name": "bestCropOnly",
+      "log": [
+        {
+          "min": 0,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 5,
+          "money": 230,
+          "worth": 313,
+          "animals": 2,
+          "beds": 6
+        },
+        {
+          "min": 10,
+          "money": 1678,
+          "worth": 1762,
+          "animals": 3,
+          "beds": 10
+        },
+        {
+          "min": 15,
+          "money": 7900,
+          "worth": 8019,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 20,
+          "money": 15190,
+          "worth": 15311,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 25,
+          "money": 21058,
+          "worth": 21191,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 30,
+          "money": 26926,
+          "worth": 27065,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 35,
+          "money": 32584,
+          "worth": 32699,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 40,
+          "money": 40966,
+          "worth": 41099,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 45,
+          "money": 47152,
+          "worth": 47291,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 50,
+          "money": 53002,
+          "worth": 53117,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 55,
+          "money": 58264,
+          "worth": 58397,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 60,
+          "money": 66082,
+          "worth": 66221,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 65,
+          "money": 72622,
+          "worth": 72737,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 70,
+          "money": 78676,
+          "worth": 78797,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 75,
+          "money": 83938,
+          "worth": 84071,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 80,
+          "money": 91798,
+          "worth": 91913,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 85,
+          "money": 97822,
+          "worth": 97944,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 90,
+          "money": 103360,
+          "worth": 103493,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 95,
+          "money": 109114,
+          "worth": 109229,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 100,
+          "money": 116308,
+          "worth": 116429,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 105,
+          "money": 122314,
+          "worth": 122447,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 110,
+          "money": 127864,
+          "worth": 127979,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 115,
+          "money": 134158,
+          "worth": 134279,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 120,
+          "money": 141244,
+          "worth": 141374,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 125,
+          "money": 146806,
+          "worth": 146946,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 130,
+          "money": 152392,
+          "worth": 152507,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 135,
+          "money": 157840,
+          "worth": 157976,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 140,
+          "money": 163384,
+          "worth": 163523,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 145,
+          "money": 170410,
+          "worth": 170525,
+          "animals": 4,
+          "beds": 10
+        },
+        {
+          "min": 150,
+          "money": 176422,
+          "worth": 176555,
+          "animals": 4,
+          "beds": 10
+        }
+      ],
+      "milestones": {
+        "allBeds": 7
+      },
+      "taps": 2562,
+      "deaths": 0,
+      "final": {
+        "money": 176422,
+        "worth": 176555
+      }
+    },
+    {
+      "name": "chickenFarm",
+      "log": [
+        {
+          "min": 0,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 5,
+          "money": 85,
+          "worth": 903,
+          "animals": 15,
+          "beds": 1
+        },
+        {
+          "min": 10,
+          "money": 76,
+          "worth": 1103,
+          "animals": 16,
+          "beds": 5
+        },
+        {
+          "min": 15,
+          "money": 661,
+          "worth": 1536,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 20,
+          "money": 1655,
+          "worth": 2830,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 25,
+          "money": 3187,
+          "worth": 4212,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 30,
+          "money": 4993,
+          "worth": 6096,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 35,
+          "money": 6614,
+          "worth": 7537,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 40,
+          "money": 7411,
+          "worth": 8446,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 45,
+          "money": 8777,
+          "worth": 9844,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 50,
+          "money": 10216,
+          "worth": 11121,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 55,
+          "money": 11540,
+          "worth": 12547,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 60,
+          "money": 13025,
+          "worth": 13948,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 65,
+          "money": 14269,
+          "worth": 15162,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 70,
+          "money": 15675,
+          "worth": 16616,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 75,
+          "money": 17102,
+          "worth": 18001,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 80,
+          "money": 18457,
+          "worth": 19346,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 85,
+          "money": 20109,
+          "worth": 21348,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 90,
+          "money": 22485,
+          "worth": 23366,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 95,
+          "money": 23854,
+          "worth": 24729,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 100,
+          "money": 24518,
+          "worth": 25619,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 105,
+          "money": 25941,
+          "worth": 26966,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 110,
+          "money": 27313,
+          "worth": 28302,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 115,
+          "money": 28669,
+          "worth": 30204,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 120,
+          "money": 30555,
+          "worth": 31560,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 125,
+          "money": 31746,
+          "worth": 33374,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 130,
+          "money": 33260,
+          "worth": 34177,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 135,
+          "money": 34796,
+          "worth": 35685,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 140,
+          "money": 36027,
+          "worth": 37028,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 145,
+          "money": 37505,
+          "worth": 38392,
+          "animals": 16,
+          "beds": 6
+        },
+        {
+          "min": 150,
+          "money": 39431,
+          "worth": 40408,
+          "animals": 16,
+          "beds": 6
+        }
+      ],
+      "milestones": {
+        "coop": 0
+      },
+      "taps": 4500,
+      "deaths": 0,
+      "final": {
+        "money": 39431,
+        "worth": 40408
+      }
+    },
+    {
+      "name": "balanced",
+      "log": [
+        {
+          "min": 0,
+          "money": 1000,
+          "worth": 1055,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 5,
+          "money": 146,
+          "worth": 965,
+          "animals": 6,
+          "beds": 3
+        },
+        {
+          "min": 10,
+          "money": 446,
+          "worth": 3872,
+          "animals": 12,
+          "beds": 3
+        },
+        {
+          "min": 15,
+          "money": 1443,
+          "worth": 9117,
+          "animals": 18,
+          "beds": 3
+        },
+        {
+          "min": 20,
+          "money": 194,
+          "worth": 14232,
+          "animals": 20,
+          "beds": 6
+        },
+        {
+          "min": 25,
+          "money": 7435,
+          "worth": 20891,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 30,
+          "money": 16874,
+          "worth": 31553,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 35,
+          "money": 29816,
+          "worth": 44237,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 40,
+          "money": 41931,
+          "worth": 56573,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 45,
+          "money": 54634,
+          "worth": 70050,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 50,
+          "money": 67099,
+          "worth": 82855,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 55,
+          "money": 79746,
+          "worth": 96000,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 60,
+          "money": 92691,
+          "worth": 107919,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 65,
+          "money": 101680,
+          "worth": 121202,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 70,
+          "money": 116747,
+          "worth": 133117,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 75,
+          "money": 130953,
+          "worth": 145521,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 80,
+          "money": 142551,
+          "worth": 158121,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 85,
+          "money": 153142,
+          "worth": 171028,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 90,
+          "money": 168283,
+          "worth": 183994,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 95,
+          "money": 180721,
+          "worth": 197610,
+          "animals": 25,
+          "beds": 10
+        },
+        {
+          "min": 100,
+          "money": 193722,
+          "worth": 209139,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 105,
+          "money": 205604,
+          "worth": 222517,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 110,
+          "money": 218266,
+          "worth": 235495,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 115,
+          "money": 233693,
+          "worth": 248596,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 120,
+          "money": 245898,
+          "worth": 261641,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 125,
+          "money": 258290,
+          "worth": 274626,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 130,
+          "money": 272570,
+          "worth": 286999,
+          "animals": 23,
+          "beds": 10
+        },
+        {
+          "min": 135,
+          "money": 284425,
+          "worth": 299102,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 140,
+          "money": 295099,
+          "worth": 312155,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 145,
+          "money": 309508,
+          "worth": 324873,
+          "animals": 24,
+          "beds": 10
+        },
+        {
+          "min": 150,
+          "money": 323136,
+          "worth": 337748,
+          "animals": 23,
+          "beds": 10
+        }
+      ],
+      "milestones": {
+        "coop": 0,
+        "barn": 5,
+        "pen": 6,
+        "cow": 6,
+        "stable": 13,
+        "horse": 14,
+        "allBeds": 21,
+        "fullFarm": 21
+      },
+      "taps": 4428.5,
+      "deaths": 0,
+      "final": {
+        "money": 323136,
+        "worth": 337748
+      }
+    },
+    {
+      "name": "horseRush",
+      "log": [
+        {
+          "min": 0,
+          "money": 952,
+          "worth": 1007,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 5,
+          "money": 1298,
+          "worth": 1565,
+          "animals": 2,
+          "beds": 1
+        },
+        {
+          "min": 10,
+          "money": 1868,
+          "worth": 2148,
+          "animals": 3,
+          "beds": 1
+        },
+        {
+          "min": 15,
+          "money": 2414,
+          "worth": 2729,
+          "animals": 4,
+          "beds": 1
+        },
+        {
+          "min": 20,
+          "money": 496,
+          "worth": 2087,
+          "animals": 4,
+          "beds": 1
+        },
+        {
+          "min": 25,
+          "money": 1594,
+          "worth": 3167,
+          "animals": 4,
+          "beds": 1
+        },
+        {
+          "min": 30,
+          "money": 2182,
+          "worth": 3785,
+          "animals": 4,
+          "beds": 1
+        },
+        {
+          "min": 35,
+          "money": 453,
+          "worth": 3868,
+          "animals": 5,
+          "beds": 1
+        },
+        {
+          "min": 40,
+          "money": 1127,
+          "worth": 4496,
+          "animals": 5,
+          "beds": 1
+        },
+        {
+          "min": 45,
+          "money": 53,
+          "worth": 5016,
+          "animals": 6,
+          "beds": 2
+        },
+        {
+          "min": 50,
+          "money": 187,
+          "worth": 5224,
+          "animals": 7,
+          "beds": 6
+        },
+        {
+          "min": 55,
+          "money": 659,
+          "worth": 6431,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 60,
+          "money": 9673,
+          "worth": 15567,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 65,
+          "money": 17013,
+          "worth": 22963,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 70,
+          "money": 25651,
+          "worth": 31860,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 75,
+          "money": 33213,
+          "worth": 39582,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 80,
+          "money": 44069,
+          "worth": 49446,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 85,
+          "money": 51385,
+          "worth": 56908,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 90,
+          "money": 59199,
+          "worth": 64793,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 95,
+          "money": 67021,
+          "worth": 72729,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 100,
+          "money": 73879,
+          "worth": 79725,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 105,
+          "money": 82453,
+          "worth": 88489,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 110,
+          "money": 90079,
+          "worth": 96301,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 115,
+          "money": 100289,
+          "worth": 105549,
+          "animals": 7,
+          "beds": 10
+        },
+        {
+          "min": 120,
+          "money": 107135,
+          "worth": 112536,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 125,
+          "money": 115169,
+          "worth": 120960,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 130,
+          "money": 123019,
+          "worth": 128663,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 135,
+          "money": 130495,
+          "worth": 136324,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 140,
+          "money": 136655,
+          "worth": 142732,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 145,
+          "money": 145441,
+          "worth": 151783,
+          "animals": 8,
+          "beds": 10
+        },
+        {
+          "min": 150,
+          "money": 153777,
+          "worth": 160027,
+          "animals": 8,
+          "beds": 10
+        }
+      ],
+      "milestones": {
+        "stable": 16,
+        "pen": 31,
+        "horse": 32,
+        "allBeds": 54
+      },
+      "taps": 2335.14,
+      "deaths": 0,
+      "final": {
+        "money": 153777,
+        "worth": 160027
+      }
+    }
+  ],
+  "predators": [
+    {
+      "name": "noFences",
+      "nights": 12,
+      "fenceCost": 0,
+      "damage": 3417,
+      "lowestHealth": 0,
+      "deaths": 1,
+      "survivors": 5,
+      "scares": 0,
+      "alerts": 44,
+      "spawns": 43,
+      "wolves": 36,
+      "bears": 7
+    },
+    {
+      "name": "partialFence",
+      "nights": 12,
+      "fenceCost": 84,
+      "damage": 2917,
+      "lowestHealth": 1,
+      "deaths": 0,
+      "survivors": 6,
+      "scares": 0,
+      "alerts": 49,
+      "spawns": 45,
+      "wolves": 36,
+      "bears": 9
+    },
+    {
+      "name": "closedPen",
+      "nights": 12,
+      "fenceCost": 87,
+      "damage": 0,
+      "lowestHealth": 100,
+      "deaths": 0,
+      "survivors": 6,
+      "scares": 0,
+      "alerts": 0,
+      "spawns": 45,
+      "wolves": 36,
+      "bears": 9
+    },
+    {
+      "name": "activeFlashlight",
+      "nights": 12,
+      "fenceCost": 0,
+      "damage": 220,
+      "lowestHealth": 0,
+      "deaths": 1,
+      "survivors": 5,
+      "scares": 12,
+      "alerts": 28,
+      "spawns": 38,
+      "wolves": 36,
+      "bears": 2
+    }
+  ]
+}

@@ -108,7 +108,7 @@ class Bot {
     if (!S.canBuy(this.s, key).ok) return false;
     const spot = kit ? S.layout.bestSpot(this.s, key.slice(4)) : null;
     if (kit && !spot) return false;
-    if (!this.spend(kit ? 3 : 2)) return false;
+    if (!this.spend(kit ? 3 : 2)) { this.savingForPurchase = true; return false; }
     const r = S.buy(this.s, key);
     if (r.ok && kit) S.place(this.s, key, spot.gx, spot.gy);
     return r.ok;
@@ -157,9 +157,9 @@ class Bot {
       this.budget = Math.min(20, this.budget + (TAPS_PER_MINUTE / 60) * THINK);
       if (!this.plan.idle) {
         this.careForAnimals();
+        this.savingForPurchase = false;
         this.plan.invest(this);
-        this.collect();
-        this.farm();
+        if (!this.savingForPurchase) { this.collect(); this.farm(); }
         this.sell();
         this.plan.trade?.(this);
       }
@@ -208,6 +208,15 @@ const sellSurplusHorses = (bot) => {
     for (let i = 0; i < extra; i++) if (bot.spend()) S.sellAnimal(s, "horse", sex, 1);
   }
 };
+const sellBalancedSurplus = bot => {
+  sellSurplusHorses(bot);
+  for (const [sex, keep] of [['f', 4], ['m', 1]]) {
+    const extra = S.sellableAnimals(bot.s, 'chicken', sex).length - keep;
+    for (let i = 0; i < extra; i++) if (bot.spend()) S.sellAnimal(bot.s, 'chicken', sex, 1);
+  }
+  const surplusBulls=S.sellableAnimals(bot.s,'cow','m').length-1;
+  for(let i=0;i<surplusBulls;i++)if(bot.spend())S.sellAnimal(bot.s,'cow','m',1);
+};
 
 const STRATEGIES = {
   idle: { idle: true, crop: () => null, invest: () => {} },
@@ -233,10 +242,7 @@ const STRATEGIES = {
       { key: "kit_bed", done: (b) => owned(b, "bed") >= 3 },
       { key: "animal_chicken_f", done: (b) => count(b, "chicken", "f") >= 3 },
       { key: "kit_coop", done: (b) => owned(b, "coop") >= 1 },
-      { key: "animal_chicken_f", done: (b) => count(b, "chicken", "f") >= 6 },
-      { key: "kit_coop", done: (b) => owned(b, "coop") >= 2 },
-      { key: "animal_chicken_f", done: (b) => count(b, "chicken") >= 14 },
-      { key: "kit_bed", done: (b) => owned(b, "bed") >= 4 },
+      { key: "animal_chicken_f", done: (b) => count(b, "chicken", "f") >= 4 },
       { key: "kit_barn", done: (b) => owned(b, "barn") >= 1 },
       { key: "animal_cow_f", done: (b) => count(b, "cow", "f") >= 2 },
       { key: "animal_cow_m", done: (b) => count(b, "cow", "m") >= 1 },
@@ -250,9 +256,10 @@ const STRATEGIES = {
       { key: "kit_stable", done: (b) => owned(b, "stable") >= 2 },
       { key: "animal_horse_f", done: (b) => count(b, "horse", "f") >= 2 },
       { key: "animal_horse_m", done: (b) => count(b, "horse", "m") >= 2 },
+      { key: "kit_coop", done: (b) => owned(b, "coop") >= 2 },
       { key: "kit_bed", done: (b) => owned(b, "bed") >= B.beds.max },
     ]),
-    trade: sellSurplusHorses,
+    trade: sellBalancedSurplus,
   },
   horseRush: {
     crop: bestCrop,
@@ -267,10 +274,10 @@ const STRATEGIES = {
   },
 };
 
-export function runStrategies(minutes = MINUTES) {
+export function runStrategies(minutes = MINUTES, names = Object.keys(STRATEGIES)) {
   const saved = MINUTES_REF.value;
   MINUTES_REF.value = minutes;
-  const out = Object.entries(STRATEGIES).map(([name, plan]) => new Bot(name, plan).run());
+  const out = names.map(name => new Bot(name, STRATEGIES[name]).run());
   MINUTES_REF.value = saved;
   return out;
 }
