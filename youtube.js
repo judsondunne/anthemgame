@@ -15,6 +15,9 @@ const ALBUM_SONGS = [
   "eA98xJByTzo",
   "yg7tTA1r9nw",
 ];
+// One shuffled album queue per visit. Avoid repeating the previous visit's opener.
+function shuffledAlbum(){const songs=[...ALBUM_SONGS];for(let i=songs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[songs[i],songs[j]]=[songs[j],songs[i]];}try{const last=localStorage.getItem('garden-album-last');if(songs[0]===last)[songs[0],songs[1]]=[songs[1],songs[0]];localStorage.setItem('garden-album-last',songs[0]);}catch{}return songs;}
+const ALBUM_QUEUE=shuffledAlbum();
 const YouTubeGarden = {
   player: null,
   loading: false,
@@ -49,18 +52,19 @@ const YouTubeGarden = {
       playsinline: 1,
       controls: 0,
       rel: 0,
-      playlist: ALBUM_SONGS.join(","),
       loop: 1,
     };
     if (location.protocol !== "file:") vars.origin = location.origin;
     this.player = new YT.Player("youtube-player", {
-      videoId: ALBUM_SONGS[0],
+      videoId: ALBUM_QUEUE[0],
       width: 240,
       height: 135,
       playerVars: vars,
       events: {
         onReady: () => {
           this.ready = true;
+          this.player.cuePlaylist(ALBUM_QUEUE, 0, 0);
+          this.player.setLoop(true);
           this.player.setVolume(28);
           this.player
             .getIframe()
@@ -78,6 +82,7 @@ const YouTubeGarden = {
         },
         onStateChange: (e) => {
           this.playing = e.data === 1;
+          if(e.data===5&&world.started&&this.desired&&!document.hidden&&!AudioGarden.tracks.length)this.player.playVideo();
           if (e.data === 1) {
             clearTimeout(this.timeout);
             this.failed = false;

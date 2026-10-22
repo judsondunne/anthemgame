@@ -421,6 +421,7 @@ function render() {
   ctx.globalAlpha = 1;
   let entities = [
     ...world.scenery,
+    ...(window.ClassicFarm?.renderables()??[]),
     ...world.plants.map((p) => ({
       ...p,
       type: "plant",
@@ -431,6 +432,7 @@ function render() {
       .map((b) => ({ ...b, type: "chicken", scale: 1 })),
   ].sort((a, b) => a.y - b.y);
   for (let e of entities) {
+    if(e.type==="classic"){e.draw(ctx,t);continue;}
     if (e.type === "coop") {
       shadow(e.x + 10, e.y - 5, 85 * e.scale, 24 * e.scale, night);
       drawCoop(e, t);

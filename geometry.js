@@ -1,7 +1,7 @@
 "use strict";
-// One orthographic camera for all constructed objects: yaw 28°, elevation 35°.
+// One isometric orthographic camera: ground axes project at +30° and −30°.
 // Every vertex is [width, depth, height]; verticals stay vertical in the image.
-const Camera3D = { yaw: (28 * Math.PI) / 180, elevation: (35 * Math.PI) / 180 };
+const Camera3D = { yaw: Math.PI / 4, elevation: Math.atan(1 / Math.sqrt(2)) };
 Object.assign(Camera3D, {
   xx: Math.cos(Camera3D.yaw),
   xy: Math.sin(Camera3D.yaw) * Math.sin(Camera3D.elevation),
@@ -358,8 +358,8 @@ function cottage3(c, lit = false) {
       );
   }
 }
-S.house = modelSprite(420, 350, { x: 155, y: 310 }, (c) => cottage3(c));
-S.houseNight = modelSprite(420, 350, { x: 155, y: 310 }, (c) =>
+S.house = modelSprite(420, 390, { x: 155, y: 310 }, (c) => cottage3(c));
+S.houseNight = modelSprite(420, 390, { x: 155, y: 310 }, (c) =>
   cottage3(c, true),
 );
 S.house.lantern = project3(73, -23, 76);
@@ -397,7 +397,7 @@ S.bed = modelSprite(260, 150, { x: 90, y: 112 }, (c) => {
     line3(c, [-80, z, 12.3], [80, z, 12.3], "#b19a706b", 1.2);
   line3(c, [-90, 0, 12], [90, 0, 12], "#dcca9c", 2);
 });
-S.fence = modelSprite(235, 130, { x: 105, y: 110 }, (c) => {
+S.fence = modelSprite(235, 170, { x: 105, y: 110 }, (c) => {
   for (let x = -110; x <= 110; x += 22) {
     box3(c, x - 2.5, x + 2.5, -1, 3, 0, 53, ["#dfd6ba", "#afb69b", "#ece3c6"]);
     face3(
@@ -414,7 +414,7 @@ S.fence = modelSprite(235, 130, { x: 105, y: 110 }, (c) => {
     box3(c, -114, 114, -3, -0.5, h, h + 4, ["#c5c4a5", "#a0b296", "#dfd7b9"]);
 });
 // A modest cedar coop, with an open front so each sleeping bird stays visible.
-S.coop = modelSprite(250, 205, { x: 112, y: 175 }, (c) => {
+S.coop = modelSprite(280, 240, { x: 120, y: 190 }, (c) => {
   const half = 83,
     depth = 103;
   box3(c, -87, 87, -4, 106, 0, 9, ["#a49e81", "#89967d", "#c7b58d"]);

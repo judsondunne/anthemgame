@@ -193,4 +193,4 @@ function updateGardenCursor(){
 
 Farm.init();
 
-window.ClassicHost={world,Farm,S,canvas,ctx,get view(){return view;},blit,ellipse,path,line,burst,updateAmbient,feedFish,inPond,shadow};
+window.ClassicHost={world,Farm,S,canvas,ctx,get view(){return view;},project3,box3,face3,line3,blit,ellipse,path,line,burst,updateAmbient,feedFish,inPond,shadow};

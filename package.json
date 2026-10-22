@@ -7,7 +7,8 @@
     "test": "node --test tests/animals.test.js tests/crops.test.js tests/economy.test.js tests/fences.test.js tests/inventory.test.js tests/predators.test.js tests/save.test.js tests/server.test.js tests/shelter.test.js tests/pause.test.js tests/encounter.test.js tests/wildlife.test.js tests/balance.test.js tests/water-movement.test.js",
     "test:browser": "node scripts/classic-browser-test.cjs",
     "dev": "python3 -m http.server 8093",
-    "test:storage": "node scripts/classic-storage-test.cjs"
+    "test:storage": "node scripts/classic-storage-test.cjs",
+    "test:visual": "node scripts/classic-perspective-music-test.cjs"
   },
   "keywords": [],
   "author": "",

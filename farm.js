@@ -12,7 +12,7 @@ const Farm = {
   },
   barn(kind){
     const stable=kind==='horse',wood=stable?'#bba584':'#b69680';
-    return modelSprite(360,290,{x:165,y:248},c=>{
+    return modelSprite(360,320,{x:165,y:248},c=>{
       // Shared camera, complete roof planes, timber foundation and open stalls.
       box3(c,-112,112,-3,96,0,7,['#b9b79a','#929b81','#d4cfad']);
       box3(c,-108,108,0,91,7,112,[wood,shade(wood,-20),wood]);
@@ -167,7 +167,7 @@ const Farm = {
       for(const [x,y,s] of [[left+25,510,.65],[right-15,515,.65],[p.kind==='cow'?left+30:right-30,840,.6]]){shadow(x,y,28*s,8*s,night);blit(S.tree,x,y,s);}
       this.fence(left,right,550);
       if(!window.ClassicFarm){shadow(p.barn,545,115,24,night);blit(this.barns[p.kind],p.barn,545,1);}
-      for(const a of this.animals.filter(a=>a.kind===p.kind).sort((a,b)=>a.y-b.y)){
+      for(const a of (window.ClassicFarm?[]:this.animals.filter(a=>a.kind===p.kind)).sort((a,b)=>a.y-b.y)){
         if(a.sheltered){
           const index=this.animals.filter(b=>b.kind===p.kind).indexOf(a);
           ctx.save();ctx.translate(p.barn,545);

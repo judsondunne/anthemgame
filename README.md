@@ -1,10 +1,10 @@
 # Chicken Garden
 
-The original October 20 illustrated Canvas garden, with the full farm economy and night gameplay. No WebGL or Three.js runtime is loaded.
+The original October 20 illustrated Canvas garden, with the full farm economy and night gameplay. No WebGL or Three.js runtime is loaded. Buildings, beds, and planting rows share a true isometric orthographic camera: 45° yaw, 35.264° elevation, and ground edges at ±30°. Added homes use a single consistent world scale and share depth ordering with livestock.
 
 ## Play locally
 
-Run `npm run dev`, then open http://localhost:8093. Native JavaScript modules require an HTTP server. All artwork is generated locally. Streaming music needs an internet connection; the garden also has original synthesized audio.
+Run `npm run dev`, then open http://localhost:8093. Native JavaScript modules require an HTTP server. All artwork is generated locally. The album starts with a random track on each visit, then plays a shuffled queue of all 13 tracks without repeating the previous visit’s opening song. Streaming music needs an internet connection; the garden also has original synthesized audio.
 
 ## Playing
 
@@ -25,5 +25,7 @@ The schema migrates existing newer farm saves. Offline catch-up is capped and do
 ## Verification and deployment
 
 `npm test` checks the simulation, progression balance, inventory, fences, shelter, predators, persistence formats, server behavior, pause, and water movement. `npm run test:browser` runs the actual illustrated game through planting, watering, harvesting, selling, building, buying livestock, inventory, flashlight encounters, pausing, reloads, and mobile market controls (requires Playwright/Chrome and the local server).
+
+`npm run test:storage` checks real browser shutdown/restart and corrupt-save recovery. `npm run test:visual` verifies the isometric axes, model scale, depth ordering, and shuffled album queue, and captures desktop/mobile screenshots.
 
 Deploy the static root and serverless API with `vercel --prod`. The original 3D rebuild remains backed up on the GitHub branches `codex/cozy-world-quality-update`, `codex/living-world-nightfall`, and `codex/three-garden-rebuild`.
