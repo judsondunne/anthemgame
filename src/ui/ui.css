@@ -52,7 +52,7 @@ svg, .item-icon { display: block; width: 100%; height: 100%; flex: none; }
 /* The pack keeps all 64 inventory positions and a separate hotbar below it. */
 #inventory-veil, #shopveil { position: fixed; inset: 0; background: #22372c55; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
 #inventory-veil { z-index: 23; }
-#backpack { position: fixed; z-index: 24; left: 50%; top: calc(var(--safe-top) + 60px); bottom: calc(var(--safe-bottom) + var(--toolbar-height) + 16px); transform: translateX(-50%); width: min(554px, calc(100vw - 24px)); max-height: 626px; height: fit-content; overflow: auto; padding: 16px; border-radius: var(--radius-large); background: var(--surface); }
+#backpack { position: fixed; z-index: 24; left: 50%; top: calc(var(--safe-top) + 60px); bottom: calc(var(--safe-bottom) + var(--toolbar-height) + 16px); transform: translateX(-50%); width: min(554px, calc(100vw - 24px)); max-height: min(626px, calc(100dvh - var(--safe-top) - 60px - var(--safe-bottom) - var(--toolbar-height) - 16px)); height: fit-content; overflow: auto; padding: 16px; border-radius: var(--radius-large); background: var(--surface); }
 .backpack-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; height: 44px; }
 .backpack-head .ico { width: 36px; height: 36px; }
 .backpack-head .roundbtn { margin-left: auto; }
@@ -112,8 +112,8 @@ svg, .item-icon { display: block; width: 100%; height: 100%; flex: none; }
 .lockmark .ico { width: 42px; height: 42px; filter: drop-shadow(0 3px 3px #523e3233); }
 .lockmark .ico + .ico { width: 34px; height: 34px; margin: 15px 0 0 -8px; }
 .tile .all { position: absolute; top: 3px; right: 3px; width: 42px; height: 42px; border: 0; padding: 7px; border-radius: 14px; background: #fff0c8db; box-shadow: inset 0 1px 0 #fff9e5, 0 2px 5px #705c301a; }
-.empty { display: grid; place-items: center; min-height: 220px; opacity: .38; }
-.empty .ico { width: 100px; height: 100px; }
+.shopbody > .empty { display: grid; place-items: center; min-height: 220px; opacity: .38; }
+.shopbody > .empty .ico { width: 100px; height: 100px; }
 .crop-yield { position: absolute; top: 5px; right: 5px; display: flex; align-items: center; gap: 1px; padding: 2px 4px; border-radius: 7px; background: #e0ebcf; color: #60764e; font-size: 9px; font-weight: 750; }
 .crop-yield > span { width: 12px; height: 12px; }
 .maturity { position: absolute; bottom: 5px; left: 8px; display: flex; align-items: center; gap: 4px; color: #99866a; font-size: 10px; }
@@ -304,3 +304,6 @@ body.wolf-lunge #hud, body.wolf-lunge #toolbar, body.wolf-lunge #tutorial, body.
 }
 body:after { content: ''; position: fixed; z-index: 8; inset: 0; pointer-events: none; opacity: 0; background: linear-gradient(#5daca534, #2f727d4d); box-shadow: inset 0 0 90px #225b6c38; mix-blend-mode: soft-light; transition: opacity .35s var(--ease); }
 body.underwater:after { opacity: 1; }
+@media (pointer: coarse) {
+  .first-person #fence-controls { bottom: calc(var(--above-toolbar) + 116px); }
+}

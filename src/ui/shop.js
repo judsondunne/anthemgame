@@ -178,7 +178,7 @@ export function createShop({ game, hud, juice, audio, onKit }) {
     t.dataset.key = entry.key;
     t.setAttribute("role", "button");
     t.tabIndex = 0;
-    t.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sell(t, entry.key, quantity); } };
+    t.onkeydown = (e) => { if (e.target !== t) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sell(t, entry.key, quantity); } };
     t.setAttribute("aria-label", entry.key);
     t.innerHTML = `<div class="art">${itemIcon(entry.key)}${entry.sex ? `<span class="sex">${entry.sex === "f" ? ICONS.female : ICONS.male}</span>` : ""}</div><div class="price"><span class="ico">${ICONS.coin}</span><span class="n"></span><span class="trend"></span></div><span class="count"></span><button class="all" aria-label="Sell all">${ICONS.all}</button>`;
     t.onclick = (e) => {

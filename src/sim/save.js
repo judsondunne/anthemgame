@@ -4,6 +4,7 @@ import { SPECIES, CROPS, KITS, BUILDING_TYPES, SEEDS, FEEDS, GOODS } from "./cat
 import { createState, SCHEMA_VERSION } from "./sim.js";
 import { initializeInventory, syncInventory, SLOT_COUNT } from './inventory.js';
 import { dayIndex, isNightAt } from './clock.js';
+import { checkPlacement, zoneCells, footprintCenter, footprintOf } from './layout.js';
 
 export { SCHEMA_VERSION };
 const ITEM_KEYS = new Set([...SEEDS, ...FEEDS, ...GOODS, ...KITS, 'fence', 'gate']);
@@ -64,9 +65,24 @@ function fromV2(doc) {
 }
 function fromV3(doc) {
   const open = !isNightAt(Number(doc.time) || 0);
+  const buildings = (doc.buildings || []).map(b => ({ ...b }));
+  const farm = { ...doc, buildings };
+  // Earlier placement packed a coop door directly against another solid coop.
+  // Move only those invalid legacy footprints to their nearest usable grid spot.
+  for (const b of buildings.filter(b => b.type === 'coop')) {
+    const clear = { ...farm, buildings: buildings.filter(q => q !== b) };
+    if (checkPlacement(clear, 'coop', b.gx, b.gy).ok) continue;
+    const center = footprintCenter(b.gx, b.gy, ...footprintOf('coop'));
+    const options = zoneCells('coop').sort((a, c) => {
+      const p = footprintCenter(a.gx, a.gy, ...footprintOf('coop')), q = footprintCenter(c.gx, c.gy, ...footprintOf('coop'));
+      return Math.hypot(p.x-center.x,(p.y-center.y)*1.65)-Math.hypot(q.x-center.x,(q.y-center.y)*1.65);
+    });
+    const spot = options.find(c => checkPlacement(clear, 'coop', c.gx, c.gy).ok);
+    if (spot) { b.gx = spot.gx; b.gy = spot.gy; }
+  }
   const coops = { base: { doorOpen: open, doorProgress: open ? 1 : 0 } };
-  for (const b of doc.buildings || []) if (b.type === 'coop') coops[String(b.id)] = { doorOpen: open, doorProgress: open ? 1 : 0 };
-  return { ...doc, schemaVersion: 4, coops, predatorSchedule: { ...doc.predatorSchedule, lastBearNight: doc.predatorSchedule?.lastNight ?? dayIndex(Number(doc.time) || 0) } };
+  for (const b of buildings) if (b.type === 'coop') coops[String(b.id)] = { doorOpen: open, doorProgress: open ? 1 : 0 };
+  return { ...doc, schemaVersion: 4, buildings, coops, predatorSchedule: { ...doc.predatorSchedule, lastBearNight: doc.predatorSchedule?.lastNight ?? dayIndex(Number(doc.time) || 0) } };
 }
 const MIGRATIONS = { 0: fromV0, 1: fromV1, 2: fromV2, 3: fromV3 };
 

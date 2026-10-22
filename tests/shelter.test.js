@@ -40,3 +40,21 @@ test('schema three migrates indoor residents and opens doors at dawn without los
  assert.equal(back.state.animals[0].indoors,true);assert.equal(S.coopState(back.state).doorOpen,false);
  assert.deepEqual(S.toDoc(S.loadText(S.serialize(back.state)).state),S.toDoc(back.state));
 });
+
+test('all sixteen housed hens reach their own roosts and every coop closes',()=>{
+ const s=fresh();s.money=1e6;
+ for(let i=0;i<2;i++){const at=S.layout.bestSpot(s,'coop');assert.ok(at);S.buy(s,'kit_coop');assert.ok(S.place(s,'kit_coop',at.gx,at.gy).ok);}
+ while(S.buy(s,'animal_chicken_f').ok){}
+ s.time=S.clock.nextTimeAtHour(0,18);S.tick(s,120);
+ assert.equal(s.animals.length,16);assert.ok(s.animals.every(a=>a.indoors));
+ assert.ok(Object.values(s.coops).every(c=>!c.doorOpen&&c.doorProgress===0));
+});
+
+test('legacy coop whose door was packed against the starter coop moves to a usable nearby slot',()=>{
+ const s=fresh();s.buildings.push({id:s.nextId++,type:'coop',gx:6,gy:26});
+ const doc=S.toDoc(s);doc.schemaVersion=3;delete doc.coops;
+ const back=S.loadObject(doc);assert.ok(back.ok);assert.equal(back.state.buildings.length,1);assert.equal(back.state.money,s.money);
+ const b=back.state.buildings[0];assert.ok(b.gx!==6||b.gy!==26);
+ assert.ok(S.layout.checkPlacement({...back.state,buildings:[]},'coop',b.gx,b.gy).ok);
+ assert.deepEqual(S.toDoc(S.loadText(S.serialize(back.state)).state),S.toDoc(back.state));
+});

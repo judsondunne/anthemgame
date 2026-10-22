@@ -50,6 +50,9 @@ export function createCottage(lanterns = []) {
     return o;
   }
   // Narrow original planks form a detailed, continuous timber floor.
+  // The downloaded solid floor module backs the separate decorative planks so
+  // their authored slat gaps never reveal outdoor grass inside the rooms.
+  put('interior-floorFull',0,floorY-.08,-depth/2,half*2,.04,depth,0,shell,'#a99472');
   for(let x=-half+.52;x<half;x+=1.03)for(let z=-depth+.45;z<.05;z+=.9)put('planks',x,floorY-.06,z,1.035,.06,.905);
   // Each wall is an original bevelled timber/plaster kit module.
   for(const side of [-1,1])for(let i=0;i<3;i++){
@@ -72,6 +75,7 @@ export function createCottage(lanterns = []) {
   // Steep gable, original dormers, veranda and timber trim suggest a small
   // Victorian cottage using the established stylized architectural family.
   put('roof-gable-detail',0,floorY+wallHeight-.03,-depth/2,half*2+.65,2.15,depth+.55,0,roof,'#91a499');
+  put('interior-floorFull',0,floorY+wallHeight-.05,-depth/2,half*2,.08,depth,0,roof,'#e4dcc5');
   for(const side of [-1,1])put('roof-window',side*1.45,floorY+wallHeight+.55,-1.14,.82,.95,.85,Math.PI/2,roof);
   put('chimney',-1.65,floorY+wallHeight+1.1,-4.25,.58,1.65,.72,0,roof);
   for(const x of [-half,half])for(const z of [-depth,.02])put('pillar-wood',x,floorY-.08,z,.15,wallHeight+.15,.15);

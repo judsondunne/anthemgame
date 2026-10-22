@@ -7,6 +7,18 @@ import { isNightAt, hourAt } from './clock.js';
 
 const keyOf = id => id == null ? 'base' : String(id);
 const distance = (a, b) => Math.hypot(a.x - b.x, (a.y - b.y) * 1.65);
+const occupancyCache = new WeakMap();
+
+function slotsFor(s, homes) {
+  let slots = occupancyCache.get(homes);
+  if (slots) return slots;
+  slots = new Map(); const counts = new Map();
+  for (const a of s.animals.filter(a => a.sp === 'chicken' && a.state === 'alive').sort((a,b)=>a.id-b.id)) {
+    const key = homes.get(a.id)?.id ?? null, slot = counts.get(key) ?? 0;
+    slots.set(a.id, slot); counts.set(key, slot + 1);
+  }
+  occupancyCache.set(homes, slots); return slots;
+}
 
 export function coopState(s, id = null) {
   s.coops ??= {};
@@ -17,8 +29,7 @@ export function coopFor(s, a, homes = housing(s).homes) {
   const b = homes.get(a.id), placed = b?.type === 'coop';
   const f = placed ? frontOf(b) : BASE_COOP;
   const id = placed ? b.id : null;
-  const residents = s.animals.filter(q => q.sp === 'chicken' && q.state === 'alive' && (homes.get(q.id)?.id ?? null) === id).sort((p, q) => p.id - q.id);
-  const slot = residents.findIndex(q => q.id === a.id);
+  const slot = slotsFor(s, homes).get(a.id) ?? -1;
   const capacity = placed ? B.buildings.coop.capacity.chicken : B.species.chicken.baseCapacity;
   return {
     id, x: f.x, y: f.y,
@@ -104,7 +115,7 @@ export function stepShelter(s, a, h, homes) {
     return true;
   }
   const roost = coopRoost(c);
-  if (a.indoors) { a.sleeping = true; return true; }
+  if (a.indoors) { a.x = roost.x; a.y = roost.y; a.sleeping = true; return true; }
   if (!coopState(s, c.id).doorOpen && a.enteringCoop) return true;
   if (!a.enteringCoop && distance(a, c.door) < B.coop.doorRadius) a.enteringCoop = true;
   const target = a.enteringCoop ? roost : Math.abs(a.x - c.door.x) > B.coop.doorHalfWidth ? { x: c.door.x, y: c.rect.y1 + B.coop.doorRadius } : c.door;

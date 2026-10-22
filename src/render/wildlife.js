@@ -23,7 +23,7 @@ export function createWildlife({scene,cameraControl,world,game,getQuality=()=> '
     return true;
   }
   // Recover seeded spawn points that land on a trunk, rock or player pen.
-  for(const a of state.animals)if(!canMove(a,a.x,a.z))for(let ring=1;ring<12;ring++){let found=false;for(let i=0;i<12;i++){const x=a.home.x+Math.cos(i*Math.PI/6)*ring,z=a.home.z+Math.sin(i*Math.PI/6)*ring;if(canMove(a,x,z)){a.x=x;a.z=z;a.home={x,z};found=true;break;}}if(found)break;}
+  for(const a of state.animals)if(!canMove(a,a.x,a.z))for(let ring=1;ring<12;ring++){let found=false;for(let i=0;i<12;i++){const x=a.home.x+Math.cos(i*Math.PI/6)*ring,z=a.home.z+Math.sin(i*Math.PI/6)*ring;if(canMove({...a,x,z},x,z)){a.x=x;a.z=z;a.home={x,z};found=true;break;}}if(found)break;}
   function update(dt){
     accumulator+=dt;if(accumulator<1/B.wildlife.activeHz&&dt>0)return;
     const step=accumulator;accumulator=0;elapsed+=step;

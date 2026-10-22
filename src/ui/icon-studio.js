@@ -1,5 +1,5 @@
-// Startup-only studio photography of the downloaded farm assets. Reuses the
-// game's renderer and GPU context, then releases its render target. No object
+// Startup-only studio photography of the downloaded farm assets. Uses a
+// temporary transparent canvas, then releases its renderer. No object
 // topology is generated here; composition is limited to downloaded models.
 import * as THREE from 'three';
 import { model, ownMaterials } from '../../assets.js';
@@ -12,7 +12,7 @@ const cropAsset = {
   cabbage: 'cabbage', sunflower: 'flower_yellowC', lavender: 'flower_purpleB',
 };
 
-export async function initializeItemIcons(renderer) {
+export async function initializeItemIcons(gameRenderer) {
   const pixels = Math.max(B.ui.iconPixels, Math.round(B.ui.iconLogicalPixels * Math.min(devicePixelRatio || 1, B.ui.iconDprMax)));
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, .01, 100);
@@ -22,28 +22,31 @@ export async function initializeItemIcons(renderer) {
   const fill = new THREE.DirectionalLight('#d4e9e1', 1.8);
   fill.position.set(4, 2, -3);
   scene.add(key, fill);
-  const target = new THREE.WebGLRenderTarget(pixels, pixels, { depthBuffer: true, stencilBuffer: false });
-  target.samples = Math.min(4, renderer.capabilities.maxSamples);
-  target.texture.colorSpace = THREE.SRGBColorSpace;
-  const old = {
-    target: renderer.getRenderTarget(), viewport: renderer.getViewport(new THREE.Vector4()),
-    scissor: renderer.getScissor(new THREE.Vector4()), scissorTest: renderer.getScissorTest(),
-    clear: renderer.getClearColor(new THREE.Color()), alpha: renderer.getClearAlpha(),
-    autoClear: renderer.autoClear, exposure: renderer.toneMappingExposure,
-  };
+  // A dedicated transparent default framebuffer can be copied directly into
+  // Canvas2D. This avoids synchronous WebGL pixel reads and their GPU stalls.
+  // It stays tiny and is disposed before the main scene starts rendering.
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(1);
+  renderer.setSize(pixels, pixels, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = gameRenderer.toneMapping;
+  renderer.toneMappingExposure = 1;
+  renderer.setClearColor(0, 0);
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = pixels;
   const context = canvas.getContext('2d');
   const cursor = document.createElement('canvas');
   cursor.width = cursor.height = 48;
   const cursorContext = cursor.getContext('2d');
-  const bytes = new Uint8Array(pixels * pixels * 4);
-  const image = context.createImageData(pixels, pixels);
   const entries = {};
   const snapshots = new Map();
 
   function make(key) {
-    if (key.startsWith('kit_') && key !== 'kit_bed') return BUILDINGS[key.slice(4)]();
+    if (key.startsWith('kit_') && key !== 'kit_bed') {
+      const building = BUILDINGS[key.slice(4)]();
+      ownMaterials(building);
+      return building;
+    }
     let name = key === 'kit_bed' ? 'crops_dirtDoubleRow' : key === 'hay' ? 'hay-bale'
       : key === 'milk' ? 'carton-small' : key === 'fence' ? 'fence_simple' : key === 'gate' ? 'fence-gate'
       : key === 'can' ? 'watering-can' : key === 'flashlight' ? 'hand-flashlight' : key === 'fish' ? 'bowl-cereal'
@@ -83,12 +86,10 @@ export async function initializeItemIcons(renderer) {
     camera.left = camera.bottom = -half;
     camera.right = camera.top = half;
     camera.updateProjectionMatrix();
-    renderer.setRenderTarget(target);
     renderer.clear();
     renderer.render(scene, camera);
-    await renderer.readRenderTargetPixelsAsync(target, 0, 0, pixels, pixels, bytes);
-    for (let y = 0; y < pixels; y++) image.data.set(bytes.subarray((pixels - y - 1) * pixels * 4, (pixels - y) * pixels * 4), y * pixels * 4);
-    context.putImageData(image, 0, 0);
+    context.clearRect(0, 0, pixels, pixels);
+    context.drawImage(renderer.domElement, 0, 0, pixels, pixels);
     // Crop and species seals distinguish seed packets and feed sacks without
     // letters. Their miniature is itself a photograph from this same studio.
     const sealKey = key.startsWith('seed_') ? key.slice(5) : key === 'feed_chicken' ? 'animal_chicken_f' : key === 'feed_cow' ? 'animal_cow_f' : key === 'feed_horse' ? 'animal_horse_f' : null;
@@ -119,22 +120,13 @@ export async function initializeItemIcons(renderer) {
   }
 
   try {
-    renderer.autoClear = true;
-    renderer.setScissorTest(false);
-    renderer.setClearColor(0, 0);
-    renderer.toneMappingExposure = 1;
     const keys = [...Object.keys(cropAsset), 'egg', 'milk', 'hay', 'animal_chicken_f', 'animal_chicken_m', 'animal_cow_f', 'animal_cow_m', 'animal_horse_f', 'animal_horse_m', ...Object.keys(cropAsset).map(k => 'seed_' + k), 'feed_chicken', 'feed_cow', 'feed_horse', 'kit_bed', 'kit_coop', 'kit_barn', 'kit_stable', 'fence', 'gate', 'can', 'fish', 'flashlight'];
     for (const key of keys) await photograph(key);
     registerItemIcons(entries);
   } finally {
-    target.dispose(); snapshots.clear();
-    renderer.setRenderTarget(old.target);
-    renderer.setViewport(old.viewport);
-    renderer.setScissor(old.scissor);
-    renderer.setScissorTest(old.scissorTest);
-    renderer.setClearColor(old.clear, old.alpha);
-    renderer.autoClear = old.autoClear;
-    renderer.toneMappingExposure = old.exposure;
+    snapshots.clear();
+    renderer.dispose();
+    renderer.domElement.width = renderer.domElement.height = 1;
   }
   return { count: Object.keys(entries).length, pixels };
 }
